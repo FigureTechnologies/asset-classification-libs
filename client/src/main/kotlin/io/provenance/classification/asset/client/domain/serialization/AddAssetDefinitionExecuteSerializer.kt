@@ -5,6 +5,23 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import io.provenance.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 
+/**
+ * The AddAssetDefinitionExecute JSON structure is impossible to represent with vanilla Jackson annotation setups.  This
+ * serializer enables the object to be serialized correctly with its multiple-nested nodes without enabling special
+ * ObjectMapper features, allowing the object to be more universally applicable to external ObjectMapper singleton
+ * instances.
+ *
+ * This serializer outputs the values in the following format:
+ * ```json
+ * {
+ *      "add_asset_definition": {
+ *          "asset_definition": {
+ *              ...
+ *          }
+ *      }
+ * }
+ * ```
+ */
 class AddAssetDefinitionExecuteSerializer : JsonSerializer<AddAssetDefinitionExecute<*>>() {
     override fun serialize(value: AddAssetDefinitionExecute<*>, gen: JsonGenerator, provider: SerializerProvider?) {
         // Root node
