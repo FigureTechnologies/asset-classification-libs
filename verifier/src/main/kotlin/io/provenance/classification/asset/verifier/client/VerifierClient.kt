@@ -4,6 +4,7 @@ import cosmos.auth.v1beta1.Auth.BaseAccount
 import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
 import io.provenance.classification.asset.client.client.base.BroadcastOptions
 import io.provenance.classification.asset.client.domain.execute.VerifyAssetExecute
+import io.provenance.classification.asset.client.domain.model.AssetIdentifier
 import io.provenance.classification.asset.util.extensions.alsoIfAc
 import io.provenance.classification.asset.util.extensions.toProvenanceTxEventsAc
 import io.provenance.classification.asset.util.wallet.AccountSigner
@@ -176,8 +177,8 @@ class VerifierClient(private val config: VerifierClientConfig) {
                 try {
                     val response = try {
                         config.acClient.verifyAsset(
-                            execute = VerifyAssetExecute.withScopeAddress(
-                                scopeAddress = message.scopeAttribute.scopeAddress,
+                            execute = VerifyAssetExecute(
+                                identifier = AssetIdentifier.ScopeAddress(message.scopeAttribute.scopeAddress),
                                 success = message.verification.success,
                                 message = message.verification.message,
                                 accessRoutes = message.verification.accessRoutes,

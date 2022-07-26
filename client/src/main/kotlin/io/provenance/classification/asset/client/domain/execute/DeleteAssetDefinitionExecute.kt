@@ -1,5 +1,7 @@
 package io.provenance.classification.asset.client.domain.execute
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.provenance.classification.asset.client.domain.execute.base.ContractExecute
@@ -13,36 +15,16 @@ import io.provenance.classification.asset.client.domain.model.AssetQualifier
  *
  * Sample usage:
  * ```kotlin
- * val deleteByTypeExecute = DeleteAssetDefinitionExecute.forAssetType(assetType)
+ * val deleteByTypeExecute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("heloc"))
  * val txResponse = acClient.deleteAssetDefinition(deleteByTypeExecute, signer, options)
  *
- * val deleteByScopeSpecExecute = DeleteAssetDefinitionExecute.forScopeSpecAddress(scopeSpecAddress)
+ * val deleteByScopeSpecExecute = DeleteAssetDefinitionExecute(AssetQualifier.ScopeSpecAddress("scopespec1q3qmhkgypn7prmvg8shhslufxhxqlefpnh"))
  * val txResponse = acClient.deleteAssetDefinition(deleteByScopeSpecExecute, signer, options)
  * ```
- */
-@JsonNaming(SnakeCaseStrategy::class)
-class DeleteAssetDefinitionExecute internal constructor(val deleteAssetDefinition: DeleteAssetDefinitionBody) :
-    ContractExecute {
-    companion object {
-        fun forAssetType(assetType: String): DeleteAssetDefinitionExecute = DeleteAssetDefinitionExecute(
-            deleteAssetDefinition = DeleteAssetDefinitionBody(
-                qualifier = AssetQualifier.AssetType(assetType),
-            )
-        )
-
-        fun forScopeSpecAddress(scopeSpecAddress: String): DeleteAssetDefinitionExecute = DeleteAssetDefinitionExecute(
-            deleteAssetDefinition = DeleteAssetDefinitionBody(
-                qualifier = AssetQualifier.ScopeSpecAddress(scopeSpecAddress),
-            )
-        )
-    }
-}
-
-/**
- * The body inside the contract execute payload.  This exists as a separate class to ensure that jackson correctly maps
- * the payload for the contract's format specifications.
  *
  * @param qualifier The asset qualifier used to identify the asset definition to delete.
  */
 @JsonNaming(SnakeCaseStrategy::class)
-data class DeleteAssetDefinitionBody(val qualifier: AssetQualifier)
+@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
+@JsonTypeName("delete_asset_definition")
+data class DeleteAssetDefinitionExecute(val qualifier: AssetQualifier) : ContractExecute

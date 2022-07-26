@@ -5,9 +5,10 @@ import cosmwasm.wasm.v1.Tx
 import cosmwasm.wasm.v1.Types
 import io.provenance.classification.asset.client.client.base.ACClient
 import io.provenance.classification.asset.client.client.base.ContractIdentifier
-import io.provenance.classification.asset.client.domain.execute.AssetDefinitionExecute
+import io.provenance.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import io.provenance.classification.asset.client.domain.execute.BindContractAliasExecute
 import io.provenance.classification.asset.client.domain.model.EntityDetail
+import io.provenance.classification.asset.client.domain.model.ScopeSpecIdentifier
 import io.provenance.classification.asset.client.domain.model.VerifierDetail
 import io.provenance.classification.asset.localtools.extensions.broadcastTxAc
 import io.provenance.classification.asset.localtools.extensions.checkNotNullAc
@@ -129,7 +130,7 @@ object SetupACTool {
             config.contractAliasNames.map { alias ->
                 config.logger("Generating restricted contract lookup alias [$alias] using contract admin address [${config.contractAdminAccount.bech32Address}]")
                 acClient.generateBindContractAliasMsg(
-                    execute = BindContractAliasExecute.new(alias),
+                    execute = BindContractAliasExecute(alias),
                     signerAddress = config.contractAdminAccount.bech32Address,
                 )
             }.let { aliasMessages ->
@@ -150,9 +151,9 @@ object SetupACTool {
                 contractIdentifier = ContractIdentifier.Address(contractAddress),
                 pbClient = config.pbClient,
             ).generateAddAssetDefinitionMsg(
-                execute = AssetDefinitionExecute.withScopeSpecUuid(
-                    scopeSpecUuid = specification.scopeSpecConfig.id,
+                execute = AddAssetDefinitionExecute(
                     assetType = specType,
+                    scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(specification.scopeSpecConfig.id),
                     verifiers = VerifierDetail.new(
                         address = config.verifierBech32Address,
                         onboardingCost = "100000".toBigDecimal(),
@@ -165,8 +166,9 @@ object SetupACTool {
                             sourceUrl = "https://github.com/provenance-io/asset-classification-libs",
                         )
                     ).wrapListAc(),
+                    enabled = true,
                     bindName = false,
-                ).toAdd(),
+                ),
                 signerAddress = config.contractAdminAccount.bech32Address,
             )
             config.logger("Generating bind name message of type [$specType.asset] to contract address [$contractAddress] for future attribute writes")

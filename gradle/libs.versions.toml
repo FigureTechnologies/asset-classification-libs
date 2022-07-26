@@ -7,15 +7,19 @@ jackson = "2.13.3"
 jacksonProtobuf = "0.9.12"
 kotlin = "1.6.21"
 kotlinCoroutines = "1.6.2"
+kotlinLogging = "2.1.21"
+logback = "1.2.6"
 mockk = "1.12.4"
 okHttp = "4.9.3"
 protobuf = "3.21.1"
 provenanceClient = "1.1.1"
 provenanceEventStream = "0.6.3"
+provenanceGateway = "2.0.2"
 provenanceHdWallet = "0.1.15"
 provenanceProto = "1.10.0"
 provenanceScope = "0.6.0"
 scarlet = "0.1.12"
+testContainers = "1.17.2"
 
 [libraries]
 assetSpecs = { module = "io.provenance.spec:asset-specs", version.ref = "assetSpec" }
@@ -34,25 +38,33 @@ jacksonDataTypeJsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datat
 jacksonKotlinModule = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jacksonProtobufModule = { module = "com.hubspot.jackson:jackson-datatype-protobuf", version.ref = "jacksonProtobuf" }
 kotlinAllOpen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
+kotlinLogging = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlinLogging" }
 kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinStdLibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 okHttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okHttp" }
 protobufJava = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 protobufJavaUtil = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
 provenanceEventStreamApi = { module = "io.provenance.eventstream:es-api", version.ref = "provenanceEventStream" }
 provenanceEventStreamApiModel = { module = "io.provenance.eventstream:es-api-model", version.ref = "provenanceEventStream" }
+provenanceEventStreamCli = { module = "io.provenance.eventstream:es-cli", version.ref = "provenanceEventStream" }
 provenanceEventStreamCore = { module = "io.provenance.eventstream:es-core", version.ref = "provenanceEventStream" }
+provenanceGatewayClient = { module = "io.provenance.objectstore.gateway:client", version.ref = "provenanceGateway" }
 provenanceGrpcClient = { module = "io.provenance.client:pb-grpc-client-kotlin", version.ref = "provenanceClient" }
 provenanceHdWallet = { module = "io.provenance.hdwallet:hdwallet", version.ref = "provenanceHdWallet" }
 provenanceProto = { module = "io.provenance:proto-kotlin", version.ref = "provenanceProto" }
 provenanceScopeEncryption = { module = "io.provenance.scope:encryption", version.ref = "provenanceScope" }
+provenanceScopeOsClient = { module = "io.provenance.scope:os-client", version.ref = "provenanceScope" }
 provenanceScopeUtil = { module = "io.provenance.scope:util", version.ref = "provenanceScope" }
 scarlet = { module = "com.tinder.scarlet:scarlet", version.ref = "scarlet" }
 scarletMessageAdapterMoshi = { module = "com.tinder.scarlet:message-adapter-moshi", version.ref = "scarlet" }
 scarletStreamAdapterCoroutines = { module = "com.tinder.scarlet:stream-adapter-coroutines", version.ref = "scarlet" }
 scarletWebSocketOkHttp = { module = "com.tinder.scarlet:websocket-okhttp", version.ref = "scarlet" }
+testContainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
+testContainersJUnit = { module = "org.testcontainers:junit-jupiter", version.ref = "testContainers" }
+testContainersPostgres = { module = "org.testcontainers:postgresql", version.ref = "testContainers" }
 
 # This doesn't current work in a way that's useful.  Keeping this here for a magical future where it's relevant
 [plugins]
@@ -68,3 +80,4 @@ protobuf = ["protobufJava", "protobufJavaUtil"]
 provenance = ["provenanceGrpcClient", "provenanceHdWallet", "provenanceProto", "provenanceScopeEncryption", "provenanceScopeUtil"]
 scarlet = ["scarletMessageAdapterMoshi", "scarlet", "scarletStreamAdapterCoroutines", "scarletWebSocketOkHttp"]
 test = ["kotlinTest", "mockk"]
+testContainers = ["testContainers", "testContainersJUnit", "testContainersPostgres"]

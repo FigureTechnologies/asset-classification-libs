@@ -8,6 +8,8 @@ import io.provenance.classification.asset.client.domain.NullContractResponseExce
 import io.provenance.classification.asset.client.domain.model.ACContractState
 import io.provenance.classification.asset.client.domain.model.ACVersionInfo
 import io.provenance.classification.asset.client.domain.model.AssetDefinition
+import io.provenance.classification.asset.client.domain.model.AssetIdentifier
+import io.provenance.classification.asset.client.domain.model.AssetQualifier
 import io.provenance.classification.asset.client.domain.model.AssetScopeAttribute
 import io.provenance.classification.asset.client.domain.model.QueryAssetDefinitionsResponse
 import io.provenance.classification.asset.client.domain.query.QueryAssetDefinition
@@ -42,51 +44,51 @@ class DefaultACQuerier(
         assetType: String,
         throwExceptions: Boolean,
     ): AssetDefinition? = doQueryOrNull(
-        query = QueryAssetDefinition.byAssetType(assetType),
+        query = QueryAssetDefinition(AssetQualifier.AssetType(assetType)),
         throwExceptions = throwExceptions,
     )
 
     override fun queryAssetDefinitionByAssetType(assetType: String): AssetDefinition =
-        doQuery(QueryAssetDefinition.byAssetType(assetType))
+        doQuery(QueryAssetDefinition(AssetQualifier.AssetType(assetType)))
 
     override fun queryAssetDefinitionByScopeSpecAddressOrNull(
         scopeSpecAddress: String,
         throwExceptions: Boolean,
     ): AssetDefinition? = doQueryOrNull(
-        query = QueryAssetDefinition.byScopeSpecAddress(scopeSpecAddress),
+        query = QueryAssetDefinition(AssetQualifier.ScopeSpecAddress(scopeSpecAddress)),
         throwExceptions = throwExceptions,
     )
 
     override fun queryAssetDefinitionByScopeSpecAddress(scopeSpecAddress: String): AssetDefinition =
-        doQuery(QueryAssetDefinition.byScopeSpecAddress(scopeSpecAddress))
+        doQuery(QueryAssetDefinition(AssetQualifier.ScopeSpecAddress(scopeSpecAddress)))
 
-    override fun queryAssetDefinitions(): QueryAssetDefinitionsResponse = doQuery(QueryAssetDefinitions())
+    override fun queryAssetDefinitions(): QueryAssetDefinitionsResponse = doQuery(QueryAssetDefinitions)
 
     override fun queryAssetScopeAttributeByAssetUuidOrNull(
         assetUuid: UUID,
         throwExceptions: Boolean,
     ): AssetScopeAttribute? = doQueryOrNull(
-        query = QueryAssetScopeAttribute.byAssetUuid(assetUuid),
+        query = QueryAssetScopeAttribute(AssetIdentifier.AssetUuid(assetUuid)),
         throwExceptions = throwExceptions,
     )
 
     override fun queryAssetScopeAttributeByAssetUuid(assetUuid: UUID): AssetScopeAttribute =
-        doQuery(QueryAssetScopeAttribute.byAssetUuid(assetUuid))
+        doQuery(QueryAssetScopeAttribute(AssetIdentifier.AssetUuid(assetUuid)))
 
     override fun queryAssetScopeAttributeByScopeAddressOrNull(
         scopeAddress: String,
         throwExceptions: Boolean,
     ): AssetScopeAttribute? = doQueryOrNull(
-        query = QueryAssetScopeAttribute.byScopeAddress(scopeAddress),
+        query = QueryAssetScopeAttribute(AssetIdentifier.ScopeAddress(scopeAddress)),
         throwExceptions = throwExceptions,
     )
 
     override fun queryAssetScopeAttributeByScopeAddress(scopeAddress: String): AssetScopeAttribute =
-        doQuery(QueryAssetScopeAttribute.byScopeAddress(scopeAddress))
+        doQuery(QueryAssetScopeAttribute(AssetIdentifier.ScopeAddress(scopeAddress)))
 
-    override fun queryContractState(): ACContractState = doQuery(QueryState())
+    override fun queryContractState(): ACContractState = doQuery(QueryState)
 
-    override fun queryContractVersion(): ACVersionInfo = doQuery(QueryVersion())
+    override fun queryContractVersion(): ACVersionInfo = doQuery(QueryVersion)
 
     /**
      * Executes a provided [ContractQuery] against the Asset Classification smart contract.  This relies on the
