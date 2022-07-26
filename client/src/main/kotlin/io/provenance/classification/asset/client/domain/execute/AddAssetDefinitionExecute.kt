@@ -33,7 +33,6 @@ data class AddAssetDefinitionExecute<T>(
     val bindName: Boolean? = null,
 ) : ContractExecute
 
-
 class AddAssetDefinitionSerializer : JsonSerializer<AddAssetDefinitionExecute<*>>() {
     override fun serialize(value: AddAssetDefinitionExecute<*>, gen: JsonGenerator, provider: SerializerProvider?) {
         // Root node

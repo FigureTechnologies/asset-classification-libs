@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.provenance.classification.asset.client.domain.query.base.ContractQuery
-import io.provenance.classification.asset.client.domain.query.base.EmptyQueryBody
 
 /**
  * This class is a reflection of the request body used in the Asset Classification smart contract's query version route.

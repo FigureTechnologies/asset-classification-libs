@@ -75,10 +75,12 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
                 Tx.MsgSend.newBuilder().also { send ->
                     send.fromAddress = AppResources.assetAdminAccount.bech32Address
                     send.toAddress = account.bech32Address
-                    send.addAmount(CoinOuterClass.Coin.newBuilder().also { coin ->
-                        coin.amount = DEFAULT_NHASH_FUNDING_AMOUNT.toString()
-                        coin.denom = NHASH_DENOM
-                    })
+                    send.addAmount(
+                        CoinOuterClass.Coin.newBuilder().also { coin ->
+                            coin.amount = DEFAULT_NHASH_FUNDING_AMOUNT.toString()
+                            coin.denom = NHASH_DENOM
+                        }
+                    )
                 }.build()
             }
         pbClient.broadcastTxAc(
@@ -88,7 +90,6 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
         )
         logger.info("Successfully funded all test accounts")
     }
-
 }
 
 class ProvenanceTestContainer : GenericContainer<ProvenanceTestContainer>("provenanceio/provenance:v1.11.1") {

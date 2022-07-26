@@ -78,10 +78,10 @@ class QueriesIntTest : IntTestBase() {
             assertNotNull(
                 actual = assetDefinition,
                 message = "Expected an asset definition of type [${assetSpecification.scopeSpecConfig.name}] to exist " +
-                        "for address [$targetScopeSpecAddress] but none were found.  Available values: " +
-                        assetDefinitions.joinToString(prefix = "[", separator = ", ", postfix = "]") {
-                            "(Type: ${it.assetType} | Address: ${it.scopeSpecAddress})"
-                        }
+                    "for address [$targetScopeSpecAddress] but none were found.  Available values: " +
+                    assetDefinitions.joinToString(prefix = "[", separator = ", ", postfix = "]") {
+                        "(Type: ${it.assetType} | Address: ${it.scopeSpecAddress})"
+                    }
             )
         }
     }

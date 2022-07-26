@@ -3,10 +3,14 @@ package io.provenance.classification.asset
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.provenance.attribute.v1.QueryAttributeRequest
 import io.provenance.classification.asset.client.domain.execute.AddAssetDefinitionExecute
+import io.provenance.classification.asset.client.domain.execute.AddAssetVerifierExecute
+import io.provenance.classification.asset.client.domain.execute.BindContractAliasExecute
 import io.provenance.classification.asset.client.domain.execute.DeleteAssetDefinitionExecute
 import io.provenance.classification.asset.client.domain.execute.OnboardAssetExecute
 import io.provenance.classification.asset.client.domain.execute.ToggleAssetDefinitionExecute
+import io.provenance.classification.asset.client.domain.execute.UpdateAccessRoutesExecute
 import io.provenance.classification.asset.client.domain.execute.UpdateAssetDefinitionExecute
+import io.provenance.classification.asset.client.domain.execute.UpdateAssetVerifierExecute
 import io.provenance.classification.asset.client.domain.execute.VerifyAssetExecute
 import io.provenance.classification.asset.client.domain.model.AccessRoute
 import io.provenance.classification.asset.client.domain.model.AssetDefinition
@@ -18,6 +22,8 @@ import io.provenance.classification.asset.client.domain.model.FeeDestination
 import io.provenance.classification.asset.client.domain.model.ScopeSpecIdentifier
 import io.provenance.classification.asset.client.domain.model.VerifierDetail
 import io.provenance.classification.asset.util.extensions.wrapListAc
+import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
+import io.provenance.client.protobuf.extensions.resolveAddressForName
 import org.junit.jupiter.api.Test
 import testconfiguration.IntTestBase
 import testconfiguration.util.AppResources
@@ -202,6 +208,227 @@ class ExecuteIntTest : IntTestBase() {
                 message = "The second toggle should return the asset definition to an enabled state",
             )
         }
+    }
+
+    @Test
+    fun `test addAssetVerifier`() {
+        assertFails("Attempting to add an asset verifier to an asset definition that does not exist should fail") {
+            acClient.addAssetVerifier(
+                execute = AddAssetVerifierExecute(assetType = "notrealatall", verifier = getDefaultVerifierDetail()),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+        }
+        addTemporaryAssetDefinition("faketype") { assetDefinition ->
+            assertFails("Attempting to add a duplicate verifier should fail") {
+                acClient.addAssetVerifier(
+                    execute = AddAssetVerifierExecute(assetType = "faketype", verifier = getDefaultVerifierDetail()),
+                    signer = AppResources.contractAdminAccount.toAccountSigner(),
+                )
+            }
+            val newVerifier = VerifierDetail(
+                address = AppResources.assetAdminAccount.bech32Address,
+                onboardingCost = "250",
+                onboardingDenom = "nhash",
+                feeDestinations = emptyList(),
+            )
+            acClient.addAssetVerifier(
+                execute = AddAssetVerifierExecute(assetType = "faketype", verifier = newVerifier),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+            val definitionAfterUpdate = acClient.queryAssetDefinitionByAssetType("faketype")
+            assertEquals(
+                expected = 2,
+                actual = definitionAfterUpdate.verifiers.size,
+                message = "Expected both verifiers to exist on the asset definition after the add",
+            )
+            val originalVerifier = assetDefinition.verifiers.single()
+            assertEquals(
+                expected = originalVerifier,
+                actual = definitionAfterUpdate.verifiers.singleOrNull { it.address == originalVerifier.address },
+                message = "The original verifier should remain on the asset definition",
+            )
+            assertEquals(
+                expected = newVerifier,
+                actual = definitionAfterUpdate.verifiers.singleOrNull { it.address == newVerifier.address },
+                message = "The new verifier should be added to the asset definition",
+            )
+        }
+    }
+
+    @Test
+    fun `test updateAssetVerifier`() {
+        assertFails("Attempting to update an asset verifier for an asset definition that does not exist should fail") {
+            acClient.updateAssetVerifier(
+                execute = UpdateAssetVerifierExecute(assetType = "faketype", verifier = getDefaultVerifierDetail()),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+        }
+        addTemporaryAssetDefinition("faketype") { assetDefinition ->
+            assertFails("Attempting to update an asset verifier for a verifier detail that does not exist should fail") {
+                acClient.updateAssetVerifier(
+                    execute = UpdateAssetVerifierExecute(
+                        assetType = "faketype",
+                        verifier = VerifierDetail(
+                            address = AppResources.assetAdminAccount.bech32Address,
+                            onboardingCost = "400",
+                            onboardingDenom = "nhash",
+                        )
+                    ),
+                    signer = AppResources.contractAdminAccount.toAccountSigner(),
+                )
+            }
+            // I always mistype denom as demon so now I'm doing it on purpose because I CAN!
+            val updatedVerifier = assetDefinition.verifiers.single().copy(onboardingCost = "88383838", onboardingDenom = "demon")
+            acClient.updateAssetVerifier(
+                execute = UpdateAssetVerifierExecute(assetType = "faketype", verifier = updatedVerifier),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+            val updatedDefinition = acClient.queryAssetDefinitionByAssetType("faketype")
+            assertEquals(
+                expected = updatedVerifier,
+                actual = updatedDefinition.verifiers.singleOrNull(),
+                message = "There should be a single verifier instance after the update, but the count was [${updatedDefinition.verifiers.size}], and the single value should be equal to the sent update",
+            )
+        }
+    }
+
+    @Test
+    fun `test updateAccessRoutes`() {
+        assertFails("Attempting to update access routes for a scope attribute that does not exist should fail") {
+            acClient.updateAccessRoutes(
+                execute = UpdateAccessRoutesExecute(
+                    identifier = AssetIdentifier.AssetUuid(UUID.randomUUID()),
+                    ownerAddress = AppResources.assetOnboardingAccount.bech32Address,
+                    accessRoutes = AccessRoute("route", "name").wrapListAc(),
+                ),
+                signer = AppResources.assetOnboardingAccount.toAccountSigner()
+            )
+        }
+        val asset = invoiceOnboardingService.onboardTestAsset(ownerAccount = AppResources.assetOnboardingAccount)
+        assertFails("Attempting to update access routes for an unrelated account should fail") {
+            acClient.updateAccessRoutes(
+                execute = UpdateAccessRoutesExecute(
+                    identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
+                    ownerAddress = AppResources.assetManagerAccount.bech32Address,
+                    accessRoutes = AccessRoute("route", "name").wrapListAc()
+                ),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+        }
+        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+        val originalAccessRoutes = scopeAttribute.accessDefinitions.singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }?.accessRoutes
+        assertNotNull(
+            actual = originalAccessRoutes,
+            message = "There should be access routes specified for the asset owner after the default onboarding process",
+        )
+        assertEquals(
+            expected = 1,
+            actual = originalAccessRoutes.size,
+            message = "There should be a single access route for the owner address by default",
+        )
+        val newAccessRoutes = listOf(
+            AccessRoute("route1", "route1"),
+            AccessRoute("route2", "route2"),
+            AccessRoute("route3", "route3"),
+        )
+        acClient.updateAccessRoutes(
+            execute = UpdateAccessRoutesExecute(
+                identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
+                ownerAddress = AppResources.assetOnboardingAccount.bech32Address,
+                accessRoutes = newAccessRoutes,
+            ),
+            signer = AppResources.assetOnboardingAccount.toAccountSigner(),
+        )
+        acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+            .accessDefinitions
+            .singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }
+            ?.accessRoutes
+            ?.also { updatedAccessRoutes ->
+                assertEquals(
+                    expected = newAccessRoutes.sortedBy { it.route },
+                    actual = updatedAccessRoutes.sortedBy { it.route },
+                    message = "The updated access routes should be correctly set to the target value",
+                )
+            }
+        // The admin should also be allowed to update access routes
+        acClient.updateAccessRoutes(
+            execute = UpdateAccessRoutesExecute(
+                identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
+                ownerAddress = AppResources.assetOnboardingAccount.bech32Address,
+                accessRoutes = originalAccessRoutes,
+            ),
+            signer = AppResources.contractAdminAccount.toAccountSigner(),
+        )
+        acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+            .accessDefinitions
+            .singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }
+            ?.accessRoutes
+            ?.also { updatedAccessRoutes ->
+                assertEquals(
+                    expected = originalAccessRoutes.sortedBy { it.route },
+                    actual = updatedAccessRoutes.sortedBy { it.route },
+                    message = "The updated access routes should now be set back to the original value after the second update",
+                )
+            }
+    }
+
+    @Test
+    fun `test bindContractAlias`() {
+        val bindAnAlias: (aliasName: String, account: ProvenanceAccountDetail) -> Unit = { aliasName, account ->
+            acClient.bindContractAlias(
+                execute = BindContractAliasExecute(aliasName),
+                signer = account.toAccountSigner(),
+            )
+        }
+        assertFails("Binding a contract alias with a non-admin account should fail") {
+            bindAnAlias("testalias.pb", AppResources.assetOnboardingAccount)
+        }
+        assertFails("Binding an empty contract alias should fail") {
+            bindAnAlias("", AppResources.contractAdminAccount)
+        }
+        bindAnAlias("goodalias.pb", AppResources.contractAdminAccount)
+        assertEquals(
+            expected = acClient.queryContractAddress(),
+            actual = pbClient.nameClient.resolveAddressForName("goodalias.pb"),
+            message = "The contract alias should be bound to the contract's address correctly",
+        )
+    }
+
+    @Test
+    fun `test deleteAssetDefinition`() {
+        assertFails("Attempting to delete an asset definition that does not exist should fail") {
+            acClient.deleteAssetDefinition(
+                execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("faketype")),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+        }
+        acClient.addAssetDefinition(
+            execute = AddAssetDefinitionExecute(
+                assetType = "deleteme",
+                scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(UUID.randomUUID()),
+                verifiers = getDefaultVerifierDetail().wrapListAc(),
+                enabled = true,
+                // This test simulates how the blockchain operates - the "asset" name is restricted and
+                // owned by an external account, so attempting to bind the name via the contract will
+                // always fail.  This must explicitly be set to false to avoid errors
+                bindName = false,
+            ),
+            signer = AppResources.contractAdminAccount.toAccountSigner(),
+        )
+        assertFails("Attempting to delete an asset definition from an account that is not the admin should fail") {
+            acClient.deleteAssetDefinition(
+                execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("deleteme")),
+                signer = AppResources.assetOnboardingAccount.toAccountSigner(),
+            )
+        }
+        acClient.deleteAssetDefinition(
+            execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("deleteme")),
+            signer = AppResources.contractAdminAccount.toAccountSigner(),
+        )
+        assertNull(
+            actual = acClient.queryAssetDefinitionByAssetTypeOrNull("deleteme"),
+            message = "The asset definition should be successfully deleted",
+        )
     }
 
     private fun testProvenanceScopeAttributeEquality(scopeAttribute: AssetScopeAttribute) {

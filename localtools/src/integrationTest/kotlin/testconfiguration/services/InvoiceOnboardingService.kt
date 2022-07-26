@@ -1,14 +1,11 @@
 package testconfiguration.services
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import cosmos.tx.v1beta1.ServiceOuterClass
 import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
 import io.provenance.classification.asset.client.client.base.ACClient
 import io.provenance.classification.asset.client.domain.execute.OnboardAssetExecute
 import io.provenance.classification.asset.client.domain.model.AccessRoute
 import io.provenance.classification.asset.client.domain.model.AssetIdentifier
 import io.provenance.classification.asset.util.extensions.wrapListAc
-import io.provenance.classification.asset.util.objects.ACObjectMapperUtil
 import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
 import io.provenance.client.grpc.BaseReqSigner
 import io.provenance.client.protobuf.extensions.toAny
@@ -40,9 +37,7 @@ class InvoiceOnboardingService(
     private val acClient: ACClient,
     private val osClient: OsClient,
 ) {
-    private companion object : KLogging() {
-        private val OBJECT_MAPPER: ObjectMapper = ACObjectMapperUtil.getObjectMapper()
-    }
+    private companion object : KLogging()
 
     fun onboardTestAsset(
         assetUuid: UUID = UUID.randomUUID(),
@@ -82,10 +77,12 @@ class InvoiceOnboardingService(
             req.scopeBuilder.scopeId = scopeMetadata.bytes.toByteString()
             req.scopeBuilder.specificationId = scopeSpecMetadata.bytes.toByteString()
             req.scopeBuilder.valueOwnerAddress = ownerAccount.bech32Address
-            req.scopeBuilder.addOwners(Party.newBuilder().also { party ->
-                party.address = ownerAccount.bech32Address
-                party.role = PartyType.PARTY_TYPE_OWNER
-            })
+            req.scopeBuilder.addOwners(
+                Party.newBuilder().also { party ->
+                    party.address = ownerAccount.bech32Address
+                    party.role = PartyType.PARTY_TYPE_OWNER
+                }
+            )
             req.scopeBuilder.addAllDataAccess(
                 listOf(
                     // Ensure the asset manager is permissioned to access the scope to ensure that object store gateway can process the event
@@ -99,10 +96,12 @@ class InvoiceOnboardingService(
             req.sessionIdComponentsBuilder.sessionUuid = sessionUuid.toString()
             req.sessionBuilder.sessionId = sessionMetadata.bytes.toByteString()
             req.sessionBuilder.specificationId = contractSpecMetadata.bytes.toByteString()
-            req.sessionBuilder.addParties(Party.newBuilder().also { party ->
-                party.address = ownerAccount.bech32Address
-                party.role = PartyType.PARTY_TYPE_OWNER
-            })
+            req.sessionBuilder.addParties(
+                Party.newBuilder().also { party ->
+                    party.address = ownerAccount.bech32Address
+                    party.role = PartyType.PARTY_TYPE_OWNER
+                }
+            )
             req.sessionBuilder.auditBuilder.createdBy = ownerAccount.bech32Address
             req.sessionBuilder.auditBuilder.updatedBy = ownerAccount.bech32Address
         }.build().toAny()
@@ -114,16 +113,20 @@ class InvoiceOnboardingService(
             req.recordBuilder.sessionId = sessionMetadata.bytes.toByteString()
             req.recordBuilder.specificationId = MetadataAddress.forRecordSpecification(contractSpecMetadata.getPrimaryUuid(), assetDefinition.assetType).bytes.toByteString()
             req.recordBuilder.name = assetDefinition.assetType
-            req.recordBuilder.addInputs(RecordInput.newBuilder().also { input ->
-                input.name = recordSpecData.name
-                input.typeName = recordSpecData.typeClassname
-                input.hash = assetHash
-                input.status = RecordInputStatus.RECORD_INPUT_STATUS_PROPOSED
-            })
-            req.recordBuilder.addOutputs(RecordOutput.newBuilder().also { output ->
-                output.hash = assetHash
-                output.status = ResultStatus.RESULT_STATUS_PASS
-            })
+            req.recordBuilder.addInputs(
+                RecordInput.newBuilder().also { input ->
+                    input.name = recordSpecData.name
+                    input.typeName = recordSpecData.typeClassname
+                    input.hash = assetHash
+                    input.status = RecordInputStatus.RECORD_INPUT_STATUS_PROPOSED
+                }
+            )
+            req.recordBuilder.addOutputs(
+                RecordOutput.newBuilder().also { output ->
+                    output.hash = assetHash
+                    output.status = ResultStatus.RESULT_STATUS_PASS
+                }
+            )
             req.recordBuilder.processBuilder.name = "OnboardAssetProcess"
             req.recordBuilder.processBuilder.method = "OnboardAsset"
             // A literal sha256 on the method name: sha256("OnboardTestAsset")

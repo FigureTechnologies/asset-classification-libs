@@ -28,7 +28,6 @@ tasks.withType<Test> {
     outputs.upToDateWhen { false }
 }
 
-
 dependencies {
     listOf(
         project(":client"),

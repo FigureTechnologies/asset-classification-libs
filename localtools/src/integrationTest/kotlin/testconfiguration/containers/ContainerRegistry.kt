@@ -43,4 +43,3 @@ private data class OrderedContainer(
     val managedContainer: ManagedTestContainer<*>,
     val container: GenericContainer<*>,
 )
-

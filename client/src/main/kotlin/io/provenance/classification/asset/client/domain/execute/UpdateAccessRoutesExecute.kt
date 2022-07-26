@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.provenance.classification.asset.client.domain.execute.base.ContractExecute
 import io.provenance.classification.asset.client.domain.model.AccessRoute
 import io.provenance.classification.asset.client.domain.model.AssetIdentifier
-import java.util.UUID
 
 /**
  * This class is a reflection of the request body used in the Asset Classification smart contract's update access routes

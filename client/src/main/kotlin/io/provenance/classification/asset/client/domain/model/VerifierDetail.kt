@@ -24,8 +24,8 @@ data class VerifierDetail(
     val address: String,
     val onboardingCost: String,
     val onboardingDenom: String,
-    val feeDestinations: List<FeeDestination>,
-    val entityDetail: EntityDetail?,
+    val feeDestinations: List<FeeDestination> = emptyList(),
+    val entityDetail: EntityDetail? = null,
 ) {
     companion object {
         fun new(

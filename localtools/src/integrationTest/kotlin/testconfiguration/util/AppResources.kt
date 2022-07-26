@@ -4,9 +4,13 @@ import io.provenance.classification.asset.util.enums.ProvenanceNetworkType
 import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
 
 object AppResources {
-    const val CONTRACT_VERSION = "1.0.7"
+    // IMPORTANT: This version should be pinned to the latest asset classification smart contract instance that the client
+    // and libs are compatible with.  Local testing for unpublished versions of the smart contract's WASM file can be
+    // done by tweaking ManagedProvenanceTestContainer's afterStartup function implementation to fetch the file from local
+    // resources, if needed.
+    const val CONTRACT_VERSION = "1.0.8"
 
-    // This account is intended to simulate an account used for the Asset Classification Verifier application
+    // This account is intended to simulate an account used for verifying assets
     val verifierAccount: ProvenanceAccountDetail by lazy {
         ProvenanceAccountDetail.fromMnemonic(
             mnemonic = "noble transfer wedding artwork blue upon phone source effort hungry target casino orange hole roof regular seminar round upgrade stem basic random public engage",
