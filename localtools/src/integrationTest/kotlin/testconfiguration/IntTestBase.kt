@@ -1,7 +1,9 @@
 package testconfiguration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.provenance.classification.asset.client.client.base.ACClient
 import io.provenance.classification.asset.client.client.base.ContractIdentifier
+import io.provenance.classification.asset.util.objects.ACObjectMapperUtil
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import io.provenance.scope.objectstore.client.OsClient
@@ -64,6 +66,8 @@ abstract class IntTestBase {
         }
 
         val invoiceOnboardingService: InvoiceOnboardingService by lazy { InvoiceOnboardingService(acClient, osClient) }
+
+        val objectMapper: ObjectMapper by lazy { ACObjectMapperUtil.getObjectMapper() }
     }
 
     init {

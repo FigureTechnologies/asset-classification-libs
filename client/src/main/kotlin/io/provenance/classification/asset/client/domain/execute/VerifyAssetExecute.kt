@@ -33,6 +33,6 @@ import java.util.UUID
 class VerifyAssetExecute<T>(
     val identifier: AssetIdentifier<T>,
     val success: Boolean,
-    val message: String?,
-    val accessRoutes: List<AccessRoute>?,
+    val message: String? = null,
+    val accessRoutes: List<AccessRoute>? = null,
 ) : ContractExecute
