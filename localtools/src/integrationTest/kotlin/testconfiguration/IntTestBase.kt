@@ -6,19 +6,30 @@ import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import io.provenance.scope.objectstore.client.OsClient
 import mu.KLogging
-import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.testcontainers.containers.Network
 import testconfiguration.containers.ContainerRegistry
 import testconfiguration.containers.ManagedContainerType
+import testconfiguration.containers.instances.ManagedObjectStoreTestContainer
+import testconfiguration.containers.instances.ManagedPostgresTestContainer
 import testconfiguration.containers.instances.ManagedProvenanceTestContainer
+import testconfiguration.services.InvoiceOnboardingService
 import java.net.URI
-import java.security.Security
 import java.util.TimeZone
+import java.util.UUID
 import kotlin.system.exitProcess
 
 abstract class IntTestBase {
     companion object : KLogging() {
+        private val network = Network.builder().createNetworkCmdModifier { cmd ->
+            cmd.withName("asset-classification-libs-network-${UUID.randomUUID()}")
+        }.build()
+
         private val registry: ContainerRegistry = try {
-            ContainerRegistry().also { registry ->
+            // Order matters - if containers depend on each other, make sure they're coded to start up after their
+            // dependencies
+            ContainerRegistry(network).also { registry ->
+                registry.registerAndStart(ManagedPostgresTestContainer())
+                registry.registerAndStart(ManagedObjectStoreTestContainer())
                 registry.registerAndStart(ManagedProvenanceTestContainer())
             }
         } catch (e: Exception) {
@@ -44,12 +55,15 @@ abstract class IntTestBase {
         }
 
         val osClient: OsClient by lazy {
-            OsClient(
-                // TODO: This is wrong
-                uri = URI.create("grpc://localhost:5000"),
-                deadlineMs = 20000L, // 20 seconds til DESTRUCTION
-            )
+            registry.getContainer(ManagedContainerType.OBJECT_STORE).let { osContainer ->
+                OsClient(
+                    uri = URI.create("grpc://localhost:${osContainer.getMappedPort(5000)}"),
+                    deadlineMs = 20000L, // 20 seconds til DESTRUCTION
+                )
+            }
         }
+
+        val invoiceOnboardingService: InvoiceOnboardingService by lazy { InvoiceOnboardingService(acClient, osClient) }
     }
 
     init {

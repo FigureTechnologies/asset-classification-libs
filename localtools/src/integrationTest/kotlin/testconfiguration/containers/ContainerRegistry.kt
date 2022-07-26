@@ -2,8 +2,9 @@ package testconfiguration.containers
 
 import mu.KLogging
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.Network
 
-class ContainerRegistry {
+class ContainerRegistry(private val network: Network) {
     private companion object : KLogging()
     private var containerOrderCounter = 0
     private val containerMap: MutableMap<ManagedContainerType, OrderedContainer> = mutableMapOf()
@@ -12,7 +13,7 @@ class ContainerRegistry {
         if (containerMap.containsKey(container.containerType)) {
             error("A container of type [${container.containerType.displayName}] has already been registered")
         }
-        val builtContainer = container.buildContainer()
+        val builtContainer = container.buildContainer(network)
         try {
             builtContainer.start()
         } catch (e: Exception) {

@@ -17,6 +17,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.AbstractWaitStrategy
 import testconfiguration.containers.ManagedContainerType
 import testconfiguration.containers.ManagedTestContainer
@@ -37,7 +38,9 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
 
     override val containerType: ManagedContainerType = ManagedContainerType.PROVENANCE
 
-    override fun buildContainer(): ProvenanceTestContainer = ProvenanceTestContainer()
+    override fun buildContainer(network: Network): ProvenanceTestContainer = ProvenanceTestContainer()
+        .withNetwork(network)
+        .withNetworkMode(network.id)
         .withNetworkAliases("provenance")
         .withClasspathResourceMapping("data/provenance", "/home/provenance_seed", BindMode.READ_ONLY)
         .withExposedPorts(1317, 9090, 26657)

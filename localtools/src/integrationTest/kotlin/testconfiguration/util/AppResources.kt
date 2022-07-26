@@ -30,14 +30,6 @@ object AppResources {
         )
     }
 
-    // This account is intended to be the receiver of incoming invoices
-    val invoiceReceiverAccount: ProvenanceAccountDetail by lazy {
-        ProvenanceAccountDetail.fromMnemonic(
-            mnemonic = "frozen copy now hen there donate produce unfold cream naive explain escape kitchen list staff breeze oak pipe portion job oxygen couple play pudding",
-            networkType = ProvenanceNetworkType.TESTNET,
-        )
-    }
-
     // This account is seeded in the genesis file and has a large amount of nhash.  It also has a restricted binding for the asset root name and unrestricted for the alias root name
     val assetAdminAccount: ProvenanceAccountDetail by lazy {
         ProvenanceAccountDetail.fromMnemonic(
@@ -59,7 +51,6 @@ object AppResources {
             verifierAccount named "Verifier",
             assetManagerAccount named "Asset Manager",
             assetOnboardingAccount named "Asset Onboarding Account",
-            invoiceReceiverAccount named "Invoice Receiver Account",
             assetAdminAccount named "Asset Name Owner",
             contractAdminAccount named "Smart Contract Admin",
         )

@@ -3,7 +3,7 @@ package testconfiguration.util
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import testconfiguration.extensions.KLogLevel
-import testconfiguration.extensions.logDynamic
+import testconfiguration.extensions.logDynamicAc
 
 object CoroutineUtil {
     private val logger = KotlinLogging.logger { }
@@ -22,7 +22,7 @@ object CoroutineUtil {
             try {
                 return block()
             } catch (e: Exception) {
-                logger.logDynamic(
+                logger.logDynamicAc(
                     level = if (attempt >= times / 2) KLogLevel.ERROR else KLogLevel.WARN,
                     message = "$errorPrefix: Retry block failed for attempt [${attempt + 1} / $times]. Waiting for [${currentDelay}ms]",
                     t = e.takeIf { showStackTraceInFailures },

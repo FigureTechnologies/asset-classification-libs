@@ -41,6 +41,7 @@ dependencies {
 
     listOf(
         // Libraries
+        libs.assetModel,
         libs.kotlinLogging,
         libs.logbackClassic,
         libs.provenanceEventStreamApi,
