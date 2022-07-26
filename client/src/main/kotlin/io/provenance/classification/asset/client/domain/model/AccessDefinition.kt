@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 /**
- * Defines access routes for a specific entity in the Asset Classificaiton smart contract.
+ * Defines access routes for a specific entity in the Asset Classification smart contract.
  *
  * @param ownerAddress The bech32 address that exposed these access routes.
  * @param accessRoutes A collection of routes that have exposed asset data.

@@ -12,7 +12,4 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
  * migrations and can help link the running contract to its exposed source code.
  */
 @JsonNaming(SnakeCaseStrategy::class)
-data class ACVersionInfo(
-    val contract: String,
-    val version: String,
-)
+data class ACVersionInfo(val contract: String, val version: String)

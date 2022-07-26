@@ -319,18 +319,18 @@ class DefaultACQuerierTest {
             assetType = assetType,
             scopeSpecAddress = "address",
             verifiers = listOf(
-                VerifierDetail.new(
+                VerifierDetail(
                     address = "address",
-                    onboardingCost = "100".toBigDecimal(),
+                    onboardingCost = "100".toBigInteger(),
                     onboardingDenom = "nhash",
                     feeDestinations = listOf(
-                        FeeDestination.new(
+                        FeeDestination(
                             address = "fee1",
-                            feeAmount = "20".toBigDecimal(),
+                            feeAmount = "20".toBigInteger(),
                         ),
-                        FeeDestination.new(
+                        FeeDestination(
                             address = "fee2",
-                            feeAmount = "30".toBigDecimal(),
+                            feeAmount = "30".toBigInteger(),
                         )
                     ),
                     entityDetail = EntityDetail(

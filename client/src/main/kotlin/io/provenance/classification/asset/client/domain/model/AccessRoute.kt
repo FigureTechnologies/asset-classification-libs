@@ -10,7 +10,4 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
  * @param name A free-form name the define the purpose of the route.
  */
 @JsonNaming(SnakeCaseStrategy::class)
-data class AccessRoute(
-    val route: String,
-    val name: String?,
-)
+data class AccessRoute(val route: String, val name: String?)

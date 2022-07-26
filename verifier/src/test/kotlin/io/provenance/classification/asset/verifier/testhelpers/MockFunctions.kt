@@ -12,7 +12,7 @@ import io.provenance.classification.asset.util.extensions.wrapListAc
 import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
 import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.scope.util.MetadataAddress
-import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.UUID
 
 fun getMockScopeAttribute(
@@ -26,9 +26,9 @@ fun getMockScopeAttribute(
     verifierAddress = "verifier",
     onboardingStatus = onboardingStatus,
     latestVerifierDetail = onboardingStatus.takeIf { it == AssetOnboardingStatus.PENDING }?.run {
-        VerifierDetail.new(
+        VerifierDetail(
             address = "verifier",
-            onboardingCost = BigDecimal.TEN,
+            onboardingCost = BigInteger.TEN,
             onboardingDenom = "nhash",
             feeDestinations = emptyList(),
         )

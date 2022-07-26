@@ -1,9 +1,12 @@
 package io.provenance.classification.asset.client.domain.model
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import io.provenance.classification.asset.client.extensions.toUint128CompatibleStringAc
-import java.math.BigDecimal
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import io.provenance.classification.asset.client.domain.serialization.CosmWasmBigIntegerToUintSerializer
+import io.provenance.classification.asset.client.domain.serialization.CosmWasmUintToBigIntegerDeserializer
+import java.math.BigInteger
 
 /**
  * Defines a collector for fees for a validator.  All fee destinations should have fee percents totaling 100%, and the
@@ -17,19 +20,8 @@ import java.math.BigDecimal
 @JsonNaming(SnakeCaseStrategy::class)
 data class FeeDestination(
     val address: String,
-    val feeAmount: String,
-    val entityDetail: EntityDetail?,
-) {
-    companion object {
-        fun new(
-            address: String,
-            feeAmount: BigDecimal,
-            entityDetail: EntityDetail? = null,
-        ): FeeDestination = FeeDestination(
-            address = address,
-            // The fee amount must not have any decimal places - remove them before setting the value. This represents a coin amount
-            feeAmount = feeAmount.toUint128CompatibleStringAc(),
-            entityDetail = entityDetail,
-        )
-    }
-}
+    @JsonSerialize(using = CosmWasmBigIntegerToUintSerializer::class)
+    @JsonDeserialize(using = CosmWasmUintToBigIntegerDeserializer::class)
+    val feeAmount: BigInteger,
+    val entityDetail: EntityDetail? = null,
+)

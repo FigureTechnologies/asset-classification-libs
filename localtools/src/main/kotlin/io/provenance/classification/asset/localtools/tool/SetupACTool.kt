@@ -154,9 +154,9 @@ object SetupACTool {
                 execute = AddAssetDefinitionExecute(
                     assetType = specType,
                     scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(specification.scopeSpecConfig.id),
-                    verifiers = VerifierDetail.new(
+                    verifiers = VerifierDetail(
                         address = config.verifierBech32Address,
-                        onboardingCost = "100000".toBigDecimal(),
+                        onboardingCost = "100000".toBigInteger(),
                         onboardingDenom = "nhash",
                         feeDestinations = emptyList(),
                         entityDetail = EntityDetail(

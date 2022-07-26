@@ -227,7 +227,7 @@ class ExecuteIntTest : IntTestBase() {
             }
             val newVerifier = VerifierDetail(
                 address = AppResources.assetAdminAccount.bech32Address,
-                onboardingCost = "250",
+                onboardingCost = "250".toBigInteger(),
                 onboardingDenom = "nhash",
                 feeDestinations = emptyList(),
             )
@@ -270,7 +270,7 @@ class ExecuteIntTest : IntTestBase() {
                         assetType = "faketype",
                         verifier = VerifierDetail(
                             address = AppResources.assetAdminAccount.bech32Address,
-                            onboardingCost = "400",
+                            onboardingCost = "400".toBigInteger(),
                             onboardingDenom = "nhash",
                         )
                     ),
@@ -278,7 +278,7 @@ class ExecuteIntTest : IntTestBase() {
                 )
             }
             // I always mistype denom as demon so now I'm doing it on purpose because I CAN!
-            val updatedVerifier = assetDefinition.verifiers.single().copy(onboardingCost = "88383838", onboardingDenom = "demon")
+            val updatedVerifier = assetDefinition.verifiers.single().copy(onboardingCost = "88383838".toBigInteger(), onboardingDenom = "demon")
             acClient.updateAssetVerifier(
                 execute = UpdateAssetVerifierExecute(assetType = "faketype", verifier = updatedVerifier),
                 signer = AppResources.contractAdminAccount.toAccountSigner(),
@@ -484,11 +484,11 @@ class ExecuteIntTest : IntTestBase() {
 
     private fun getDefaultVerifierDetail(): VerifierDetail = VerifierDetail(
         address = AppResources.verifierAccount.bech32Address,
-        onboardingCost = "10",
+        onboardingCost = "10".toBigInteger(),
         onboardingDenom = "nhash",
         feeDestinations = FeeDestination(
             address = AppResources.contractAdminAccount.bech32Address,
-            feeAmount = "5",
+            feeAmount = "5".toBigInteger(),
             entityDetail = EntityDetail(
                 name = "Contract Admin",
                 description = "Administrates the contract",
