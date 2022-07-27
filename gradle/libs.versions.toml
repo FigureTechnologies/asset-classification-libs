@@ -18,7 +18,7 @@ provenanceEventStream = "0.6.3"
 provenanceGateway = "2.0.2"
 provenanceHdWallet = "0.1.15"
 provenanceProto = "1.10.0"
-provenanceScope = "0.6.0"
+provenanceScope = "0.6.2"
 scarlet = "0.1.12"
 testContainers = "1.17.2"
 
