@@ -1,5 +1,7 @@
 package io.provenance.classification.asset.client.domain.execute
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.provenance.classification.asset.client.domain.execute.base.ContractExecute
@@ -12,28 +14,14 @@ import io.provenance.classification.asset.client.domain.execute.base.ContractExe
  *
  * Sample usage:
  * ```kotlin
- * val bindExecute = BindContractAliasExecute.new("samplealias.pb")
+ * val bindExecute = BindContractAliasExecute("samplealias.pb")
  * val txResponse = acClient.bindContractAlias(bindExecute, signer, options)
  * ```
  *
- * @param bindContractAlias The body value that will be used for this request.  Translates to inner json for the contract's
- *                          execution request.
- */
-@JsonNaming(SnakeCaseStrategy::class)
-class BindContractAliasExecute internal constructor(val bindContractAlias: BindContractAliasBody) : ContractExecute {
-    companion object {
-        fun new(aliasName: String): BindContractAliasExecute = BindContractAliasExecute(
-            bindContractAlias = BindContractAliasBody(aliasName = aliasName),
-        )
-    }
-}
-
-/**
- * The body inside the contract execution payload.  This exists as a separate class to ensure that jackson correctly
- * maps the payload for the contract's format specifications.
- *
  * @param aliasName The fully-qualified name to bind to the contract.  Must be a dot-separated name with a name qualifier
- *                  and a root name (or a chain from an existing branch from a root name that is unrestricted, ex: test.alias.pb).
+ * and a root name (or a chain from an existing branch from a root name that is unrestricted, ex: test.alias.pb).
  */
 @JsonNaming(SnakeCaseStrategy::class)
-data class BindContractAliasBody(val aliasName: String)
+@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
+@JsonTypeName("bind_contract_alias")
+data class BindContractAliasExecute(val aliasName: String) : ContractExecute

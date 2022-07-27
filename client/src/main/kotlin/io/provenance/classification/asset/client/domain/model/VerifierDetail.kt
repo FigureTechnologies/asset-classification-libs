@@ -1,9 +1,12 @@
 package io.provenance.classification.asset.client.domain.model
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import io.provenance.classification.asset.client.extensions.toUint128CompatibleStringAc
-import java.math.BigDecimal
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import io.provenance.classification.asset.client.domain.serialization.CosmWasmBigIntegerToUintSerializer
+import io.provenance.classification.asset.client.domain.serialization.CosmWasmUintToBigIntegerDeserializer
+import java.math.BigInteger
 
 /**
  * A configuration for a verifier's interactions with the Asset Classification smart contract.
@@ -22,25 +25,10 @@ import java.math.BigDecimal
 @JsonNaming(SnakeCaseStrategy::class)
 data class VerifierDetail(
     val address: String,
-    val onboardingCost: String,
+    @JsonSerialize(using = CosmWasmBigIntegerToUintSerializer::class)
+    @JsonDeserialize(using = CosmWasmUintToBigIntegerDeserializer::class)
+    val onboardingCost: BigInteger,
     val onboardingDenom: String,
-    val feeDestinations: List<FeeDestination>,
-    val entityDetail: EntityDetail?,
-) {
-    companion object {
-        fun new(
-            address: String,
-            onboardingCost: BigDecimal,
-            onboardingDenom: String,
-            feeDestinations: List<FeeDestination> = emptyList(),
-            entityDetail: EntityDetail? = null,
-        ): VerifierDetail = VerifierDetail(
-            address = address,
-            // The cost must not have any decimal places - remove them before setting the value. This represents a coin amount
-            onboardingCost = onboardingCost.toUint128CompatibleStringAc(),
-            onboardingDenom = onboardingDenom,
-            feeDestinations = feeDestinations,
-            entityDetail = entityDetail,
-        )
-    }
-}
+    val feeDestinations: List<FeeDestination> = emptyList(),
+    val entityDetail: EntityDetail? = null,
+)

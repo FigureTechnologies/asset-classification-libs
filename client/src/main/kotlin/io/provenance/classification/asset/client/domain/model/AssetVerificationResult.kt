@@ -10,7 +10,4 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
  * @param success Whether or not the asset is verified.
  */
 @JsonNaming(SnakeCaseStrategy::class)
-data class AssetVerificationResult(
-    val message: String,
-    val success: Boolean,
-)
+data class AssetVerificationResult(val message: String, val success: Boolean)

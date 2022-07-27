@@ -12,7 +12,4 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
  * when the admin is the signer for the message.
  */
 @JsonNaming(SnakeCaseStrategy::class)
-data class ACContractState(
-    val baseContractName: String,
-    val admin: String,
-)
+data class ACContractState(val baseContractName: String, val admin: String)

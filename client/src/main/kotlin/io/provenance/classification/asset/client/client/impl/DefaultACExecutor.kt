@@ -42,21 +42,21 @@ class DefaultACExecutor(
         execute: OnboardAssetExecute<T>,
         signerAddress: String,
     ): MsgExecuteContract = querier
-        .queryAssetDefinitionByAssetType(execute.onboardAsset.assetType)
+        .queryAssetDefinitionByAssetType(execute.assetType)
         .verifiers
-        .singleOrNull { it.address == execute.onboardAsset.verifierAddress }
+        .singleOrNull { it.address == execute.verifierAddress }
         ?.let { verifier ->
             generateMsg(
                 executeMsg = execute,
                 signerAddress = signerAddress,
                 funds = Coin
                     .newBuilder()
-                    .setAmount(verifier.onboardingCost)
+                    .setAmount(verifier.onboardingCost.toString())
                     .setDenom(verifier.onboardingDenom)
                     .build()
             )
         }
-        ?: throw IllegalStateException("Asset definition for type [${execute.onboardAsset.assetType}] did not include a verifier for address [${execute.onboardAsset.verifierAddress}]")
+        ?: throw IllegalStateException("Asset definition for type [${execute.assetType}] did not include a verifier for address [${execute.verifierAddress}]")
 
     override fun <T> onboardAsset(
         execute: OnboardAssetExecute<T>,
