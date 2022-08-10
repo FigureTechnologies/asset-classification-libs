@@ -8,7 +8,8 @@ object AppResources {
     // and libs are compatible with.  Local testing for unpublished versions of the smart contract's WASM file can be
     // done by tweaking ManagedProvenanceTestContainer's afterStartup function implementation to fetch the file from local
     // resources, if needed.
-    const val CONTRACT_VERSION = "1.0.8"
+    const val CONTRACT_VERSION = "2.0.0"
+    const val ONBOARDING_CUSTOM_FEE_NAME = "Asset Classification Onboarding Fee"
 
     // This account is intended to simulate an account used for verifying assets
     val verifierAccount: ProvenanceAccountDetail by lazy {

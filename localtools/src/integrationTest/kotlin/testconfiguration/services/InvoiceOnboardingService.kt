@@ -32,6 +32,7 @@ import testconfiguration.models.TestAsset
 import testconfiguration.util.AppResources
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
 
 class InvoiceOnboardingService(
     private val acClient: ACClient,
@@ -154,6 +155,18 @@ class InvoiceOnboardingService(
             if (response.txResponse.code != 0) {
                 error("Failed to create scope and onboard it: ${response.txResponse.rawLog}")
             }
+
+            val verifier = assetDefinition.verifiers.firstOrNull { it.address == AppResources.verifierAccount.bech32Address } ?: error("AppResources.verifierAccount not found in assetDefinition.verifiers")
+            response.txResponse.eventsList
+                .firstOrNull { event ->
+                    event.type == "assess_custom_msg_fee"
+                }?.let { event ->
+                    event.attributesList.map { it.key.toStringUtf8() to it.value.toStringUtf8() }.toMap().let { attributes ->
+                        assertEquals(AppResources.ONBOARDING_CUSTOM_FEE_NAME, attributes["name"], "Custom onboarding message fee name does not match")
+                        assertEquals("${verifier.onboardingCost}${verifier.onboardingDenom}", attributes["amount"], "Custom onboarding message fee amount does not match")
+                        assertEquals(acClient.queryContractAddress(), attributes["recipient"], "Custom onboarding message fee does not match contract address")
+                    }
+                } ?: error("Onboarding transaction did not contain message fee")
         }
         logger.info("Successfully wrote scope / session / record to provenance for scope [$scopeMetadata]")
         return asset

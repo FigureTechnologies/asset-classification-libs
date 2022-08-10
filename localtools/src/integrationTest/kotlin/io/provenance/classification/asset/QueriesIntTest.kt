@@ -207,15 +207,5 @@ class QueriesIntTest : IntTestBase() {
             actual = scopeAttribute.requestorAddress,
             message = "The requestor address should be set to the asset owner address",
         )
-        val verifierDetail = scopeAttribute.latestVerifierDetail
-        assertNotNull(
-            actual = verifierDetail,
-            message = "The verifier detail should be set on the attribute",
-        )
-        assertEquals(
-            expected = AppResources.verifierAccount.bech32Address,
-            actual = verifierDetail.address,
-            message = "The verifier address should be set correctly in the verifier detail",
-        )
     }
 }

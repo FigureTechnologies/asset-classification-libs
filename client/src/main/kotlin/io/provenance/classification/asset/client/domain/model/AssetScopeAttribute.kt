@@ -15,7 +15,6 @@ import java.util.UUID
  * @param requestorAddress The bech32 address of the entity that initiated the onboarding of this asset into the Asset Classification smart contract.
  * @param verifierAddress The bech32 address of the verifier that was chosen by the requestor for verification.
  * @param onboardingStatus Indicates the portion of the process that this asset is in as far as the contract is concerned.  See enum descriptions for more information.
- * @param latestVerifierDetail Stores information about the verification process. This value will only be be non-null before a verifier has decided if the asset is verified.
  * @param latestVerificationResult Stores information about the latest verification done for the asset.  This value will only be non-null after its chosen verifier has determined its result.
  * @param accessDefinitions Stores information about how to access this asset at various sources.
  */
@@ -27,7 +26,6 @@ data class AssetScopeAttribute(
     val requestorAddress: String,
     val verifierAddress: String,
     val onboardingStatus: AssetOnboardingStatus,
-    val latestVerifierDetail: VerifierDetail?,
     val latestVerificationResult: AssetVerificationResult?,
     val accessDefinitions: List<AccessDefinition>,
 )

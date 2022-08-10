@@ -6,7 +6,6 @@ import cosmwasm.wasm.v1.Types
 import io.provenance.classification.asset.client.client.base.ACClient
 import io.provenance.classification.asset.client.client.base.ContractIdentifier
 import io.provenance.classification.asset.client.domain.execute.AddAssetDefinitionExecute
-import io.provenance.classification.asset.client.domain.execute.BindContractAliasExecute
 import io.provenance.classification.asset.client.domain.model.EntityDetail
 import io.provenance.classification.asset.client.domain.model.ScopeSpecIdentifier
 import io.provenance.classification.asset.client.domain.model.VerifierDetail
@@ -129,10 +128,20 @@ object SetupACTool {
         ).also { acClient ->
             config.contractAliasNames.map { alias ->
                 config.logger("Generating restricted contract lookup alias [$alias] using contract admin address [${config.contractAdminAccount.bech32Address}]")
-                acClient.generateBindContractAliasMsg(
-                    execute = BindContractAliasExecute(alias),
-                    signerAddress = config.contractAdminAccount.bech32Address,
-                )
+                val (childName, parentName) = alias.split('.').let { it.first() to it.drop(1).joinToString(".") }
+                MsgBindNameRequest.newBuilder()
+                    .setParent(
+                        NameRecord.newBuilder()
+                            .setName(parentName)
+                            .setAddress(config.contractAdminAccount.bech32Address)
+                            .setRestricted(false)
+                    ).setRecord(
+                        NameRecord.newBuilder()
+                            .setName(childName)
+                            .setAddress(contractAddress)
+                            .setRestricted(true)
+                    )
+                    .build()
             }.let { aliasMessages ->
                 config.logger("Binding all alias names in a single transaction using contract admin address [${config.contractAdminAccount.bech32Address}]")
                 config.pbClient.broadcastTxAc(messages = aliasMessages, account = config.contractAdminAccount)

@@ -6,13 +6,11 @@ import io.provenance.classification.asset.client.domain.model.AccessRoute
 import io.provenance.classification.asset.client.domain.model.AssetOnboardingStatus
 import io.provenance.classification.asset.client.domain.model.AssetScopeAttribute
 import io.provenance.classification.asset.client.domain.model.AssetVerificationResult
-import io.provenance.classification.asset.client.domain.model.VerifierDetail
 import io.provenance.classification.asset.util.enums.ProvenanceNetworkType
 import io.provenance.classification.asset.util.extensions.wrapListAc
 import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
 import io.provenance.hdwallet.bip39.MnemonicWords
 import io.provenance.scope.util.MetadataAddress
-import java.math.BigInteger
 import java.util.UUID
 
 fun getMockScopeAttribute(
@@ -25,14 +23,6 @@ fun getMockScopeAttribute(
     requestorAddress = "requestor",
     verifierAddress = "verifier",
     onboardingStatus = onboardingStatus,
-    latestVerifierDetail = onboardingStatus.takeIf { it == AssetOnboardingStatus.PENDING }?.run {
-        VerifierDetail(
-            address = "verifier",
-            onboardingCost = BigInteger.TEN,
-            onboardingDenom = "nhash",
-            feeDestinations = emptyList(),
-        )
-    },
     latestVerificationResult = onboardingStatus.takeIf { it != AssetOnboardingStatus.PENDING }?.let { status ->
         AssetVerificationResult(
             message = if (status == AssetOnboardingStatus.APPROVED) "MOCK: Approved" else "MOCK: Denied",

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.provenance.attribute.v1.QueryAttributeRequest
 import io.provenance.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import io.provenance.classification.asset.client.domain.execute.AddAssetVerifierExecute
-import io.provenance.classification.asset.client.domain.execute.BindContractAliasExecute
 import io.provenance.classification.asset.client.domain.execute.DeleteAssetDefinitionExecute
 import io.provenance.classification.asset.client.domain.execute.OnboardAssetExecute
 import io.provenance.classification.asset.client.domain.execute.ToggleAssetDefinitionExecute
@@ -22,8 +21,6 @@ import io.provenance.classification.asset.client.domain.model.FeeDestination
 import io.provenance.classification.asset.client.domain.model.ScopeSpecIdentifier
 import io.provenance.classification.asset.client.domain.model.VerifierDetail
 import io.provenance.classification.asset.util.extensions.wrapListAc
-import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
-import io.provenance.client.protobuf.extensions.resolveAddressForName
 import org.junit.jupiter.api.Test
 import testconfiguration.IntTestBase
 import testconfiguration.util.AppResources
@@ -277,8 +274,7 @@ class ExecuteIntTest : IntTestBase() {
                     signer = AppResources.contractAdminAccount.toAccountSigner(),
                 )
             }
-            // I always mistype denom as demon so now I'm doing it on purpose because I CAN!
-            val updatedVerifier = assetDefinition.verifiers.single().copy(onboardingCost = "88383838".toBigInteger(), onboardingDenom = "demon")
+            val updatedVerifier = assetDefinition.verifiers.single().copy(onboardingCost = "88383838".toBigInteger())
             acClient.updateAssetVerifier(
                 execute = UpdateAssetVerifierExecute(assetType = "faketype", verifier = updatedVerifier),
                 signer = AppResources.contractAdminAccount.toAccountSigner(),
@@ -373,28 +369,6 @@ class ExecuteIntTest : IntTestBase() {
     }
 
     @Test
-    fun `test bindContractAlias`() {
-        val bindAnAlias: (aliasName: String, account: ProvenanceAccountDetail) -> Unit = { aliasName, account ->
-            acClient.bindContractAlias(
-                execute = BindContractAliasExecute(aliasName),
-                signer = account.toAccountSigner(),
-            )
-        }
-        assertFails("Binding a contract alias with a non-admin account should fail") {
-            bindAnAlias("testalias.pb", AppResources.assetOnboardingAccount)
-        }
-        assertFails("Binding an empty contract alias should fail") {
-            bindAnAlias("", AppResources.contractAdminAccount)
-        }
-        bindAnAlias("goodalias.pb", AppResources.contractAdminAccount)
-        assertEquals(
-            expected = acClient.queryContractAddress(),
-            actual = pbClient.nameClient.resolveAddressForName("goodalias.pb"),
-            message = "The contract alias should be bound to the contract's address correctly",
-        )
-    }
-
-    @Test
     fun `test deleteAssetDefinition`() {
         assertFails("Attempting to delete an asset definition that does not exist should fail") {
             acClient.deleteAssetDefinition(
@@ -445,8 +419,7 @@ class ExecuteIntTest : IntTestBase() {
         )
         val scopeAttributeFromAttribute = objectMapper.readValue<AssetScopeAttribute>(attributeFromProvenance.value.toByteArray())
         assertEquals(
-            // The verifier detail is not stored on chain to save space
-            expected = scopeAttribute.copy(latestVerifierDetail = null),
+            expected = scopeAttribute,
             actual = scopeAttributeFromAttribute,
             message = "The serialized scope attribute on chain should equate to the value produced in the contract, minus its verifier detail",
         )
