@@ -32,7 +32,6 @@ import testconfiguration.models.TestAsset
 import testconfiguration.util.AppResources
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class InvoiceOnboardingService(
@@ -163,9 +162,9 @@ class InvoiceOnboardingService(
                     event.type == "assess_custom_msg_fee"
                 }?.let { event ->
                     event.attributesList.map { it.key.toStringUtf8() to it.value.toStringUtf8() }.toMap().let { attributes ->
-                        assertEquals(AppResources.ONBOARDING_CUSTOM_FEE_NAME,attributes["name"],"Custom onboarding message fee name does not match")
-                        assertEquals("${verifier.onboardingCost}${verifier.onboardingDenom}", attributes["amount"],"Custom onboarding message fee amount does not match")
-                        assertEquals(acClient.queryContractAddress(), attributes["recipient"],"Custom onboarding message fee does not match contract address")
+                        assertEquals(AppResources.ONBOARDING_CUSTOM_FEE_NAME, attributes["name"], "Custom onboarding message fee name does not match")
+                        assertEquals("${verifier.onboardingCost}${verifier.onboardingDenom}", attributes["amount"], "Custom onboarding message fee amount does not match")
+                        assertEquals(acClient.queryContractAddress(), attributes["recipient"], "Custom onboarding message fee does not match contract address")
                     }
                 } ?: error("Onboarding transaction did not contain message fee")
         }

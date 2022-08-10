@@ -22,13 +22,10 @@ import io.provenance.classification.asset.util.objects.ACObjectMapperUtil
 import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
 import io.provenance.client.grpc.BaseReqSigner
 import io.provenance.client.grpc.PbClient
-import io.provenance.client.protobuf.extensions.resolveAddressForName
 import io.provenance.client.protobuf.extensions.toAny
 import io.provenance.client.protobuf.extensions.toTxBody
 import io.provenance.name.v1.MsgBindNameRequest
 import io.provenance.name.v1.NameRecord
-import io.provenance.name.v1.QueryResolveRequest
-import io.provenance.name.v1.QueryReverseLookupRequest
 import io.provenance.scope.util.toByteString
 import io.provenance.spec.AssetSpecifications
 import java.io.File
@@ -133,14 +130,16 @@ object SetupACTool {
                 config.logger("Generating restricted contract lookup alias [$alias] using contract admin address [${config.contractAdminAccount.bech32Address}]")
                 val (childName, parentName) = alias.split('.').let { it.first() to it.drop(1).joinToString(".") }
                 MsgBindNameRequest.newBuilder()
-                    .setParent(NameRecord.newBuilder()
-                        .setName(parentName)
-                        .setAddress(config.contractAdminAccount.bech32Address)
-                        .setRestricted(false)
-                    ).setRecord(NameRecord.newBuilder()
-                        .setName(childName)
-                        .setAddress(contractAddress)
-                        .setRestricted(true)
+                    .setParent(
+                        NameRecord.newBuilder()
+                            .setName(parentName)
+                            .setAddress(config.contractAdminAccount.bech32Address)
+                            .setRestricted(false)
+                    ).setRecord(
+                        NameRecord.newBuilder()
+                            .setName(childName)
+                            .setAddress(contractAddress)
+                            .setRestricted(true)
                     )
                     .build()
             }.let { aliasMessages ->

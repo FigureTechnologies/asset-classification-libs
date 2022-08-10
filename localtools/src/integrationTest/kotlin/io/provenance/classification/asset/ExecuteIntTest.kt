@@ -21,8 +21,6 @@ import io.provenance.classification.asset.client.domain.model.FeeDestination
 import io.provenance.classification.asset.client.domain.model.ScopeSpecIdentifier
 import io.provenance.classification.asset.client.domain.model.VerifierDetail
 import io.provenance.classification.asset.util.extensions.wrapListAc
-import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
-import io.provenance.client.protobuf.extensions.resolveAddressForName
 import org.junit.jupiter.api.Test
 import testconfiguration.IntTestBase
 import testconfiguration.util.AppResources
