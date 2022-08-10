@@ -351,7 +351,6 @@ class DefaultACQuerierTest {
             requestorAddress = "requestor",
             verifierAddress = "verifier",
             onboardingStatus = AssetOnboardingStatus.APPROVED,
-            latestVerifierDetail = null,
             latestVerificationResult = AssetVerificationResult(
                 message = "Validation was pretty good on this here scope",
                 success = true,

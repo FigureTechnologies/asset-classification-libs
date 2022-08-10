@@ -25,14 +25,6 @@ fun getMockScopeAttribute(
     requestorAddress = "requestor",
     verifierAddress = "verifier",
     onboardingStatus = onboardingStatus,
-    latestVerifierDetail = onboardingStatus.takeIf { it == AssetOnboardingStatus.PENDING }?.run {
-        VerifierDetail(
-            address = "verifier",
-            onboardingCost = BigInteger.TEN,
-            onboardingDenom = "nhash",
-            feeDestinations = emptyList(),
-        )
-    },
     latestVerificationResult = onboardingStatus.takeIf { it != AssetOnboardingStatus.PENDING }?.let { status ->
         AssetVerificationResult(
             message = if (status == AssetOnboardingStatus.APPROVED) "MOCK: Approved" else "MOCK: Denied",
