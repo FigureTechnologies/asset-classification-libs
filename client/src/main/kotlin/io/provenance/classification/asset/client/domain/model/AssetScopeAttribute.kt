@@ -27,7 +27,6 @@ data class AssetScopeAttribute(
     val requestorAddress: String,
     val verifierAddress: String,
     val onboardingStatus: AssetOnboardingStatus,
-    val latestVerifierDetail: VerifierDetail?,
     val latestVerificationResult: AssetVerificationResult?,
     val accessDefinitions: List<AccessDefinition>,
 )

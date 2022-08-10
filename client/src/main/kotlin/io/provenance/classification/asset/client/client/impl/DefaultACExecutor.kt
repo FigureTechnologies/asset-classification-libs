@@ -9,7 +9,6 @@ import io.provenance.classification.asset.client.client.base.ACQuerier
 import io.provenance.classification.asset.client.client.base.BroadcastOptions
 import io.provenance.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import io.provenance.classification.asset.client.domain.execute.AddAssetVerifierExecute
-import io.provenance.classification.asset.client.domain.execute.BindContractAliasExecute
 import io.provenance.classification.asset.client.domain.execute.DeleteAssetDefinitionExecute
 import io.provenance.classification.asset.client.domain.execute.OnboardAssetExecute
 import io.provenance.classification.asset.client.domain.execute.ToggleAssetDefinitionExecute
@@ -35,7 +34,7 @@ class DefaultACExecutor(
     private val querier: ACQuerier,
 ) : ACExecutor {
     /**
-     * Automatically derives the message to onboard the asset, alongside the required funds for the specified verifier,
+     * Automatically derives the message to onboard the asset for the specified verifier,
      * if it exists for the provided asset type.
      */
     override fun <T> generateOnboardAssetMsg(
@@ -49,11 +48,6 @@ class DefaultACExecutor(
             generateMsg(
                 executeMsg = execute,
                 signerAddress = signerAddress,
-                funds = Coin
-                    .newBuilder()
-                    .setAmount(verifier.onboardingCost.toString())
-                    .setDenom(verifier.onboardingDenom)
-                    .build()
             )
         }
         ?: throw IllegalStateException("Asset definition for type [${execute.assetType}] did not include a verifier for address [${execute.verifierAddress}]")
@@ -140,17 +134,6 @@ class DefaultACExecutor(
         signer: Signer,
         options: BroadcastOptions,
     ): BroadcastTxResponse = doExecute(generateUpdateAccessRoutesMsg(execute, signer.address()), signer, options)
-
-    override fun generateBindContractAliasMsg(
-        execute: BindContractAliasExecute,
-        signerAddress: String,
-    ): MsgExecuteContract = generateMsg(execute, signerAddress)
-
-    override fun bindContractAlias(
-        execute: BindContractAliasExecute,
-        signer: Signer,
-        options: BroadcastOptions,
-    ): BroadcastTxResponse = doExecute(generateBindContractAliasMsg(execute, signer.address()), signer, options)
 
     override fun generateDeleteAssetDefinitionMsg(
         execute: DeleteAssetDefinitionExecute,

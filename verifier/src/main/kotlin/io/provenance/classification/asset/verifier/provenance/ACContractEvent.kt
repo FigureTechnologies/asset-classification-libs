@@ -8,7 +8,6 @@ package io.provenance.classification.asset.verifier.provenance
 enum class ACContractEvent(val contractName: String) {
     ADD_ASSET_DEFINITION("add_asset_definition"),
     ADD_ASSET_VERIFIER("add_asset_verifier"),
-    BIND_CONTRACT_ALIAS("bind_contract_alias"),
     DELETE_ASSET_DEFINITION("delete_asset_definition"),
     INSTANTIATE_CONTRACT("instantiate_contract"),
     MIGRATE_CONTRACT("migrate_contract"),
