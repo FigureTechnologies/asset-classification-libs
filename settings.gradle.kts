@@ -11,7 +11,7 @@ pluginManagement {
 gradle.rootProject {
     val libraryVersion = rootProject.property("libraryVersion") ?: error("Missing libraryVersion - check gradle.properties")
     allprojects {
-        group = "io.provenance.classification.asset"
+        group = "com.figure.classification.asset"
         version = libraryVersion
         description = "Various tools for interacting with the Asset Classification smart contract"
     }
