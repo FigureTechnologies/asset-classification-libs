@@ -22,7 +22,8 @@ The following client/verifier versions should be used with the asset classificat
 
 | Client / Verifier | AC Smart Contract |
 |-------------------|-------------------|
-| v1.1.3+           | v1.0.3+           |
+| v2.0.0+           | v2.0.0+           |
+| v1.1.3 - v1.3.0   | v1.0.3 - v1.0.8   |
 | v1.1.2 and below  | v1.0.2 and below  |
 
 ## Importing the Client and/or Verifier
@@ -41,7 +42,7 @@ Links:
 
 ## Using the ACClient
 ### Creating an ACClient instance
-To establish an [ACClient](client/src/main/kotlin/io/provenance/classification/asset/client/client/base/ACClient.kt), first,
+To establish an [ACClient](client/src/main/kotlin/com/figure/classification/asset/client/client/base/ACClient.kt), first,
 create a [PbClient](https://github.com/provenance-io/pb-grpc-client-kotlin/blob/main/src/main/kotlin/io/provenance/client/grpc/PbClient.kt). 
 The `PbClient` comes pre-bundled with the client artifact, when imported.  The `PbClient` controls which provenance 
 instance the application is communicating with, and, importantly, the provenance instance to which the Asset 
@@ -83,6 +84,6 @@ class SampleConfiguration {
 ```
 
 ## Using the VerifierClient
-The [VerifierClient](verifier/src/main/kotlin/io/provenance/classification/asset/verifier/client/VerifierClient.kt) is still
+The [VerifierClient](verifier/src/main/kotlin/com/figure/classification/asset/verifier/client/VerifierClient.kt) is still
 in active development and is not considered ready for use.  This will be updated once that process is completed.  Use at 
 your own risk!
