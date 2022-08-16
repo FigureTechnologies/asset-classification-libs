@@ -12,9 +12,6 @@ plugins {
 val projectGroup = rootProject.group
 val projectVersion = project.property("version")?.takeIf { it != "unspecified" }?.toString() ?: "1.0-SNAPSHOT"
 
-val nexusUser = findProperty("nexusUser")?.toString() ?: System.getenv("NEXUS_USER")
-val nexusPass = findProperty("nexusPass")?.toString() ?: System.getenv("NEXUS_PASS")
-
 configure<io.github.gradlenexus.publishplugin.NexusPublishExtension> {
     repositories {
         sonatype {
@@ -58,7 +55,7 @@ subprojects {
                 pom {
                     name.set("Provenance Asset Classification Kotlin Libraries")
                     description.set("Various tools for interacting with the Asset Classification smart contract")
-                    url.set("https://provenance.io")
+                    url.set("https://figure.com")
                     licenses {
                         license {
                             name.set("The Apache License, Version 2.0")
@@ -72,12 +69,17 @@ subprojects {
                             name.set("Jacob Schwartz")
                             email.set("jschwartz@figure.com")
                         }
+                        developer {
+                            id.set("piercetrey-figure")
+                            name.set("Pierce Trey")
+                            email.set("ptrey@figure.com")
+                        }
                     }
 
                     scm {
-                        developerConnection.set("git@github.com:provenance.io/asset-classification-libs.git")
-                        connection.set("https://github.com/provenance-io/asset-classification-libs.git")
-                        url.set("https://github.com/provenance-io/asset-classification-libs")
+                        developerConnection.set("git@github.com:FigureTechnologies/asset-classification-libs.git")
+                        connection.set("https://github.com/FigureTechnologies/asset-classification-libs.git")
+                        url.set("https://github.com/FigureTechnologieso/asset-classification-libs")
                     }
                 }
             }
