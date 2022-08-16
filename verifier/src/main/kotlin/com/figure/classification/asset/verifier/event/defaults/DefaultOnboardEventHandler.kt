@@ -1,19 +1,19 @@
 package com.figure.classification.asset.verifier.event.defaults
 
+import com.figure.classification.asset.client.domain.model.AccessDefinitionType
 import com.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import com.figure.classification.asset.verifier.client.VerificationMessage
-import io.provenance.classification.asset.client.domain.model.AccessDefinitionType
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
-import io.provenance.classification.asset.verifier.config.VerifierEvent.OnboardEventFailedToRetrieveAsset
-import io.provenance.classification.asset.verifier.config.VerifierEvent.OnboardEventFailedToVerifyAsset
-import io.provenance.classification.asset.verifier.config.VerifierEvent.OnboardEventIgnoredPreviouslyProcessed
-import io.provenance.classification.asset.verifier.config.VerifierEvent.OnboardEventPreVerifySend
-import io.provenance.classification.asset.verifier.event.AssetClassificationEventHandler
-import io.provenance.classification.asset.verifier.event.EventHandlerParameters
-import io.provenance.classification.asset.verifier.provenance.ACContractEvent
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
+import com.figure.classification.asset.verifier.config.VerifierEvent.OnboardEventFailedToRetrieveAsset
+import com.figure.classification.asset.verifier.config.VerifierEvent.OnboardEventFailedToVerifyAsset
+import com.figure.classification.asset.verifier.config.VerifierEvent.OnboardEventIgnoredPreviouslyProcessed
+import com.figure.classification.asset.verifier.config.VerifierEvent.OnboardEventPreVerifySend
+import com.figure.classification.asset.verifier.event.AssetClassificationEventHandler
+import com.figure.classification.asset.verifier.event.EventHandlerParameters
+import com.figure.classification.asset.verifier.provenance.ACContractEvent
 
 object DefaultOnboardEventHandler : AssetClassificationEventHandler {
     override val eventType: ACContractEvent = ACContractEvent.ONBOARD_ASSET
@@ -101,7 +101,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
         } ?: return
         eventChannel.send(OnboardEventPreVerifySend(event, scopeAttribute, verification))
         verificationChannel.send(
-            com.figure.classification.asset.verifier.client.VerificationMessage(
+            VerificationMessage(
                 failureMessagePrefix = messagePrefix,
                 event = event,
                 scopeAttribute = scopeAttribute,

@@ -1,9 +1,9 @@
 package com.figure.classification.asset.verifier.event
 
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredUnknownEvent
-import io.provenance.classification.asset.verifier.event.defaults.DefaultOnboardEventHandler
-import io.provenance.classification.asset.verifier.event.defaults.DefaultVerifyAssetEventHandler
-import io.provenance.classification.asset.verifier.provenance.ACContractEvent
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredUnknownEvent
+import com.figure.classification.asset.verifier.event.defaults.DefaultOnboardEventHandler
+import com.figure.classification.asset.verifier.event.defaults.DefaultVerifyAssetEventHandler
+import com.figure.classification.asset.verifier.provenance.ACContractEvent
 
 /**
  * Contains a collection of event handlers that allow processing of an AssetClassificationEvent based on its eventType.

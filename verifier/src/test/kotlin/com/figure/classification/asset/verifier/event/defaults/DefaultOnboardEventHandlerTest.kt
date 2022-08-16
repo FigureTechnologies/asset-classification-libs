@@ -257,7 +257,7 @@ class DefaultOnboardEventHandlerTest {
                 .addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
         }
         val mockScopeAttribute = getMockScopeAttribute()
-        val mockVerification = com.figure.classification.asset.verifier.client.AssetVerification(
+        val mockVerification = AssetVerification(
             message = "MOCK: Successful verification",
             success = true,
         )

@@ -58,7 +58,7 @@ class CustomEventHandlerTest {
             capturedMetadata += event.eventBody.data
         }.withCoroutineScope(VerifierCoroutineScopeConfig.ProvidedScope(TestScope(context = testContext))).build()
         config.registerMocks()
-        val client = com.figure.classification.asset.verifier.client.VerifierClient(config)
+        val client = VerifierClient(config)
         client.startEventChannelReceiver()
         // Send an instantiate event that should be routed into the custom handler for that type
         client.handleEvent(

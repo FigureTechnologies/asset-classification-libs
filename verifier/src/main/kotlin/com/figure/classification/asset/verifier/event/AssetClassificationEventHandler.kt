@@ -48,6 +48,6 @@ data class EventHandlerParameters(
     val acClient: ACClient,
     val verifierAccount: ProvenanceAccountDetail,
     val processor: VerificationProcessor<Any>,
-    val verificationChannel: Channel<com.figure.classification.asset.verifier.client.VerificationMessage>,
+    val verificationChannel: Channel<VerificationMessage>,
     val eventChannel: Channel<VerifierEvent>,
 )

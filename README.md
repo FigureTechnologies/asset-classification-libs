@@ -9,8 +9,8 @@ This project contains libraries for communicating with the [Asset Classification
 
 [license-badge]: https://img.shields.io/github/license/FigureTechnologies/asset-classification-libs.svg
 [license-url]: https://github.com/FigureTechnologies/asset-classification-libs/blob/main/LICENSE
-[maven-badge]: https://maven-badges.herokuapp.com/maven-central/io.provenance.classification.asset/ac-client/badge.svg
-[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.provenance.classification.asset/ac-client
+[maven-badge]: https://maven-badges.herokuapp.com/maven-central/com.figure.classification.asset/ac-client/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/com.figure.classification.asset/ac-client
 [release-badge]: https://img.shields.io/github/tag/FigureTechnologies/asset-classification-libs.svg
 [release-latest]: https://github.com/FigureTechnologies/asset-classification-libs/releases/latest
 [loc-badge]: https://tokei.rs/b1/github/FigureTechnologies/asset-classification-libs
@@ -26,8 +26,8 @@ The following client/verifier versions should be used with the asset classificat
 | v1.1.2 and below  | v1.0.2 and below  |
 
 ## Importing the Client and/or Verifier
-- The [client](client) library can be downloaded via: `io.provenance.classification.asset:ac-client:<latest-release-version>`
-- The [verifier](verifier) library can be downloaded via: `io.provenance.classification.asset:ac-verifier:<latest-release-version>`
+- The [client](client) library can be downloaded via: `com.figure.classification.asset:ac-client:<latest-release-version>`
+- The [verifier](verifier) library can be downloaded via: `com.figure.classification.asset:ac-verifier:<latest-release-version>`
 
 *IMPORTANT:* The client and verifier both bundle their dependencies as API dependencies, and will overwrite or be 
 overwritten by an implementing project.  This was done purposefully, because the versioning on the various Provenance
@@ -50,8 +50,8 @@ Classification smart contract is deployed.  Then, with the `PbClient` instance, 
 #### Example:
 
 ```kotlin
-import io.provenance.classification.asset.client.client.base.ACClient
-import io.provenance.classification.asset.client.client.base.ContractIdentifier
+import com.figure.classification.asset.client.client.base.ACClient
+import com.figure.classification.asset.client.client.base.ContractIdentifier
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import java.net.URI

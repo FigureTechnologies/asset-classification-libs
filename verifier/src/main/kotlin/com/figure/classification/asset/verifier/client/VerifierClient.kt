@@ -50,9 +50,9 @@ class VerifierClient(private val config: VerifierClientConfig) {
     private val verifyProcessor: VerificationProcessor<Any> = config.verificationProcessor as VerificationProcessor<Any>
     private val signer = AccountSigner.fromAccountDetail(config.verifierAccount)
     private val decoderAdapter = moshiDecoderAdapter()
-    private var jobs = com.figure.classification.asset.verifier.client.VerifierJobs()
-    private val tracking: com.figure.classification.asset.verifier.client.AccountTrackingDetail by lazy {
-        com.figure.classification.asset.verifier.client.AccountTrackingDetail.Companion.lookup(
+    private var jobs = VerifierJobs()
+    private val tracking: AccountTrackingDetail by lazy {
+        AccountTrackingDetail.lookup(
             pbClient = config.acClient.pbClient,
             address = config.verifierAccount.bech32Address,
         )
@@ -283,8 +283,8 @@ private data class AccountTrackingDetail(
     private val sequenceNumber: AtomicLong,
 ) {
     companion object {
-        fun lookup(pbClient: PbClient, address: String): com.figure.classification.asset.verifier.client.AccountTrackingDetail = pbClient.authClient.getBaseAccount(address).let { account ->
-            com.figure.classification.asset.verifier.client.AccountTrackingDetail(
+        fun lookup(pbClient: PbClient, address: String): AccountTrackingDetail = pbClient.authClient.getBaseAccount(address).let { account ->
+            AccountTrackingDetail(
                 pbClient = pbClient,
                 account = account,
                 sequenceNumber = account.sequence.let(::AtomicLong),

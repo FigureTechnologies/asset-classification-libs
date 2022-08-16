@@ -1,15 +1,15 @@
 package com.figure.classification.asset.verifier.event.defaults
 
 import com.figure.classification.asset.client.domain.model.AssetOnboardingStatus
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
-import io.provenance.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
-import io.provenance.classification.asset.verifier.config.VerifierEvent.VerifyEventFailedOnboardingStatusStillPending
-import io.provenance.classification.asset.verifier.config.VerifierEvent.VerifyEventSuccessful
-import io.provenance.classification.asset.verifier.event.AssetClassificationEventHandler
-import io.provenance.classification.asset.verifier.event.EventHandlerParameters
-import io.provenance.classification.asset.verifier.provenance.ACContractEvent
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
+import com.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
+import com.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventFailedOnboardingStatusStillPending
+import com.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventSuccessful
+import com.figure.classification.asset.verifier.event.AssetClassificationEventHandler
+import com.figure.classification.asset.verifier.event.EventHandlerParameters
+import com.figure.classification.asset.verifier.provenance.ACContractEvent
 
 object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
     override val eventType: ACContractEvent = ACContractEvent.VERIFY_ASSET

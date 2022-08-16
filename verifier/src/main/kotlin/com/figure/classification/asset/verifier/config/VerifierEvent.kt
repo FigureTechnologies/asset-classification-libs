@@ -181,7 +181,7 @@ sealed interface VerifierEvent {
     data class OnboardEventPreVerifySend internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val verification: com.figure.classification.asset.verifier.client.AssetVerification,
+        val verification: AssetVerification,
     ) : VerifierEvent
 
     /**
@@ -234,7 +234,7 @@ sealed interface VerifierEvent {
     data class VerifyAssetSendThrewException internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val verification: com.figure.classification.asset.verifier.client.AssetVerification,
+        val verification: AssetVerification,
         val message: String,
         val t: Throwable,
     ) : VerifierEvent
@@ -256,7 +256,7 @@ sealed interface VerifierEvent {
     data class VerifyAssetSendSyncSequenceNumberFailed internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val verification: com.figure.classification.asset.verifier.client.AssetVerification,
+        val verification: AssetVerification,
         val message: String,
         val t: Throwable,
     ) : VerifierEvent
@@ -277,7 +277,7 @@ sealed interface VerifierEvent {
     data class VerifyAssetSendSucceeded internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val verification: com.figure.classification.asset.verifier.client.AssetVerification,
+        val verification: AssetVerification,
     ) : VerifierEvent
 
     /**
@@ -298,7 +298,7 @@ sealed interface VerifierEvent {
     data class VerifyAssetSendFailed internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val verification: com.figure.classification.asset.verifier.client.AssetVerification,
+        val verification: AssetVerification,
         val responseCode: Int,
         val rawLog: String,
     ) : VerifierEvent
