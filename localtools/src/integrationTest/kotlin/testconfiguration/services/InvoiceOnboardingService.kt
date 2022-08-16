@@ -1,12 +1,12 @@
 package testconfiguration.services
 
+import com.figure.classification.asset.client.client.base.ACClient
+import com.figure.classification.asset.client.domain.execute.OnboardAssetExecute
+import com.figure.classification.asset.client.domain.model.AccessRoute
+import com.figure.classification.asset.client.domain.model.AssetIdentifier
+import com.figure.classification.asset.util.extensions.wrapListAc
+import com.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
-import io.provenance.classification.asset.client.client.base.ACClient
-import io.provenance.classification.asset.client.domain.execute.OnboardAssetExecute
-import io.provenance.classification.asset.client.domain.model.AccessRoute
-import io.provenance.classification.asset.client.domain.model.AssetIdentifier
-import io.provenance.classification.asset.util.extensions.wrapListAc
-import io.provenance.classification.asset.util.wallet.ProvenanceAccountDetail
 import io.provenance.client.grpc.BaseReqSigner
 import io.provenance.client.protobuf.extensions.toAny
 import io.provenance.client.protobuf.extensions.toTxBody
