@@ -17,8 +17,8 @@ configure<io.github.gradlenexus.publishplugin.NexusPublishExtension> {
         sonatype {
             nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(findProject("ossrhUsername")?.toString() ?: System.getenv("OSSRH_USERNAME"))
-            password.set(findProject("ossrhPassword")?.toString() ?: System.getenv("OSSRH_PASSWORD"))
+            username.set(findProject("nexusUser")?.toString() ?: System.getenv("NEXUS_USER"))
+            password.set(findProject("nexusPass")?.toString() ?: System.getenv("NEXUS_PASS"))
             stagingProfileId.set("83b915e7809a92") // com.figure staging profile id
         }
     }

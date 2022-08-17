@@ -14,6 +14,9 @@ jobs:
     env:
       # Needed to allow release version to be fetched and then sent to the publish artifact step
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      # Pull in nexus user / pass from environment to pass into sonatype login
+      NEXUS_USER: ${{ secrets.NEXUS_USER }}
+      NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
