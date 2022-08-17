@@ -51,8 +51,8 @@ jobs:
         if: github.event_name == 'release'
         # Pull in nexus user / pass from environment to pass into sonatype login
         env:
-          NEXUS_USER: ${{ secrets.NEXUS_USER }}
-          NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
         run: |
           echo "Publishing release for version [$RELEASE_VERSION]"
           ./gradlew publishToSonatype $(if [ "${{github.event.release.prerelease}}" = "true" ]; then echo 'closeSonatypeStagingRepository'; else echo 'closeAndReleaseSonatypeStagingRepository'; fi) \
