@@ -14,9 +14,6 @@ jobs:
     env:
       # Needed to allow release version to be fetched and then sent to the publish artifact step
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-      # Pull in nexus user / pass from environment to pass into sonatype login
-      NEXUS_USER: ${{ secrets.NEXUS_USER }}
-      NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -52,9 +49,10 @@ jobs:
 
       - name: Publish to Maven Central
         if: github.event_name == 'release'
+        # Pull in nexus user / pass from environment to pass into sonatype login
         env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
         run: |
           echo "Publishing release for version [$RELEASE_VERSION]"
           ./gradlew publishToSonatype $(if [ "${{github.event.release.prerelease}}" = "true" ]; then echo 'closeSonatypeStagingRepository'; else echo 'closeAndReleaseSonatypeStagingRepository'; fi) \
