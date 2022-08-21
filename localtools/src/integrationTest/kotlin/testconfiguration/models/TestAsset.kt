@@ -1,9 +1,9 @@
 package testconfiguration.models
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.figure.classification.asset.util.objects.ACObjectMapperUtil
 import io.provenance.scope.util.toByteString
 import tech.figure.asset.v1beta1.Asset
+import tech.figure.classification.asset.util.objects.ACObjectMapperUtil
 import java.util.UUID
 
 data class TestAsset(

@@ -9,8 +9,8 @@ This project contains libraries for communicating with the [Asset Classification
 
 [license-badge]: https://img.shields.io/github/license/FigureTechnologies/asset-classification-libs.svg
 [license-url]: https://github.com/FigureTechnologies/asset-classification-libs/blob/main/LICENSE
-[maven-badge]: https://maven-badges.herokuapp.com/maven-central/com.figure.classification.asset/ac-client/badge.svg
-[maven-url]: https://maven-badges.herokuapp.com/maven-central/com.figure.classification.asset/ac-client
+[maven-badge]: https://maven-badges.herokuapp.com/maven-central/tech.figure.classification.asset/ac-client/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/tech.figure.classification.asset/ac-client
 [release-badge]: https://img.shields.io/github/tag/FigureTechnologies/asset-classification-libs.svg
 [release-latest]: https://github.com/FigureTechnologies/asset-classification-libs/releases/latest
 [loc-badge]: https://tokei.rs/b1/github/FigureTechnologies/asset-classification-libs
@@ -27,8 +27,8 @@ The following client/verifier versions should be used with the asset classificat
 | v1.1.2 and below  | v1.0.2 and below  |
 
 ## Importing the Client and/or Verifier
-- The [client](client) library can be downloaded via: `com.figure.classification.asset:ac-client:<latest-release-version>`
-- The [verifier](verifier) library can be downloaded via: `com.figure.classification.asset:ac-verifier:<latest-release-version>`
+- The [client](client) library can be downloaded via: `tech.figure.classification.asset:ac-client:<latest-release-version>`
+- The [verifier](verifier) library can be downloaded via: `tech.figure.classification.asset:ac-verifier:<latest-release-version>`
 
 *IMPORTANT:* The client and verifier both bundle their dependencies as API dependencies, and will overwrite or be 
 overwritten by an implementing project.  This was done purposefully, because the versioning on the various Provenance
@@ -42,7 +42,7 @@ Links:
 
 ## Using the ACClient
 ### Creating an ACClient instance
-To establish an [ACClient](client/src/main/kotlin/com/figure/classification/asset/client/client/base/ACClient.kt), first,
+To establish an [ACClient](client/src/main/kotlin/tech/figure/classification/asset/client/client/base/ACClient.kt), first,
 create a [PbClient](https://github.com/provenance-io/pb-grpc-client-kotlin/blob/main/src/main/kotlin/io/provenance/client/grpc/PbClient.kt). 
 The `PbClient` comes pre-bundled with the client artifact, when imported.  The `PbClient` controls which provenance 
 instance the application is communicating with, and, importantly, the provenance instance to which the Asset 
@@ -51,11 +51,11 @@ Classification smart contract is deployed.  Then, with the `PbClient` instance, 
 #### Example:
 
 ```kotlin
-import com.figure.classification.asset.client.client.base.ACClient
-import com.figure.classification.asset.client.client.base.ContractIdentifier
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import java.net.URI
+import tech.figure.classification.asset.client.client.base.ACClient
+import tech.figure.classification.asset.client.client.base.ContractIdentifier
 
 class SampleConfiguration {
   fun buildClients() {
@@ -84,6 +84,6 @@ class SampleConfiguration {
 ```
 
 ## Using the VerifierClient
-The [VerifierClient](verifier/src/main/kotlin/com/figure/classification/asset/verifier/client/VerifierClient.kt) is still
+The [VerifierClient](verifier/src/main/kotlin/tech/figure/classification/asset/verifier/client/VerifierClient.kt) is still
 in active development and is not considered ready for use.  This will be updated once that process is completed.  Use at 
 your own risk!

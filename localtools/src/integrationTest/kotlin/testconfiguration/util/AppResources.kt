@@ -1,7 +1,7 @@
 package testconfiguration.util
 
-import com.figure.classification.asset.util.enums.ProvenanceNetworkType
-import com.figure.classification.asset.util.wallet.ProvenanceAccountDetail
+import tech.figure.classification.asset.util.enums.ProvenanceNetworkType
+import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 
 object AppResources {
     // IMPORTANT: This version should be pinned to the latest asset classification smart contract instance that the client

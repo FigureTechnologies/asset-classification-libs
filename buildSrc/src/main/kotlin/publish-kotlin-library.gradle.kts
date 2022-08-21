@@ -19,7 +19,7 @@ configure<io.github.gradlenexus.publishplugin.NexusPublishExtension> {
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
             username.set(findProject("ossrhUsername")?.toString() ?: System.getenv("OSSRH_USERNAME"))
             password.set(findProject("ossrhPassword")?.toString() ?: System.getenv("OSSRH_PASSWORD"))
-            stagingProfileId.set("83b915e7809a92") // com.figure staging profile id
+            stagingProfileId.set("858b6e4de4734a") // tech.figure staging profile id
         }
     }
 }
@@ -53,9 +53,9 @@ subprojects {
                 from(components["java"])
 
                 pom {
-                    name.set("Provenance Asset Classification Kotlin Libraries")
+                    name.set("Figure Asset Classification Kotlin Libraries")
                     description.set("Various tools for interacting with the Asset Classification smart contract")
-                    url.set("https://figure.com")
+                    url.set("https://figure.tech")
                     licenses {
                         license {
                             name.set("The Apache License, Version 2.0")
