@@ -16,9 +16,7 @@ import java.net.URI
  * This client defines all the functionality exposed for communicating with the Asset Classification smart contract.
  * See comments on the various interfaces for their specific actions or utilities.
  */
-interface ACClient :
-    ACExecutor,
-    ACQuerier {
+interface ACClient : ACExecutor, ACQuerier {
     val pbClient: PbClient
     val objectMapper: ObjectMapper
 
