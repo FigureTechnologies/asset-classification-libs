@@ -1,14 +1,14 @@
 package testconfiguration
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.figure.classification.asset.client.client.base.ACClient
-import com.figure.classification.asset.client.client.base.ContractIdentifier
-import com.figure.classification.asset.util.objects.ACObjectMapperUtil
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import io.provenance.scope.objectstore.client.OsClient
 import mu.KLogging
 import org.testcontainers.containers.Network
+import tech.figure.classification.asset.client.client.base.ACClient
+import tech.figure.classification.asset.client.client.base.ContractIdentifier
+import tech.figure.classification.asset.util.objects.ACObjectMapperUtil
 import testconfiguration.containers.ContainerRegistry
 import testconfiguration.containers.ManagedContainerType
 import testconfiguration.containers.instances.ManagedObjectStoreTestContainer

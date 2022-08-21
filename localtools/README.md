@@ -16,8 +16,8 @@ To stand up the smart contract on your local Provenance Blockchain instance, sim
 and invoke the tool:
 
 ```kotlin
-import com.figure.classification.asset.util.enums.ProvenanceNetworkType
-import com.figure.classification.asset.util.wallet.ProvenanceAccountDetail
+import tech.figure.classification.asset.util.enums.ProvenanceNetworkType
+import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import java.net.URI

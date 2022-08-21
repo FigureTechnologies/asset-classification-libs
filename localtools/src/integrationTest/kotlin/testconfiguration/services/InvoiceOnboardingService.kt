@@ -1,11 +1,5 @@
 package testconfiguration.services
 
-import com.figure.classification.asset.client.client.base.ACClient
-import com.figure.classification.asset.client.domain.execute.OnboardAssetExecute
-import com.figure.classification.asset.client.domain.model.AccessRoute
-import com.figure.classification.asset.client.domain.model.AssetIdentifier
-import com.figure.classification.asset.util.extensions.wrapListAc
-import com.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
 import io.provenance.client.grpc.BaseReqSigner
 import io.provenance.client.protobuf.extensions.toAny
@@ -26,6 +20,12 @@ import io.provenance.scope.util.MetadataAddress
 import io.provenance.scope.util.toByteString
 import io.provenance.spec.AssetSpecifications
 import mu.KLogging
+import tech.figure.classification.asset.client.client.base.ACClient
+import tech.figure.classification.asset.client.domain.execute.OnboardAssetExecute
+import tech.figure.classification.asset.client.domain.model.AccessRoute
+import tech.figure.classification.asset.client.domain.model.AssetIdentifier
+import tech.figure.classification.asset.util.extensions.wrapListAc
+import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import testconfiguration.extensions.getContractSpecFromScopeSpec
 import testconfiguration.extensions.toBase64StringAc
 import testconfiguration.models.TestAsset
