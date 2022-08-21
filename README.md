@@ -42,7 +42,7 @@ Links:
 
 ## Using the ACClient
 ### Creating an ACClient instance
-To establish an [ACClient](client/src/main/kotlin/com/figure/classification/asset/client/client/base/ACClient.kt), first,
+To establish an [ACClient](client/src/main/kotlin/tech/figure/classification/asset/client/client/base/ACClient.kt), first,
 create a [PbClient](https://github.com/provenance-io/pb-grpc-client-kotlin/blob/main/src/main/kotlin/io/provenance/client/grpc/PbClient.kt). 
 The `PbClient` comes pre-bundled with the client artifact, when imported.  The `PbClient` controls which provenance 
 instance the application is communicating with, and, importantly, the provenance instance to which the Asset 
@@ -51,11 +51,11 @@ Classification smart contract is deployed.  Then, with the `PbClient` instance, 
 #### Example:
 
 ```kotlin
-import tech.figure.classification.asset.client.client.base.ACClient
-import tech.figure.classification.asset.client.client.base.ContractIdentifier
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import java.net.URI
+import tech.figure.classification.asset.client.client.base.ACClient
+import tech.figure.classification.asset.client.client.base.ContractIdentifier
 
 class SampleConfiguration {
   fun buildClients() {
@@ -84,6 +84,6 @@ class SampleConfiguration {
 ```
 
 ## Using the VerifierClient
-The [VerifierClient](verifier/src/main/kotlin/com/figure/classification/asset/verifier/client/VerifierClient.kt) is still
+The [VerifierClient](verifier/src/main/kotlin/tech/figure/classification/asset/verifier/client/VerifierClient.kt) is still
 in active development and is not considered ready for use.  This will be updated once that process is completed.  Use at 
 your own risk!
