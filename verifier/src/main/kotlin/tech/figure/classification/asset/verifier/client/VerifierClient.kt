@@ -7,7 +7,6 @@ import io.provenance.client.protobuf.extensions.getBaseAccount
 import io.provenance.client.protobuf.extensions.getTx
 import io.provenance.eventstream.decoder.moshiDecoderAdapter
 import io.provenance.eventstream.net.okHttpNetAdapter
-import io.provenance.eventstream.stream.flows.blockDataFlow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
@@ -43,6 +41,7 @@ import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEven
 import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
 import java.util.concurrent.atomic.AtomicLong
 
 class VerifierClient(private val config: VerifierClientConfig) {
@@ -94,7 +93,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
         )
         val currentHeight = netAdapter.rpcAdapter.getCurrentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
-        blockDataFlow(netAdapter, decoderAdapter, from = latestBlock)
+        verifierBlockDataFlow(netAdapter, decoderAdapter, from = latestBlock)
             .catch { e -> StreamExceptionOccurred(e).send() }
             .onCompletion { t -> StreamCompleted(t).send() }
             .onEach { block ->
@@ -103,8 +102,6 @@ class VerifierClient(private val config: VerifierClientConfig) {
                 // Track new block height
                 latestBlock = trackBlockHeight(latestBlock, block.height)
             }
-            // Disable built-in flow retries to ensure blocks aren't re-run
-            .retryWhen { _, _ -> false }
             // Map all captured block data to AssetClassificationEvents, which will remove all non-wasm events
             // encountered
             .map(AssetClassificationEvent::fromBlockData)
