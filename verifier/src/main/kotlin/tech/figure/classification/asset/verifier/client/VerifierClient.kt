@@ -87,7 +87,10 @@ class VerifierClient(private val config: VerifierClientConfig) {
     }
 
     private suspend fun verifyLoop(startingBlockHeight: Long?) {
-        val netAdapter = okHttpNetAdapter(node = config.eventStreamNode.toString())
+        val netAdapter = okHttpNetAdapter(
+            node = config.eventStreamNode.toString(),
+            okHttpClient = config.okHttpClientBuilder(),
+        )
         val currentHeight = netAdapter.rpcAdapter.getCurrentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
         blockDataFlow(netAdapter, decoderAdapter, from = latestBlock)
