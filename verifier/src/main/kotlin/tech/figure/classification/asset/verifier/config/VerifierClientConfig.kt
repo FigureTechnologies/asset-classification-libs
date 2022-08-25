@@ -1,9 +1,11 @@
 package tech.figure.classification.asset.verifier.config
 
+import io.provenance.eventstream.net.defaultOkHttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
+import okhttp3.OkHttpClient
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.util.extensions.elvisAc
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
@@ -33,6 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger
  * @param eventDelegator Defines handlers for different event types emitted from the asset classification smart contract.
  * @param eventProcessors All manually-defined event handling code submitted during the builder process.  See the
  * VerifierEvent class for lengthy details about each.
+ * @param okHttpClientBuilder Allows for providing a custom OkHttpClient when standing up the event stream subscription.
+ * This can assist in handling connection issues.
  */
 class VerifierClientConfig private constructor(
     val acClient: ACClient,
@@ -45,6 +49,7 @@ class VerifierClientConfig private constructor(
     val eventChannel: Channel<VerifierEvent>,
     val eventDelegator: AssetClassificationEventDelegator,
     val eventProcessors: Map<String, suspend (VerifierEvent) -> Unit>,
+    val okHttpClientBuilder: () -> OkHttpClient,
 ) {
 
     companion object {
@@ -83,6 +88,7 @@ class VerifierClientConfig private constructor(
         private var coroutineScopeConfig: VerifierCoroutineScopeConfig? = null
         private var eventDelegator: AssetClassificationEventDelegator? = null
         private val eventProcessors: MutableMap<String, suspend (VerifierEvent) -> Unit> = mutableMapOf()
+        private var okHttpClientBuilder: (() -> OkHttpClient)? = null
 
         /**
          * Sets the event stream node value to listen to.  If unset, the configuration assumes the node to listen to will
@@ -133,6 +139,12 @@ class VerifierClientConfig private constructor(
         }
 
         /**
+         * Allows a custom OkHttpClient to be built when starting the event stream.  If omitted, this will use the
+         * default event stream OkHttpClient configurations.
+         */
+        fun withOkHttpClient(builder: () -> OkHttpClient) = apply { okHttpClientBuilder = builder }
+
+        /**
          * Constructs an instance of VerifierClientConfig with all supplied values, using defaults for those not
          * supplied in the builder process.
          */
@@ -147,6 +159,7 @@ class VerifierClientConfig private constructor(
             eventChannel = eventChannel ?: Channel(capacity = Channel.BUFFERED),
             eventDelegator = eventDelegator ?: AssetClassificationEventDelegator.default(),
             eventProcessors = eventProcessors,
+            okHttpClientBuilder = okHttpClientBuilder ?: { defaultOkHttpClient() },
         )
     }
 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
@@ -87,7 +88,10 @@ class VerifierClient(private val config: VerifierClientConfig) {
     }
 
     private suspend fun verifyLoop(startingBlockHeight: Long?) {
-        val netAdapter = okHttpNetAdapter(node = config.eventStreamNode.toString())
+        val netAdapter = okHttpNetAdapter(
+            node = config.eventStreamNode.toString(),
+            okHttpClient = config.okHttpClientBuilder(),
+        )
         val currentHeight = netAdapter.rpcAdapter.getCurrentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
         blockDataFlow(netAdapter, decoderAdapter, from = latestBlock)
@@ -99,6 +103,8 @@ class VerifierClient(private val config: VerifierClientConfig) {
                 // Track new block height
                 latestBlock = trackBlockHeight(latestBlock, block.height)
             }
+            // Disable built-in flow retries to ensure blocks aren't re-run
+            .retryWhen { _, _ -> false }
             // Map all captured block data to AssetClassificationEvents, which will remove all non-wasm events
             // encountered
             .map(AssetClassificationEvent::fromBlockData)
