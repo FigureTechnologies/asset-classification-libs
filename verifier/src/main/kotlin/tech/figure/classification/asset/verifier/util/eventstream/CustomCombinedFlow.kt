@@ -16,6 +16,12 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import java.util.concurrent.atomic.AtomicLong
 
+/**
+ * This is nearly identical to the standard event-stream blockDataFlow function, but it omits baked-in retries.  This
+ * is due to the fact that the event stream library will re-run previously-processed blocks when it dies unexpectedly
+ * and does a retry, which is not the desired behavior of the verifier client.  This modified flow is combined with the
+ * VerifierClient's built-in retries to enable restarts at the most recent failed block.
+ */
 fun verifierBlockDataFlow(
     netAdapter: NetAdapter,
     decoderAdapter: DecoderAdapter,
@@ -41,7 +47,7 @@ internal fun <T> verifierCombinedFlow(
     getHeight: (T) -> Long,
     historicalFlow: (from: Long, to: Long) -> Flow<T>,
     liveFlow: () -> Flow<T>,
-): Flow<T> = channelFlow<T> {
+): Flow<T> = channelFlow {
     val channel = Channel<T>(capacity = 10_000) // buffer for: 10_000 * 6s block time / 60s/m / 60m/h == 16 2/3 hrs buffer time.
     val liveJob = async(coroutineContext) {
         liveFlow()
