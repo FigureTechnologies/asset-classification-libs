@@ -48,13 +48,29 @@ sealed interface VerifierEvent {
 
     /**
      * After the stream completes, if the stream has been configured to restart, this function will be called.  This
+     * denotes the delay that will be used and the number of restarts that have previously occurred.  This event will
+     * occur before the restart delay occurs.
+     *
+     * @param restartHeight The block height at which the stream had reached when the restart was requested.  This will
+     * only be null if the stream restarts before a block height can ever be stored, which will only happen if the
+     * processor for blocks had never connected and found any data.
+     * @param restartCount The number of times that a restart has occurred.
+     * @param restartDelayMs The calculated backoff milliseconds that the verifier will wait before restarting the block
+     * flow.
+     */
+    data class StreamRestarting internal constructor(val restartHeight: Long?, val restartCount: Long, val restartDelayMs: Long) : VerifierEvent
+
+    /**
+     * After the stream completes, if the stream has been configured to restart, this function will be called.  This
      * function can be assumed to run immediately before a new instance of the stream starts with a new block height.
+     * This event will occur after the restart delay occurs.
      *
      * @param restartHeight The block height to which the stream had reached when the restart occurred.  This will only
      * be null if the stream restarts before a block height can ever be stored, which will only happen if the processor
      * for blocks had never connected and found any data.
+     * @param restartCount The number of times that a restart has occurred.
      */
-    data class StreamRestarted internal constructor(val restartHeight: Long?) : VerifierEvent
+    data class StreamRestarted internal constructor(val restartHeight: Long?, val restartCount: Long) : VerifierEvent
 
     /**
      * If the verifier is configured to not restart, this function will be called after the stream completes.  It
@@ -456,11 +472,27 @@ sealed interface VerifierEventType<E : VerifierEvent> {
 
     /**
      * After the stream completes, if the stream has been configured to restart, this function will be called.  This
+     * denotes the delay that will be used and the number of restarts that have previously occurred.  This event will
+     * occur before the restart delay occurs.
+     *
+     * @param restartHeight The block height at which the stream had reached when the restart was requested.  This will
+     * only be null if the stream restarts before a block height can ever be stored, which will only happen if the
+     * processor for blocks had never connected and found any data.
+     * @param restartCount The number of times that a restart has occurred.
+     * @param restartDelayMs The calculated backoff milliseconds that the verifier will wait before restarting the block
+     * flow.
+     */
+    object StreamRestarting : VerifierEventType<VerifierEvent.StreamRestarting>
+
+    /**
+     * After the stream completes, if the stream has been configured to restart, this function will be called.  This
      * function can be assumed to run immediately before a new instance of the stream starts with a new block height.
+     * This event will occur after the restart delay occurs.
      *
      * @param restartHeight The block height to which the stream had reached when the restart occurred.  This will only
      * be null if the stream restarts before a block height can ever be stored, which will only happen if the processor
      * for blocks had never connected and found any data.
+     * @param restartCount The number of times that a restart has occurred.
      */
     object StreamRestarted : VerifierEventType<VerifierEvent.StreamRestarted>
 
