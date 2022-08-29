@@ -33,7 +33,7 @@ sealed interface StreamRestartMode {
         }
 
         init {
-            check (restartDelayMs == RESTART_IMMEDIATELY || restartDelayMs in MIN_RESTART_DELAY_MS..MAX_RESTART_DELAY_MS) { "Restart delay ms cannot be out of bounds: ${MIN_RESTART_DELAY_MS}ms - ${MAX_RESTART_DELAY_MS}ms" }
+            check(restartDelayMs == RESTART_IMMEDIATELY || restartDelayMs in MIN_RESTART_DELAY_MS..MAX_RESTART_DELAY_MS) { "Restart delay ms cannot be out of bounds: ${MIN_RESTART_DELAY_MS}ms - ${MAX_RESTART_DELAY_MS}ms" }
         }
 
         fun calcDelay(restartCount: Long): Duration = if (restartDelayMs != RESTART_IMMEDIATELY) {
@@ -54,8 +54,6 @@ sealed interface StreamRestartMode {
             // be skipped
             Duration.ZERO
         }
-
-
     }
 
     /**

@@ -7,7 +7,6 @@ import io.provenance.client.protobuf.extensions.getBaseAccount
 import io.provenance.client.protobuf.extensions.getTx
 import io.provenance.eventstream.decoder.moshiDecoderAdapter
 import io.provenance.eventstream.net.okHttpNetAdapter
-import io.provenance.eventstream.utils.backoff
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -45,7 +44,6 @@ import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.time.Duration
 
 class VerifierClient(private val config: VerifierClientConfig) {
     // Cast the provided processor to T of Any to make creation and usage easier on the consumer of this library
