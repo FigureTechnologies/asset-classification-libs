@@ -15,11 +15,9 @@ import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.model.AccessRoute
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
-import tech.figure.classification.asset.client.domain.model.AssetQualifier
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.client.domain.model.EntityDetail
 import tech.figure.classification.asset.client.domain.model.FeeDestination
-import tech.figure.classification.asset.client.domain.model.ScopeSpecIdentifier
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import testconfiguration.IntTestBase
@@ -137,7 +135,6 @@ class ExecuteIntTest : IntTestBase() {
             acClient.updateAssetDefinition(
                 execute = UpdateAssetDefinitionExecute(
                     assetType = "some fake type",
-                    scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(UUID.randomUUID()),
                     verifiers = getDefaultVerifierDetail().wrapListAc(),
                     enabled = false,
                 ),
@@ -152,7 +149,6 @@ class ExecuteIntTest : IntTestBase() {
             acClient.updateAssetDefinition(
                 execute = UpdateAssetDefinitionExecute(
                     assetType = "faketype",
-                    scopeSpecIdentifier = ScopeSpecIdentifier.Address(assetDefinition.scopeSpecAddress),
                     verifiers = assetDefinition.verifiers,
                     enabled = false,
                 ),
@@ -372,14 +368,13 @@ class ExecuteIntTest : IntTestBase() {
     fun `test deleteAssetDefinition`() {
         assertFails("Attempting to delete an asset definition that does not exist should fail") {
             acClient.deleteAssetDefinition(
-                execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("faketype")),
+                execute = DeleteAssetDefinitionExecute(assetType = "faketype"),
                 signer = AppResources.contractAdminAccount.toAccountSigner(),
             )
         }
         acClient.addAssetDefinition(
             execute = AddAssetDefinitionExecute(
                 assetType = "deleteme",
-                scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(UUID.randomUUID()),
                 verifiers = getDefaultVerifierDetail().wrapListAc(),
                 enabled = true,
                 // This test simulates how the blockchain operates - the "asset" name is restricted and
@@ -391,12 +386,12 @@ class ExecuteIntTest : IntTestBase() {
         )
         assertFails("Attempting to delete an asset definition from an account that is not the admin should fail") {
             acClient.deleteAssetDefinition(
-                execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("deleteme")),
+                execute = DeleteAssetDefinitionExecute("deleteme"),
                 signer = AppResources.assetOnboardingAccount.toAccountSigner(),
             )
         }
         acClient.deleteAssetDefinition(
-            execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("deleteme")),
+            execute = DeleteAssetDefinitionExecute("deleteme"),
             signer = AppResources.contractAdminAccount.toAccountSigner(),
         )
         assertNull(
@@ -433,7 +428,6 @@ class ExecuteIntTest : IntTestBase() {
         acClient.addAssetDefinition(
             execute = AddAssetDefinitionExecute(
                 assetType = assetType,
-                scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(UUID.randomUUID()),
                 verifiers = getDefaultVerifierDetail().wrapListAc(),
                 enabled = enabled,
                 // This test simulates how the blockchain operates - the "asset" name is restricted and
@@ -446,7 +440,7 @@ class ExecuteIntTest : IntTestBase() {
         val assetDefinition = acClient.queryAssetDefinitionByAssetType(assetType)
         testFunction.invoke(assetDefinition)
         acClient.deleteAssetDefinition(
-            execute = DeleteAssetDefinitionExecute(qualifier = AssetQualifier.AssetType(assetType)),
+            execute = DeleteAssetDefinitionExecute(assetType = assetType),
             signer = AppResources.contractAdminAccount.toAccountSigner(),
         )
         assertNull(

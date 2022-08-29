@@ -43,32 +43,6 @@ interface ACQuerier {
     fun queryAssetDefinitionByAssetType(assetType: String): AssetDefinition
 
     /**
-     * Retrieves an asset definition, if present, from the smart contract by attempting a lookup by scope spec address.
-     * If the definition is not present, null is returned.
-     *
-     * For a more clear description of its values and purpose, see the [AssetDefinition] class comments.
-     *
-     * @param scopeSpecAddress The bech32 address associated with a scope specification, acting as a unique identifier.
-     * Begins with "scopespec".
-     * @param throwExceptions If an exception occurs in the smart contract or with the [PbClient][io.provenance.client.grpc.PbClient], it will be re-thrown
-     * unless this value is set to false.  An exception is normally thrown by the smart contract when the asset
-     * definition is missing, but that exception will be ignored and null will be returned instead, regardless of this
-     * boolean's value.
-     */
-    fun queryAssetDefinitionByScopeSpecAddressOrNull(scopeSpecAddress: String, throwExceptions: Boolean = false): AssetDefinition?
-
-    /**
-     * Retrieves an asset definition, if present, from the smart contract by attempting a lookup by scope spec address.
-     * If the definition is not present or any other error occurs, an exception will be thrown.
-     *
-     * For a more clear description of its values and purpose, see the [AssetDefinition] class comments.
-     *
-     * @param scopeSpecAddress The bech32 address associated with a scope specification, acting as a unique identifier.
-     * Begins with "scopespec".
-     */
-    fun queryAssetDefinitionByScopeSpecAddress(scopeSpecAddress: String): AssetDefinition
-
-    /**
      * Retrieves all asset definitions current stored in the smart contract.
      * This function can be used to dynamically establish a list of all available values without having foreknowledge
      * of each asset type and scope spec address associated with the smart contract.

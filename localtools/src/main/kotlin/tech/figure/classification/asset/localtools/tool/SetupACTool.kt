@@ -15,7 +15,6 @@ import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.client.client.base.ContractIdentifier
 import tech.figure.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import tech.figure.classification.asset.client.domain.model.EntityDetail
-import tech.figure.classification.asset.client.domain.model.ScopeSpecIdentifier
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.localtools.extensions.broadcastTxAc
 import tech.figure.classification.asset.localtools.extensions.checkNotNullAc
@@ -162,7 +161,6 @@ object SetupACTool {
             ).generateAddAssetDefinitionMsg(
                 execute = AddAssetDefinitionExecute(
                     assetType = specType,
-                    scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(specification.scopeSpecConfig.id),
                     verifiers = VerifierDetail(
                         address = config.verifierBech32Address,
                         onboardingCost = "100000".toBigInteger(),

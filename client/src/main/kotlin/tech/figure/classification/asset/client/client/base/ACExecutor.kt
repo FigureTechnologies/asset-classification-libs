@@ -82,8 +82,8 @@ interface ACExecutor {
      * @param execute The [AddAssetDefinitionExecute] payload that will be sent to the smart contract.
      * @param signerAddress The address that will sign this message when executed in a transaction.
      */
-    fun <T> generateAddAssetDefinitionMsg(
-        execute: AddAssetDefinitionExecute<T>,
+    fun generateAddAssetDefinitionMsg(
+        execute: AddAssetDefinitionExecute,
         signerAddress: String,
     ): MsgExecuteContract
 
@@ -97,8 +97,8 @@ interface ACExecutor {
      * @param signer Any implementation of [Signer] to sign the message programmatically.  See [AccountSigner][tech.figure.classification.asset.util.wallet.AccountSigner] for a provided implementation.
      * @param options Various options that alter how the transaction is broadcast.  See [BroadcastOptions] for more details.
      */
-    fun <T> addAssetDefinition(
-        execute: AddAssetDefinitionExecute<T>,
+    fun addAssetDefinition(
+        execute: AddAssetDefinitionExecute,
         signer: Signer,
         options: BroadcastOptions = BroadcastOptions(),
     ): BroadcastTxResponse
@@ -112,8 +112,8 @@ interface ACExecutor {
      * @param execute The [UpdateAssetDefinitionExecute] payload that will be sent to the smart contract.
      * @param signerAddress The address that will sign this message when executed in a transaction.
      */
-    fun <T> generateUpdateAssetDefinitionMsg(
-        execute: UpdateAssetDefinitionExecute<T>,
+    fun generateUpdateAssetDefinitionMsg(
+        execute: UpdateAssetDefinitionExecute,
         signerAddress: String,
     ): MsgExecuteContract
 
@@ -129,8 +129,8 @@ interface ACExecutor {
      * @param signer Any implementation of [Signer] to sign the message programmatically.  See [AccountSigner][tech.figure.classification.asset.util.wallet.AccountSigner] for a provided implementation.
      * @param options Various options that alter how the transaction is broadcast.  See [BroadcastOptions] for more details.
      */
-    fun <T> updateAssetDefinition(
-        execute: UpdateAssetDefinitionExecute<T>,
+    fun updateAssetDefinition(
+        execute: UpdateAssetDefinitionExecute,
         signer: Signer,
         options: BroadcastOptions = BroadcastOptions(),
     ): BroadcastTxResponse

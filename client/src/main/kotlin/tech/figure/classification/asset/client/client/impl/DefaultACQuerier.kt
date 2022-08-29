@@ -11,7 +11,6 @@ import tech.figure.classification.asset.client.domain.model.ACContractState
 import tech.figure.classification.asset.client.domain.model.ACVersionInfo
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
-import tech.figure.classification.asset.client.domain.model.AssetQualifier
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.client.domain.model.QueryAssetDefinitionsResponse
 import tech.figure.classification.asset.client.domain.query.QueryAssetDefinition
@@ -44,23 +43,12 @@ class DefaultACQuerier(
         assetType: String,
         throwExceptions: Boolean,
     ): AssetDefinition? = doQueryOrNull(
-        query = QueryAssetDefinition(AssetQualifier.AssetType(assetType)),
+        query = QueryAssetDefinition(assetType),
         throwExceptions = throwExceptions,
     )
 
     override fun queryAssetDefinitionByAssetType(assetType: String): AssetDefinition =
-        doQuery(QueryAssetDefinition(AssetQualifier.AssetType(assetType)))
-
-    override fun queryAssetDefinitionByScopeSpecAddressOrNull(
-        scopeSpecAddress: String,
-        throwExceptions: Boolean,
-    ): AssetDefinition? = doQueryOrNull(
-        query = QueryAssetDefinition(AssetQualifier.ScopeSpecAddress(scopeSpecAddress)),
-        throwExceptions = throwExceptions,
-    )
-
-    override fun queryAssetDefinitionByScopeSpecAddress(scopeSpecAddress: String): AssetDefinition =
-        doQuery(QueryAssetDefinition(AssetQualifier.ScopeSpecAddress(scopeSpecAddress)))
+        doQuery(QueryAssetDefinition(assetType))
 
     override fun queryAssetDefinitions(): QueryAssetDefinitionsResponse = doQuery(QueryAssetDefinitions)
 

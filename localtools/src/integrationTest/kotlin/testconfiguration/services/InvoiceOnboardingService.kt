@@ -66,11 +66,11 @@ class InvoiceOnboardingService(
         val assetSpecification = AssetSpecifications.singleOrNull { it.recordSpecConfigs.single().name == assetDefinition.assetType }
             ?: error("Failed to find asset specification for asset type [$assetType]")
         val scopeMetadata = MetadataAddress.forScope(assetUuid)
-        val scopeSpecMetadata = MetadataAddress.fromBech32(assetDefinition.scopeSpecAddress)
+        val scopeSpecMetadata = MetadataAddress.forScopeSpecification(assetSpecification.scopeSpecConfig.id)
         val sessionUuid = UUID.randomUUID()
         val sessionMetadata = MetadataAddress.forSession(assetUuid, sessionUuid)
-        val contractSpecMetadata = acClient.pbClient.getContractSpecFromScopeSpec(assetDefinition.scopeSpecAddress)
-        logger.info("Writing scope with address [$scopeMetadata], scope spec address [${assetDefinition.scopeSpecAddress}] and owner [${ownerAccount.bech32Address}]")
+        val contractSpecMetadata = acClient.pbClient.getContractSpecFromScopeSpec(scopeSpecMetadata.toString())
+        logger.info("Writing scope with address [$scopeMetadata], scope spec address [$scopeSpecMetadata] and owner [${ownerAccount.bech32Address}]")
         val writeScopeRequest = MsgWriteScopeRequest.newBuilder().also { req ->
             req.scopeUuid = assetUuid.toString()
             req.specUuid = scopeSpecMetadata.getPrimaryUuid().toString()

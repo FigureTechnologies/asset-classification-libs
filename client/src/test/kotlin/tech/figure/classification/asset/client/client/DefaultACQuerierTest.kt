@@ -84,55 +84,6 @@ class DefaultACQuerierTest {
     }
 
     @Test
-    fun `test queryAssetDefinitionByScopeSpecAddressOrNull`() {
-        val suite = MockSuite.new()
-        suite.mockQueryThrows(IllegalStateException("Failed to do asset definition things"))
-        assertThrows<IllegalStateException>("Expected an exception to be rethrown when requested") {
-            suite.querier.queryAssetDefinitionByScopeSpecAddressOrNull("type", throwExceptions = true)
-        }
-        assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
-            suite.querier.queryAssetDefinitionByScopeSpecAddressOrNull("type", throwExceptions = false)
-        }.assertNull("Expected the response value to be null on a successful no-exceptions run")
-        suite.mockQueryNullResponse()
-        assertSucceeds("Expected no exception to be thrown when the contract returns a null response") {
-            suite.querier.queryAssetDefinitionByScopeSpecAddressOrNull("whoaooaoaooa", throwExceptions = true)
-        }.assertNull("Expected the response value to be null when the contract returns a null response")
-        val assetDefinition = suite.mockAssetDefinition()
-        suite.mockQueryReturns(assetDefinition)
-        val assetDefinitionFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
-            suite.querier.queryAssetDefinitionByScopeSpecAddressOrNull("address")
-        }.assertNotNull("Expected the response to be non-null when a value is returned")
-        assertEquals(
-            expected = assetDefinition,
-            actual = assetDefinitionFromQuery,
-            message = "Expected the output to match the asset definition initial value",
-        )
-    }
-
-    @Test
-    fun `test queryAssetDefinitionByScopeSpecAddress`() {
-        val suite = MockSuite.new()
-        suite.mockQueryThrows(IllegalStateException("Failed to do asset definition things"))
-        assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
-            suite.querier.queryAssetDefinitionByScopeSpecAddress("scopeSpecAddress")
-        }
-        suite.mockQueryNullResponse()
-        assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
-            suite.querier.queryAssetDefinitionByScopeSpecAddress("type")
-        }
-        val assetDefinition = suite.mockAssetDefinition()
-        suite.mockQueryReturns(assetDefinition)
-        val assetDefinitionFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
-            suite.querier.queryAssetDefinitionByScopeSpecAddress("myscopespec")
-        }
-        assertEquals(
-            expected = assetDefinition,
-            actual = assetDefinitionFromQuery,
-            message = "Expected the output to match the asset definition initial value",
-        )
-    }
-
-    @Test
     fun `test queryAssetDefinitions`() {
         val suite = MockSuite.new()
         val definitions = QueryAssetDefinitionsResponse(
@@ -319,7 +270,6 @@ class DefaultACQuerierTest {
 
         fun mockAssetDefinition(assetType: String = "heloc"): AssetDefinition = AssetDefinition(
             assetType = assetType,
-            scopeSpecAddress = "address",
             verifiers = listOf(
                 VerifierDetail(
                     address = "address",

@@ -1,10 +1,7 @@
 package tech.figure.classification.asset
 
 import io.provenance.scope.util.MetadataAddress
-import io.provenance.spec.AssetSpecification
 import io.provenance.spec.AssetSpecifications
-import io.provenance.spec.HELOCSpecification
-import io.provenance.spec.MortgageSpecification
 import org.junit.jupiter.api.Test
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
@@ -25,12 +22,10 @@ class QueriesIntTest : IntTestBase() {
         testAssetDefinitionValidity(
             assetDefinition = acClient.queryAssetDefinitionByAssetTypeOrNull("heloc"),
             expectedAssetType = "heloc",
-            expectedSpecification = HELOCSpecification,
         )
         testAssetDefinitionValidity(
             assetDefinition = acClient.queryAssetDefinitionByAssetType("heloc"),
             expectedAssetType = "heloc",
-            expectedSpecification = HELOCSpecification,
         )
         assertNull(
             actual = acClient.queryAssetDefinitionByAssetTypeOrNull("some type that doesn't exist"),
@@ -38,29 +33,6 @@ class QueriesIntTest : IntTestBase() {
         )
         assertFails("Expected a missing type to throw an exception for queryAssetDefinitionByAssetType") {
             acClient.queryAssetDefinitionByAssetType("some type that doesn't exist")
-        }
-    }
-
-    @Test
-    fun `test queryAssetDefinitionByScopeSpecAddress`() {
-        val scopeSpecAddress = MetadataAddress.forScopeSpecification(MortgageSpecification.scopeSpecConfig.id).toString()
-        testAssetDefinitionValidity(
-            assetDefinition = acClient.queryAssetDefinitionByScopeSpecAddressOrNull(scopeSpecAddress),
-            expectedAssetType = "mortgage",
-            expectedSpecification = MortgageSpecification,
-        )
-        testAssetDefinitionValidity(
-            assetDefinition = acClient.queryAssetDefinitionByScopeSpecAddress(scopeSpecAddress),
-            expectedAssetType = "mortgage",
-            expectedSpecification = MortgageSpecification,
-        )
-        val badScopeSpecAddress = MetadataAddress.forScopeSpecification(UUID.randomUUID()).toString()
-        assertNull(
-            actual = acClient.queryAssetDefinitionByScopeSpecAddressOrNull(badScopeSpecAddress),
-            message = "Expected a missing scope spec address to produce null for queryAssetDefinitionByScopeSpecAddressOrNull",
-        )
-        assertFails("Expected a missing scope spec address to throw an exception for queryAssetDefinitionByScopeSpecAddress") {
-            acClient.queryAssetScopeAttributeByScopeAddress(badScopeSpecAddress)
         }
     }
 
@@ -73,14 +45,14 @@ class QueriesIntTest : IntTestBase() {
             message = "There should be one asset definition per asset specification",
         )
         AssetSpecifications.forEach { assetSpecification ->
-            val targetScopeSpecAddress = assetSpecification.getScopeSpecAddress()
-            val assetDefinition = assetDefinitions.singleOrNull { it.scopeSpecAddress == targetScopeSpecAddress }
+            val targetAssetType = assetSpecification.scopeSpecConfig.name
+            val assetDefinition = assetDefinitions.singleOrNull { it.assetType == targetAssetType }
             assertNotNull(
                 actual = assetDefinition,
                 message = "Expected an asset definition of type [${assetSpecification.scopeSpecConfig.name}] to exist " +
-                    "for address [$targetScopeSpecAddress] but none were found.  Available values: " +
+                    "but none were found.  Available values: " +
                     assetDefinitions.joinToString(prefix = "[", separator = ", ", postfix = "]") {
-                        "(Type: ${it.assetType} | Address: ${it.scopeSpecAddress})"
+                        "(Type: ${it.assetType})"
                     }
             )
         }
@@ -134,14 +106,9 @@ class QueriesIntTest : IntTestBase() {
         )
     }
 
-    private fun AssetSpecification.getScopeSpecAddress(): String = MetadataAddress
-        .forScopeSpecification(scopeSpecConfig.id)
-        .toString()
-
     private fun testAssetDefinitionValidity(
         assetDefinition: AssetDefinition?,
         expectedAssetType: String,
-        expectedSpecification: AssetSpecification,
     ) {
         assertNotNull(
             actual = assetDefinition,
@@ -151,11 +118,6 @@ class QueriesIntTest : IntTestBase() {
             expected = expectedAssetType,
             actual = assetDefinition.assetType,
             message = "Expected the asset definition's asset type to be correct",
-        )
-        assertEquals(
-            expected = expectedSpecification.getScopeSpecAddress(),
-            actual = assetDefinition.scopeSpecAddress,
-            message = "Expected the asset definition to have the correct scope spec address",
         )
         assertTrue(
             actual = assetDefinition.enabled,
