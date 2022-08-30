@@ -10,7 +10,6 @@ import io.provenance.client.protobuf.extensions.toTxBody
 import io.provenance.name.v1.MsgBindNameRequest
 import io.provenance.name.v1.NameRecord
 import io.provenance.scope.util.toByteString
-import io.provenance.spec.AssetSpecifications
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.client.client.base.ContractIdentifier
 import tech.figure.classification.asset.client.domain.execute.AddAssetDefinitionExecute
@@ -27,6 +26,7 @@ import tech.figure.classification.asset.util.extensions.isErrorAc
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import tech.figure.classification.asset.util.objects.ACObjectMapperUtil
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
+import tech.figure.spec.AssetSpecifications
 import java.io.File
 import java.net.URL
 

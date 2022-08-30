@@ -1,11 +1,11 @@
 package tech.figure.classification.asset
 
 import io.provenance.scope.util.MetadataAddress
-import io.provenance.spec.AssetSpecifications
 import org.junit.jupiter.api.Test
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
+import tech.figure.spec.AssetSpecifications
 import testconfiguration.IntTestBase
 import testconfiguration.models.TestAsset
 import testconfiguration.util.AppResources

@@ -18,7 +18,6 @@ import io.provenance.scope.encryption.ecies.ProvenanceKeyGenerator
 import io.provenance.scope.objectstore.client.OsClient
 import io.provenance.scope.util.MetadataAddress
 import io.provenance.scope.util.toByteString
-import io.provenance.spec.AssetSpecifications
 import mu.KLogging
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.client.domain.execute.OnboardAssetExecute
@@ -26,6 +25,7 @@ import tech.figure.classification.asset.client.domain.model.AccessRoute
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
+import tech.figure.spec.AssetSpecifications
 import testconfiguration.extensions.getContractSpecFromScopeSpec
 import testconfiguration.extensions.toBase64StringAc
 import testconfiguration.models.TestAsset
