@@ -33,6 +33,7 @@ import tech.figure.classification.asset.verifier.config.VerifierEvent.StreamComp
 import tech.figure.classification.asset.verifier.config.VerifierEvent.StreamExceptionOccurred
 import tech.figure.classification.asset.verifier.config.VerifierEvent.StreamExited
 import tech.figure.classification.asset.verifier.config.VerifierEvent.StreamRestarted
+import tech.figure.classification.asset.verifier.config.VerifierEvent.StreamRestarting
 import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyAssetSendFailed
 import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyAssetSendSucceeded
 import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyAssetSendSyncSequenceNumberFailed
@@ -86,7 +87,10 @@ class VerifierClient(private val config: VerifierClientConfig) {
         return startVerifying(startingBlockHeight)
     }
 
-    private suspend fun verifyLoop(startingBlockHeight: Long?) {
+    private suspend fun verifyLoop(
+        startingBlockHeight: Long?,
+        retry: BlockRetry = BlockRetry(block = startingBlockHeight),
+    ) {
         val netAdapter = okHttpNetAdapter(
             node = config.eventStreamNode.toString(),
             okHttpClient = config.okHttpClientBuilder(),
@@ -122,12 +126,30 @@ class VerifierClient(private val config: VerifierClientConfig) {
         }
         when (config.streamRestartMode) {
             is StreamRestartMode.On -> {
-                if (config.streamRestartMode.restartDelayMs > 0) {
-                    delay(config.streamRestartMode.restartDelayMs)
-                }
-                StreamRestarted(latestBlock).send()
+                // Use the retry count recorded in the retry parameter if the client is stuck on a specific block.  If
+                // the client is not stuck on the same block, then reset the counter to zero to start a new set of
+                // retries, ensuring that various retries throughout iteration through blocks do not infinitely increase
+                // the delay unless reading the chain has become forever halted
+                val retryCount = retry.retryCount.takeIf { retry.block == latestBlock } ?: 0
+                val restartDelayDuration = config.streamRestartMode.calcDelay(retryCount)
+                // Note that the stream is restarting before the delay occurs to ensure consumers know the state of the
+                // flow is about to begin again from the latest block recorded
+                StreamRestarting(
+                    restartHeight = latestBlock,
+                    restartCount = retryCount + 1,
+                    restartDelayMs = restartDelayDuration.inWholeMilliseconds,
+                ).send()
+                delay(restartDelayDuration)
+                // Note that the stream delay is over and the loop is about to restart
+                StreamRestarted(latestBlock, retryCount + 1).send()
                 // Recurse into a new event stream if the stream needs to restart
-                verifyLoop(latestBlock)
+                verifyLoop(
+                    startingBlockHeight = latestBlock,
+                    retry = BlockRetry(
+                        retryCount = retryCount + 1,
+                        block = latestBlock,
+                    ),
+                )
             }
             is StreamRestartMode.Off -> {
                 StreamExited(latestBlock).send()
@@ -309,3 +331,8 @@ private data class AccountTrackingDetail(
         sequenceNumber.incrementAndGet()
     }
 }
+
+private data class BlockRetry(
+    val retryCount: Long = 0,
+    val block: Long? = null,
+)
