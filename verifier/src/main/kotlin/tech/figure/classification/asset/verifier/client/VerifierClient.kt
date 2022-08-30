@@ -89,7 +89,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
 
     private suspend fun verifyLoop(
         startingBlockHeight: Long?,
-        retry: BlockRetry = BlockRetry(),
+        retry: BlockRetry = BlockRetry(block = startingBlockHeight),
     ) {
         val netAdapter = okHttpNetAdapter(
             node = config.eventStreamNode.toString(),
