@@ -6,14 +6,13 @@ import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
-import tech.figure.classification.asset.client.domain.model.FeePaymentDetail
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.spec.AssetSpecifications
 import testconfiguration.IntTestBase
+import testconfiguration.assertions.assertFeePaymentDetailValidity
 import testconfiguration.extensions.assertNotNullAc
 import testconfiguration.models.TestAsset
 import testconfiguration.util.AppResources
-import java.math.BigInteger
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -281,7 +280,7 @@ class QueriesIntTest : IntTestBase() {
             )
         }
         val asset = assetOnboardingService.storeAndOnboardTestAsset()
-        testFeePaymentDetailValidity(asset) {
+        assertFeePaymentDetailValidity(asset) {
             acClient.queryFeePaymentsByAssetUuid(
                 assetUuid = asset.assetUuid,
                 assetType = asset.assetType,
@@ -328,7 +327,7 @@ class QueriesIntTest : IntTestBase() {
         }
         val asset = assetOnboardingService.storeAndOnboardTestAsset()
         val scopeAddress = MetadataAddress.forScope(asset.assetUuid).toString()
-        testFeePaymentDetailValidity(asset) {
+        assertFeePaymentDetailValidity(asset) {
             acClient.queryFeePaymentsByScopeAddress(
                 scopeAddress = scopeAddress,
                 assetType = asset.assetType,
@@ -447,69 +446,5 @@ class QueriesIntTest : IntTestBase() {
             actual = scopeAttribute.requestorAddress,
             message = "The requestor address should be set to the asset owner address",
         )
-    }
-
-    private fun testFeePaymentDetailValidity(
-        asset: TestAsset,
-        getFeePaymentDetail: () -> FeePaymentDetail,
-    ) {
-        val feePayments = getFeePaymentDetail()
-        assertEquals(
-            expected = asset.assetType,
-            actual = feePayments.assetType,
-            message = "Expected the FeePaymentDetail to include the correct asset type",
-        )
-        assertEquals(
-            expected = MetadataAddress.forScope(asset.assetUuid).toString(),
-            actual = feePayments.scopeAddress,
-            message = "Expected the FeePaymentDetail to include the correct scope address",
-        )
-        val verifierDetail = acClient.queryAssetDefinitionByAssetType(asset.assetType)
-            .verifiers
-            .singleOrNull { it.address == AppResources.verifierAccount.bech32Address }
-            .assertNotNullAc("Expected the asset definition for asset type ${asset.assetType} to include the default verifier")
-        val nonVerifierFeesPaid = feePayments
-            .payments
-            .filterNot { it.recipient == verifierDetail.address }
-            .fold(BigInteger.ZERO) { nonVerifierFeeTotal, feePayment ->
-                val feePaid = feePayment.amount.amount.toBigInteger()
-                assertTrue(
-                    actual = feePaid > BigInteger.ZERO,
-                    message = "The fee paid for [${feePayment.name}] was zero or less ($feePaid), but fees generated should always be greater than zero",
-                )
-                assertEquals(
-                    expected = verifierDetail.onboardingDenom,
-                    actual = feePayment.amount.denom,
-                    message = "All fee payments should use the verifier's denom, but [${feePayment.name}] did not",
-                )
-                nonVerifierFeeTotal + feePaid
-            }
-        val expectedVerifierFee = verifierDetail.onboardingCost
-            .divide("2".toBigInteger())
-            .minus(nonVerifierFeesPaid)
-        assertTrue(
-            actual = expectedVerifierFee >= BigInteger.ZERO,
-            message = "Non verifier-targeted fees should always sum to a value less or equal to half the verifier detail's onboarding cost [${verifierDetail.onboardingCost}] divided by two, but was [$nonVerifierFeesPaid]",
-        )
-        if (expectedVerifierFee > BigInteger.ZERO) {
-            val verifierFee = feePayments.payments.singleOrNull { it.recipient == verifierDetail.address }
-                .assertNotNullAc("Expected a verifier fee to be produced")
-            assertEquals(
-                expected = expectedVerifierFee,
-                actual = verifierFee.amount.amount.toBigInteger(),
-                message = "The verifier fee produced was calculated incorrectly by the contract",
-            )
-            assertEquals(
-                expected = verifierDetail.onboardingDenom,
-                actual = verifierFee.amount.denom,
-                message = "The verifier fee should use the verifier's onboarding denom for its amount denom",
-            )
-        } else {
-            val matchingPayments = feePayments.payments.filter { it.recipient == verifierDetail.address }
-            assertTrue(
-                actual = matchingPayments.isEmpty(),
-                message = "The verifier should not get a payment upon verification, but found matching fee payments:\n$matchingPayments",
-            )
-        }
     }
 }

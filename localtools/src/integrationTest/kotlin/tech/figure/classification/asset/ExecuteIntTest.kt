@@ -15,12 +15,14 @@ import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.model.AccessRoute
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
+import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.client.domain.model.EntityDetail
 import tech.figure.classification.asset.client.domain.model.FeeDestination
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import testconfiguration.IntTestBase
+import testconfiguration.assertions.assertFeePaymentDetailValidity
 import testconfiguration.util.AppResources
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -71,6 +73,7 @@ class ExecuteIntTest : IntTestBase() {
         }
         val assetType = "payable"
         val firstAsset = assetOnboardingService.storeAndOnboardTestAsset(assetType = assetType)
+        assertFeePaymentDetailValidity(asset = firstAsset)
         verifyAnAsset(firstAsset.assetUuid, firstAsset.assetType, true)
         val firstScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
             assetUuid = firstAsset.assetUuid,
@@ -97,6 +100,7 @@ class ExecuteIntTest : IntTestBase() {
             )
         }
         val secondAsset = assetOnboardingService.storeAndOnboardTestAsset(assetType = assetType)
+        assertFeePaymentDetailValidity(secondAsset)
         verifyAnAsset(secondAsset.assetUuid, secondAsset.assetType, false)
         // After verifying an asset as success = false, the asset should be allowed to onboard again
         acClient.onboardAsset(
@@ -108,6 +112,7 @@ class ExecuteIntTest : IntTestBase() {
             ),
             signer = AppResources.assetOnboardingAccount.toAccountSigner(),
         )
+        assertFeePaymentDetailValidity(secondAsset)
         // Re-verify after the re-onboard process runs
         verifyAnAsset(secondAsset.assetUuid, secondAsset.assetType, true)
         val secondScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
@@ -120,6 +125,150 @@ class ExecuteIntTest : IntTestBase() {
             message = "The re-onboard and re-verification process should mark the asset as successfully verified",
         )
         testProvenanceScopeAttributeEquality(secondScopeAttribute)
+    }
+
+    @Test
+    fun `test multiple verifications`() {
+        val owner = AppResources.assetOnboardingAccount
+        val asset = assetOnboardingService.storeAndOnboardTestAsset(assetType = "heloc", ownerAccount = owner)
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        val preVerifyHelocScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "heloc",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.PENDING,
+            actual = preVerifyHelocScopeAttribute.onboardingStatus,
+            message = "The heloc attribute should indicate that the asset is awaiting verification",
+        )
+        assertFeePaymentDetailValidity(asset, assetType = "heloc")
+        val preVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.PENDING,
+            actual = preVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "The mortgage attribute should indicate that the asset is awaiting verification",
+        )
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        acClient.verifyAsset(
+            execute = VerifyAssetExecute(
+                identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                assetType = "heloc",
+                success = true,
+                message = "Successful heloc verification",
+            ),
+            signer = AppResources.verifierAccount.toAccountSigner(),
+        )
+        assertNull(
+            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "heloc"),
+            message = "Fee payments should be null for the heloc record after heloc verification runs",
+        )
+        val postVerifyHelocScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "heloc",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.APPROVED,
+            actual = postVerifyHelocScopeAttribute.onboardingStatus,
+            message = "Expected the onboarding status to show that the heloc attribute has been approved",
+        )
+        acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        ).also { mortgageScopeAttribute ->
+            assertEquals(
+                expected = preVerifyMortgageScopeAttribute,
+                actual = mortgageScopeAttribute,
+                message = "The mortgage scope attribute should be wholly unchanged by the heloc verification",
+            )
+            assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        }
+        acClient.verifyAsset(
+            execute = VerifyAssetExecute(
+                identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                assetType = "mortgage",
+                success = false,
+                message = "Failed because this is a heloc, duh",
+            ),
+            signer = AppResources.verifierAccount.toAccountSigner(),
+        )
+        assertNull(
+            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "mortgage"),
+            message = "Fee payments should be null for the mortgage record after mortgage verification runs",
+        )
+        val postVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.DENIED,
+            actual = postVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "Expected the onboarding status to show that the mortgage attribute has been denied",
+        )
+        assertFails("Attempting to onboarding a second time as heloc should fail because the asset is already approved") {
+            acClient.onboardAsset(
+                execute = OnboardAssetExecute(
+                    identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                    assetType = "heloc",
+                    verifierAddress = AppResources.verifierAccount.bech32Address,
+                ),
+                signer = owner.toAccountSigner(),
+            )
+        }
+        // Onboard a second time as mortgage to show that the retry flow is still allowed in this odd circumstance
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        val preSecondVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.PENDING,
+            actual = preSecondVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "The mortgage verification should move back to pending status after a second onboard",
+        )
+        acClient.verifyAsset(
+            execute = VerifyAssetExecute(
+                identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                assetType = "mortgage",
+                success = true,
+                message = "Oh, I guess this somehow is a heloc and a mortgage",
+            ),
+            signer = AppResources.verifierAccount.toAccountSigner(),
+        )
+        val postSecondVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.APPROVED,
+            actual = postSecondVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "The asset should be moved to approved for mortgage after the second successful verification",
+        )
+        assertNull(
+            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "mortgage"),
+            message = "Fee payments for the mortgage flow should be removed after the second verification",
+        )
+        acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "heloc"
+        ).also { helocScopeAttribute ->
+            assertEquals(
+                expected = postVerifyHelocScopeAttribute,
+                actual = helocScopeAttribute,
+                message = "The heloc scope attribute should be unchanged by all mortgage contract actions",
+            )
+        }
     }
 
     @Test
