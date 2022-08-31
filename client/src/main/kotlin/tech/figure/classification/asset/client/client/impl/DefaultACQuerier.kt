@@ -13,6 +13,7 @@ import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.client.domain.model.QueryAssetDefinitionsResponse
+import tech.figure.classification.asset.client.domain.query.QueryAllAssetScopeAttributes
 import tech.figure.classification.asset.client.domain.query.QueryAssetDefinition
 import tech.figure.classification.asset.client.domain.query.QueryAssetDefinitions
 import tech.figure.classification.asset.client.domain.query.QueryAssetScopeAttribute
@@ -47,36 +48,105 @@ class DefaultACQuerier(
         throwExceptions = throwExceptions,
     )
 
-    override fun queryAssetDefinitionByAssetType(assetType: String): AssetDefinition =
-        doQuery(QueryAssetDefinition(assetType))
+    override fun queryAssetDefinitionByAssetType(
+        assetType: String,
+    ): AssetDefinition = doQuery(
+        query = QueryAssetDefinition(
+            assetType = assetType,
+        ),
+    )
 
-    override fun queryAssetDefinitions(): QueryAssetDefinitionsResponse = doQuery(QueryAssetDefinitions)
+    override fun queryAssetDefinitions(): QueryAssetDefinitionsResponse = doQuery(
+        query = QueryAssetDefinitions,
+    )
 
     override fun queryAssetScopeAttributeByAssetUuidOrNull(
         assetUuid: UUID,
+        assetType: String,
         throwExceptions: Boolean,
     ): AssetScopeAttribute? = doQueryOrNull(
-        query = QueryAssetScopeAttribute(AssetIdentifier.AssetUuid(assetUuid)),
+        query = QueryAssetScopeAttribute(
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+            assetType = assetType
+        ),
         throwExceptions = throwExceptions,
     )
 
-    override fun queryAssetScopeAttributeByAssetUuid(assetUuid: UUID): AssetScopeAttribute =
-        doQuery(QueryAssetScopeAttribute(AssetIdentifier.AssetUuid(assetUuid)))
+    override fun queryAssetScopeAttributeByAssetUuid(
+        assetUuid: UUID,
+        assetType: String,
+    ): AssetScopeAttribute = doQuery(
+        query = QueryAssetScopeAttribute(
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+            assetType = assetType,
+        ),
+    )
 
     override fun queryAssetScopeAttributeByScopeAddressOrNull(
         scopeAddress: String,
+        assetType: String,
         throwExceptions: Boolean,
     ): AssetScopeAttribute? = doQueryOrNull(
-        query = QueryAssetScopeAttribute(AssetIdentifier.ScopeAddress(scopeAddress)),
+        query = QueryAssetScopeAttribute(
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+            assetType = assetType,
+        ),
         throwExceptions = throwExceptions,
     )
 
-    override fun queryAssetScopeAttributeByScopeAddress(scopeAddress: String): AssetScopeAttribute =
-        doQuery(QueryAssetScopeAttribute(AssetIdentifier.ScopeAddress(scopeAddress)))
+    override fun queryAssetScopeAttributeByScopeAddress(
+        scopeAddress: String,
+        assetType: String,
+    ): AssetScopeAttribute = doQuery(
+        query = QueryAssetScopeAttribute(
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+            assetType = assetType,
+        )
+    )
 
-    override fun queryContractState(): ACContractState = doQuery(QueryState)
+    override fun queryAllAssetScopeAttributesByAssetUuidOrNull(
+        assetUuid: UUID,
+        throwExceptions: Boolean,
+    ): List<AssetScopeAttribute>? = doQueryOrNull(
+        query = QueryAllAssetScopeAttributes(
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+        ),
+        throwExceptions = throwExceptions,
+    )
 
-    override fun queryContractVersion(): ACVersionInfo = doQuery(QueryVersion)
+    override fun queryAllAssetScopeAttributesByAssetUuid(
+        assetUuid: UUID,
+    ): List<AssetScopeAttribute> = doQuery(
+        query = QueryAllAssetScopeAttributes(
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+        )
+    )
+
+    override fun queryAllAssetScopeAttributesByScopeAddressOrNull(
+        scopeAddress: String,
+        throwExceptions: Boolean,
+    ): List<AssetScopeAttribute>? = doQueryOrNull(
+        query = QueryAllAssetScopeAttributes(
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+        ),
+        throwExceptions = throwExceptions,
+    )
+
+    override fun queryAllAssetScopeAttributesByScopeAddress(
+        scopeAddress: String,
+    ): List<AssetScopeAttribute> = doQuery(
+        query = QueryAllAssetScopeAttributes(
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+        ),
+    )
+
+    override fun queryContractState(): ACContractState = doQuery(
+        query = QueryState,
+    )
+
+    override fun queryContractVersion(): ACVersionInfo = doQuery(
+        query = QueryVersion,
+    )
 
     /**
      * Executes a provided [ContractQuery] against the Asset Classification smart contract.  This relies on the

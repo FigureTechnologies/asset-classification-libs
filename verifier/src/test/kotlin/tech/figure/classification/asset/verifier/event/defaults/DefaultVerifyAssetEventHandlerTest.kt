@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
+import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingAssetType
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
@@ -93,12 +94,37 @@ class DefaultVerifyAssetEventHandlerTest {
     }
 
     @Test
+    fun `test no asset type attribute included in event`() = runTest {
+        val parameters = getMockParameters { builder ->
+            builder.addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
+        }
+        parameters.handleEvent()
+        assertLastEvent<EventIgnoredMissingAssetType>(parameters) { (event, eventType, message) ->
+            assertEquals(
+                expected = parameters.event,
+                actual = event,
+                message = "Expected the event to contain the asset classification event",
+            )
+            assertEquals(
+                expected = ACContractEvent.VERIFY_ASSET,
+                actual = eventType,
+                message = "Expected the event type to be a verify asset event",
+            )
+            assertTrue(
+                actual = "Expected the verify asset event to include an asset type, but it was missing" in message,
+                message = "Expected the correct event message to be included in the output",
+            )
+        }
+    }
+
+    @Test
     fun `test failure to find scope attribute`() = runTest {
         val parameters = getMockParameters { builder ->
             builder
                 .addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
+                .addACAttribute(MockACAttribute.AssetType("mock-asset-type"))
         }
-        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any()) } throws IllegalStateException("Failed to query for scope")
+        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any(), any()) } throws IllegalStateException("Failed to query for scope")
         parameters.handleEvent()
         assertLastEvent<EventIgnoredMissingScopeAttribute>(parameters) { (event, eventType, message, t) ->
             assertEquals(
@@ -132,9 +158,10 @@ class DefaultVerifyAssetEventHandlerTest {
         val parameters = getMockParameters { builder ->
             builder
                 .addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
+                .addACAttribute(MockACAttribute.AssetType("mock-asset-type"))
         }
         val mockScopeAttribute = getMockScopeAttribute(onboardingStatus = AssetOnboardingStatus.PENDING)
-        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any()) } returns mockScopeAttribute
+        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any(), any()) } returns mockScopeAttribute
         parameters.handleEvent()
         assertLastEvent<VerifyEventFailedOnboardingStatusStillPending>(parameters) { (event, scopeAttribute, message) ->
             assertEquals(
@@ -159,9 +186,10 @@ class DefaultVerifyAssetEventHandlerTest {
         val parameters = getMockParameters { builder ->
             builder
                 .addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
+                .addACAttribute(MockACAttribute.AssetType("mock-asset-type"))
         }
         val mockScopeAttribute = getMockScopeAttribute(onboardingStatus = AssetOnboardingStatus.APPROVED)
-        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any()) } returns mockScopeAttribute
+        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any(), any()) } returns mockScopeAttribute
         parameters.handleEvent()
         assertLastEvent<VerifyEventSuccessful>(parameters) { (event, scopeAttribute) ->
             assertEquals(

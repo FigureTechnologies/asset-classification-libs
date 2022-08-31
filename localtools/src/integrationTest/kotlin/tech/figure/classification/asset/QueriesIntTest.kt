@@ -7,6 +7,7 @@ import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.spec.AssetSpecifications
 import testconfiguration.IntTestBase
+import testconfiguration.extensions.assertNotNullAc
 import testconfiguration.models.TestAsset
 import testconfiguration.util.AppResources
 import java.util.UUID
@@ -61,24 +62,203 @@ class QueriesIntTest : IntTestBase() {
     @Test
     fun `test queryAssetScopeAttributeByAssetUuid`() {
         val owner = AppResources.assetOnboardingAccount
-        val asset = invoiceOnboardingService.onboardTestAsset(assetType = "mortgage", ownerAccount = owner)
+        val asset = assetOnboardingService.storeAndOnboardTestAsset(
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
         testAssetScopeAttributeValidity(
             asset = asset,
-            scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuidOrNull(asset.assetUuid),
+            scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuidOrNull(
+                assetUuid = asset.assetUuid,
+                assetType = asset.assetType,
+            ),
             owner = AppResources.assetOnboardingAccount,
         )
         testAssetScopeAttributeValidity(
             asset = asset,
-            scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid),
+            scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+                assetUuid = asset.assetUuid,
+                assetType = asset.assetType,
+            ),
             owner = AppResources.assetOnboardingAccount,
         )
         assertNull(
-            actual = acClient.queryAssetScopeAttributeByAssetUuidOrNull(UUID.randomUUID()),
+            actual = acClient.queryAssetScopeAttributeByAssetUuidOrNull(UUID.randomUUID(), asset.assetType),
             message = "A null response should be returned when querying for an unknown scope attribute with queryAssetScopeAttributeByAssetUuidOrNull",
         )
         assertFails("An exception should be thrown when querying for an unknown scope attribute with queryAssetScopeAttributeByAssetUuid") {
-            acClient.queryAssetScopeAttributeByAssetUuid(UUID.randomUUID())
+            acClient.queryAssetScopeAttributeByAssetUuid(UUID.randomUUID(), asset.assetType)
         }
+        assertNull(
+            actual = acClient.queryAssetScopeAttributeByAssetUuidOrNull(asset.assetUuid, assetType = "unrelated"),
+            message = "A null response should be returned when querying for an unknown asset type for an existing scope with queryAssetScopeAttributeByAssetUuidOrNull",
+        )
+        assertFails("An exception should be thrown when querying for an unknown asset type for an existing scope with queryAssetScopeAttributeByAssetUuid") {
+            acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid, assetType = "unrelated")
+        }
+    }
+
+    @Test
+    fun `test queryAssetScopeAttributeByScopeAddress`() {
+        val owner = AppResources.assetOnboardingAccount
+        val asset = assetOnboardingService.storeAndOnboardTestAsset(
+            assetType = "heloc",
+            ownerAccount = owner,
+        )
+        val scopeAddress = MetadataAddress.forScope(asset.assetUuid).toString()
+        testAssetScopeAttributeValidity(
+            asset = asset,
+            scopeAttribute = acClient.queryAssetScopeAttributeByScopeAddressOrNull(
+                scopeAddress = scopeAddress,
+                assetType = asset.assetType,
+            ),
+            owner = AppResources.assetOnboardingAccount,
+        )
+        testAssetScopeAttributeValidity(
+            asset = asset,
+            scopeAttribute = acClient.queryAssetScopeAttributeByScopeAddress(
+                scopeAddress = scopeAddress,
+                assetType = asset.assetType,
+            ),
+            owner = AppResources.assetOnboardingAccount,
+        )
+        assertNull(
+            actual = acClient.queryAssetScopeAttributeByScopeAddressOrNull(
+                scopeAddress = "some scope address",
+                assetType = asset.assetType,
+            ),
+            message = "A null response should be returned when querying for an unknown scope address with queryAssetScopeAttributeByScopeAddressOrNull",
+        )
+        assertFails("An exception should be thrown when querying for an unknown scope attribute with queryAssetScopeAttributeByScopeAddress") {
+            acClient.queryAssetScopeAttributeByScopeAddress(
+                scopeAddress = "some scope address",
+                assetType = asset.assetType,
+            )
+        }
+        assertNull(
+            actual = acClient.queryAssetScopeAttributeByScopeAddressOrNull(
+                scopeAddress = scopeAddress,
+                assetType = "unrelated",
+            ),
+            message = "A null response should be returned when querying for an unknown asset type for an existing scope with queryAssetScopeAttributeByScopeAddressOrNull",
+        )
+        assertFails("An exception should be thrown when querying for an unknown asset type for an existing scope with queryAssetScopeAttributeByScopeAddress") {
+            acClient.queryAssetScopeAttributeByScopeAddress(
+                scopeAddress = scopeAddress,
+                assetType = "unrelated",
+            )
+        }
+    }
+
+    @Test
+    fun `test queryAllAssetScopeAttributesByAssetUuid`() {
+        assertNull(
+            actual = acClient.queryAllAssetScopeAttributesByAssetUuidOrNull(UUID.randomUUID()),
+            message = "Querying all asset scope attributes should produce null when using an unknown asset uuid with queryAllAssetScopeAttributesByAssetUuidOrNull",
+        )
+        assertFails("Querying all asset scope attributes should produce an exception when using an unknown asset uuid with queryAllAssetScopeAttributesByAssetUuid") {
+            acClient.queryAllAssetScopeAttributesByAssetUuid(UUID.randomUUID())
+        }
+        val owner = AppResources.assetOnboardingAccount
+        val asset = assetOnboardingService.createAsset(assetType = "heloc", ownerAccount = owner)
+        // First, onboard the asset using its given type to create a heloc.asset attribute on the scope
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            ownerAccount = owner,
+        )
+        // Second, onboard the asset using the type "mortgage" to create a secondary mortgage.asset attribute on the scope.
+        // Realistically, an asset would not likely be verified as both a heloc and a mortgage, but it's still an action that
+        // can be taken to create two scope attributes on the same asset.  One or both of these, in a real scenario,
+        // would get the status of AssetOnboardingStatus.DENIED for not including the correct payload.
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        val testScopeAttributes: (attributes: List<AssetScopeAttribute>, functionName: String) -> Unit = { scopeAttributes, functionName ->
+            assertEquals(
+                expected = 2,
+                actual = scopeAttributes.size,
+                message = "Two scope attributes should be returned by $functionName",
+            )
+            scopeAttributes.forEach { scopeAttribute ->
+                assertTrue(
+                    actual = scopeAttribute.assetType in listOf("heloc", "mortgage"),
+                    message = "$functionName: Expected the scope attribute's asset type to be one of the two asset types used, but got: ${scopeAttribute.assetType}",
+                )
+                testAssetScopeAttributeValidity(
+                    asset = asset,
+                    scopeAttribute = scopeAttribute,
+                    owner = owner,
+                    expectedAssetType = scopeAttribute.assetType,
+                )
+            }
+        }
+        testScopeAttributes(
+            acClient.queryAllAssetScopeAttributesByAssetUuid(asset.assetUuid),
+            "queryAllAssetScopeAttributesByAssetUuid",
+        )
+        testScopeAttributes(
+            acClient.queryAllAssetScopeAttributesByAssetUuidOrNull(asset.assetUuid)
+                .assertNotNullAc("Expected the queryAllAssetScopeAttributesByAssetUuidOrNull function to return a non-null result"),
+            "queryAllAssetScopeAttributesByAssetUuidOrNull",
+        )
+    }
+
+    @Test
+    fun `test queryAllAssetScopeAttributesByScopeAddress`() {
+        assertNull(
+            actual = acClient.queryAllAssetScopeAttributesByScopeAddressOrNull("somescopeaddress"),
+            message = "Querying all asset scope attributes should produce null when using an unknown asset uuid with queryAllAssetScopeAttributesByScopeAddressOrNull",
+        )
+        assertFails("Querying all asset scope attributes should produce an exception when using an unknown asset uuid with queryAllAssetScopeAttributesByScopeAddress") {
+            acClient.queryAllAssetScopeAttributesByScopeAddress("somescopeaddress")
+        }
+        val owner = AppResources.assetOnboardingAccount
+        val asset = assetOnboardingService.createAsset(assetType = "heloc", ownerAccount = owner)
+        // First, onboard the asset using its given type to create a heloc.asset attribute on the scope
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            ownerAccount = owner,
+        )
+        // Second, onboard the asset using the type "mortgage" to create a secondary mortgage.asset attribute on the scope.
+        // Realistically, an asset would not likely be verified as both a heloc and a mortgage, but it's still an action that
+        // can be taken to create two scope attributes on the same asset.  One or both of these, in a real scenario,
+        // would get the status of AssetOnboardingStatus.DENIED for not including the correct payload.
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        val testScopeAttributes: (attributes: List<AssetScopeAttribute>, functionName: String) -> Unit = { scopeAttributes, functionName ->
+            assertEquals(
+                expected = 2,
+                actual = scopeAttributes.size,
+                message = "Two scope attributes should be returned by $functionName",
+            )
+            scopeAttributes.forEach { scopeAttribute ->
+                assertTrue(
+                    actual = scopeAttribute.assetType in listOf("heloc", "mortgage"),
+                    message = "$functionName: Expected the scope attribute's asset type to be one of the two asset types used, but got: ${scopeAttribute.assetType}",
+                )
+                testAssetScopeAttributeValidity(
+                    asset = asset,
+                    scopeAttribute = scopeAttribute,
+                    owner = owner,
+                    expectedAssetType = scopeAttribute.assetType,
+                )
+            }
+        }
+        val scopeAddress = MetadataAddress.forScope(asset.assetUuid).toString()
+        testScopeAttributes(
+            acClient.queryAllAssetScopeAttributesByScopeAddress(scopeAddress),
+            "queryAllAssetScopeAttributesByScopeAddress",
+        )
+        testScopeAttributes(
+            acClient.queryAllAssetScopeAttributesByScopeAddressOrNull(scopeAddress)
+                .assertNotNullAc("Expected the queryAllAssetScopeAttributesByScopeAddressOrNull function to return a non-null result"),
+            "queryAllAssetScopeAttributesByScopeAddressOrNull",
+        )
     }
 
     @Test
@@ -139,6 +319,7 @@ class QueriesIntTest : IntTestBase() {
         asset: TestAsset,
         scopeAttribute: AssetScopeAttribute?,
         owner: ProvenanceAccountDetail,
+        expectedAssetType: String = asset.assetType,
     ) {
         assertNotNull(
             actual = scopeAttribute,
@@ -150,7 +331,7 @@ class QueriesIntTest : IntTestBase() {
             message = "The scope attribute should include the correct asset uuid",
         )
         assertEquals(
-            expected = asset.assetType,
+            expected = expectedAssetType,
             actual = scopeAttribute.assetType,
             message = "The scope attribute should include the correct asset type",
         )

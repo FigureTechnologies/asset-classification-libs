@@ -33,8 +33,8 @@ import kotlin.test.assertTrue
 class ExecuteIntTest : IntTestBase() {
     @Test
     fun `test onboardAsset`() {
-        val asset = invoiceOnboardingService.onboardTestAsset()
-        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuidOrNull(asset.assetUuid)
+        val asset = assetOnboardingService.storeAndOnboardTestAsset()
+        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuidOrNull(asset.assetUuid, asset.assetType)
         assertNotNull(
             actual = scopeAttribute,
             message = "The asset scope attribute should be available after onboarding the asset",
@@ -69,9 +69,12 @@ class ExecuteIntTest : IntTestBase() {
             verifyAnAsset(UUID.randomUUID(), true)
         }
         val assetType = "payable"
-        val firstAsset = invoiceOnboardingService.onboardTestAsset(assetType = assetType)
+        val firstAsset = assetOnboardingService.storeAndOnboardTestAsset(assetType = assetType)
         verifyAnAsset(firstAsset.assetUuid, true)
-        val firstScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(firstAsset.assetUuid)
+        val firstScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = firstAsset.assetUuid,
+            assetType = firstAsset.assetType,
+        )
         assertEquals(
             expected = true,
             actual = firstScopeAttribute.latestVerificationResult?.success,
@@ -92,7 +95,7 @@ class ExecuteIntTest : IntTestBase() {
                 signer = AppResources.assetOnboardingAccount.toAccountSigner(),
             )
         }
-        val secondAsset = invoiceOnboardingService.onboardTestAsset(assetType = assetType)
+        val secondAsset = assetOnboardingService.storeAndOnboardTestAsset(assetType = assetType)
         verifyAnAsset(secondAsset.assetUuid, false)
         // After verifying an asset as success = false, the asset should be allowed to onboard again
         acClient.onboardAsset(
@@ -106,7 +109,10 @@ class ExecuteIntTest : IntTestBase() {
         )
         // Re-verify after the re-onboard process runs
         verifyAnAsset(secondAsset.assetUuid, true)
-        val secondScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(secondAsset.assetUuid)
+        val secondScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = secondAsset.assetUuid,
+            assetType = secondAsset.assetType,
+        )
         assertEquals(
             expected = true,
             actual = secondScopeAttribute.latestVerificationResult?.success,
@@ -296,7 +302,7 @@ class ExecuteIntTest : IntTestBase() {
                 signer = AppResources.assetOnboardingAccount.toAccountSigner()
             )
         }
-        val asset = invoiceOnboardingService.onboardTestAsset(ownerAccount = AppResources.assetOnboardingAccount)
+        val asset = assetOnboardingService.storeAndOnboardTestAsset(ownerAccount = AppResources.assetOnboardingAccount)
         assertFails("Attempting to update access routes for an unrelated account should fail") {
             acClient.updateAccessRoutes(
                 execute = UpdateAccessRoutesExecute(
@@ -307,7 +313,10 @@ class ExecuteIntTest : IntTestBase() {
                 signer = AppResources.contractAdminAccount.toAccountSigner(),
             )
         }
-        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = asset.assetType,
+        )
         val originalAccessRoutes = scopeAttribute.accessDefinitions.singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }?.accessRoutes
         assertNotNull(
             actual = originalAccessRoutes,
@@ -331,7 +340,7 @@ class ExecuteIntTest : IntTestBase() {
             ),
             signer = AppResources.assetOnboardingAccount.toAccountSigner(),
         )
-        acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+        acClient.queryAssetScopeAttributeByAssetUuid(assetUuid = asset.assetUuid, assetType = asset.assetType)
             .accessDefinitions
             .singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }
             ?.accessRoutes
@@ -351,7 +360,7 @@ class ExecuteIntTest : IntTestBase() {
             ),
             signer = AppResources.contractAdminAccount.toAccountSigner(),
         )
-        acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+        acClient.queryAssetScopeAttributeByAssetUuid(assetUuid = asset.assetUuid, assetType = asset.assetType)
             .accessDefinitions
             .singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }
             ?.accessRoutes

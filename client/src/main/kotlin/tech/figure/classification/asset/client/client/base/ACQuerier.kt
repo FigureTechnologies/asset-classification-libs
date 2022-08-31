@@ -50,10 +50,78 @@ interface ACQuerier {
     fun queryAssetDefinitions(): QueryAssetDefinitionsResponse
 
     /**
-     * Retrieves a scope attribute, if present, on a scope by referencing the scope's asset uuid.
+     * Retrieves a scope attribute, if present, on a scope by referencing the scope's asset uuid and the type of asset
+     * related to the attribute (ex: mortgage.asset).
      * If the attribute is not present, null is returned.
      *
      * For a more clear description of its values and purpose, see the [AssetScopeAttribute] class comments.
+     *
+     * @param assetUuid The asset uuid that correlates to the scope address.
+     * @param assetType The type of asset, linking the attribute to its attribute name (ex: heloc.asset).  If the asset
+     * exists, but does not have this type, the result of the query will be null.
+     * @param throwExceptions If an exception occurs in the smart contract or with the [PbClient][io.provenance.client.grpc.PbClient], it will be re-thrown
+     * unless this value is set to false.  An exception is normally thrown by the smart contract when the scope
+     * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
+     * boolean's value.
+     */
+    fun queryAssetScopeAttributeByAssetUuidOrNull(
+        assetUuid: UUID,
+        assetType: String,
+        throwExceptions: Boolean = false,
+    ): AssetScopeAttribute?
+
+    /**
+     * Retrieves a scope attribute, if present, on a scope by referencing the scope's asset uuid and the type of asset
+     * related to the attribute (ex: mortgage.asset).
+     * If the attribute is not present or any other error occurs, an exception will be thrown.
+     *
+     * For a more clear description of its values and purpose, see the [AssetScopeAttribute] class comments.
+     *
+     * @param assetUuid The asset uuid that correlates to the scope address.
+     * @param assetType The type of asset, linking the attribute to its attribute name (ex: heloc.asset).  If the asset
+     * exists, but does not have this type, this function will throw an exception.
+     */
+    fun queryAssetScopeAttributeByAssetUuid(assetUuid: UUID, assetType: String): AssetScopeAttribute
+
+    /**
+     * Retrieves a scope attribute, if present, on a scope by directly referencing the scope's bech32 address and the
+     * type of asset related to the attribute (ex: mortgage.asset).
+     * If the attribute is not present, null is returned.
+     *
+     * For a more clear description of its values and purpose, see the [AssetScopeAttribute] class comments.
+     *
+     * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
+     * @param assetType The type of asset, linking the attribute to its attribute name (ex: heloc.asset).  If the asset
+     * exists, but does not have this type, the result of the query will be null.
+     * @param throwExceptions If an exception occurs in the smart contract or with the [PbClient][io.provenance.client.grpc.PbClient], it will be re-thrown
+     * unless this value is set to false.  An exception is normally thrown by the smart contract when the scope
+     * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
+     * boolean's value.
+     */
+    fun queryAssetScopeAttributeByScopeAddressOrNull(
+        scopeAddress: String,
+        assetType: String,
+        throwExceptions: Boolean = false,
+    ): AssetScopeAttribute?
+
+    /**
+     * Retrieves a scope attribute, if present, on a scope by directly referencing the scope's bech32 address and the
+     * type of asset related to the attribute (ex: mortgage.asset).
+     * If the attribute is not present or any other error occurs, an exception will be thrown.
+     *
+     * For a more clear description of its values and purpose, see the [AssetScopeAttribute] class comments.
+     *
+     * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
+     * @param assetType The type of asset, linking the attribute to its attribute name (ex: heloc.asset).  If the asset
+     * exists, but does not have this type, this function will throw an exception.
+     */
+    fun queryAssetScopeAttributeByScopeAddress(scopeAddress: String, assetType: String): AssetScopeAttribute
+
+    /**
+     * Retrieves all asset scope attributes related to an asset by referencing the scope's UUID.  This can include
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
+     * passes for those types.
+     * If no attributes are present, an empty list will be returned.  If an error occurs, null will be returned.
      *
      * @param assetUuid The asset uuid that correlates to the scope address.
      * @param throwExceptions If an exception occurs in the smart contract or with the [PbClient][io.provenance.client.grpc.PbClient], it will be re-thrown
@@ -61,23 +129,26 @@ interface ACQuerier {
      * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
      * boolean's value.
      */
-    fun queryAssetScopeAttributeByAssetUuidOrNull(assetUuid: UUID, throwExceptions: Boolean = false): AssetScopeAttribute?
+    fun queryAllAssetScopeAttributesByAssetUuidOrNull(
+        assetUuid: UUID,
+        throwExceptions: Boolean = false,
+    ): List<AssetScopeAttribute>?
 
     /**
-     * Retrieves a scope attribute, if present, on a scope by referencing the scope's asset uuid.
-     * If the attribute is not present or any other error occurs, an exception will be thrown.
-     *
-     * For a more clear description of its values and purpose, see the [AssetScopeAttribute] class comments.
+     * Retrieves all asset scope attributes related to an asset by referencing the scope's UUID.  This can include
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
+     * passes for those types.
+     * If no attributes are present, an empty list will be returned.  If an error occurs, an exception will be thrown.
      *
      * @param assetUuid The asset uuid that correlates to the scope address.
      */
-    fun queryAssetScopeAttributeByAssetUuid(assetUuid: UUID): AssetScopeAttribute
+    fun queryAllAssetScopeAttributesByAssetUuid(assetUuid: UUID): List<AssetScopeAttribute>
 
     /**
-     * Retrieves a scope attribute, if present, on a scope by directly referencing the scope's bech32 address.
-     * If the attribute is not present, null is returned.
-     *
-     * For a more clear description of its values and purpose, see the [AssetScopeAttribute] class comments.
+     * Retrieves all asset scope attributes related to an asset by directly referencing the scope's address.  This can include
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
+     * passes for those types.
+     * If no attributes are present, an empty list will be returned.  If an error occurs, null will be returned.
      *
      * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
      * @param throwExceptions If an exception occurs in the smart contract or with the [PbClient][io.provenance.client.grpc.PbClient], it will be re-thrown
@@ -85,17 +156,20 @@ interface ACQuerier {
      * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
      * boolean's value.
      */
-    fun queryAssetScopeAttributeByScopeAddressOrNull(scopeAddress: String, throwExceptions: Boolean = false): AssetScopeAttribute?
+    fun queryAllAssetScopeAttributesByScopeAddressOrNull(
+        scopeAddress: String,
+        throwExceptions: Boolean = false,
+    ): List<AssetScopeAttribute>?
 
     /**
-     * Retrieves a scope attribute, if present, on a scope by directly referencing the scope's bech32 address.
-     * If the attribute is not present or any other error occurs, an exception will be thrown.
-     *
-     * For a more clear description of its values and purpose, see the [AssetScopeAttribute] class comments.
+     * Retrieves all asset scope attributes related to an asset by directly referencing the scope's address.  This can include
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
+     * passes for those types.
+     * If no attributes are present, an empty list will be returned.  If an error occurs, an exception will be thrown.
      *
      * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
      */
-    fun queryAssetScopeAttributeByScopeAddress(scopeAddress: String): AssetScopeAttribute
+    fun queryAllAssetScopeAttributesByScopeAddress(scopeAddress: String): List<AssetScopeAttribute>
 
     /**
      * Retrieves the base contract state for the current environment.  This response notably includes the admin address
