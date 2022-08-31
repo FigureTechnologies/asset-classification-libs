@@ -1,5 +1,6 @@
 package tech.figure.classification.asset.client.client
 
+import cosmos.base.v1beta1.CoinOuterClass.Coin
 import cosmwasm.wasm.v1.QueryOuterClass.QuerySmartContractStateResponse
 import io.mockk.MockKStubScope
 import io.mockk.every
@@ -23,12 +24,15 @@ import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.client.domain.model.AssetVerificationResult
 import tech.figure.classification.asset.client.domain.model.EntityDetail
 import tech.figure.classification.asset.client.domain.model.FeeDestination
+import tech.figure.classification.asset.client.domain.model.FeePayment
+import tech.figure.classification.asset.client.domain.model.FeePaymentDetail
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.client.helper.OBJECT_MAPPER
 import tech.figure.classification.asset.client.helper.assertNotNull
 import tech.figure.classification.asset.client.helper.assertNull
 import tech.figure.classification.asset.client.helper.assertSucceeds
 import tech.figure.classification.asset.client.helper.toJsonPayload
+import java.util.Locale
 import java.util.UUID
 import kotlin.test.assertEquals
 
@@ -400,6 +404,155 @@ class DefaultACQuerierTest {
     }
 
     @Test
+    fun `test queryFeePaymentsByAssetUuidOrNull`() {
+        val suite = MockSuite.new()
+        suite.mockQueryThrows(IllegalStateException("Failed to do fee payment things"))
+        assertThrows<IllegalStateException>("Expected an exception to be rethrown when requested") {
+            suite.querier.queryFeePaymentsByAssetUuidOrNull(
+                assetUuid = UUID.randomUUID(),
+                assetType = "heloc",
+                throwExceptions = true,
+            )
+        }
+        assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
+            suite.querier.queryFeePaymentsByAssetUuidOrNull(
+                assetUuid = UUID.randomUUID(),
+                assetType = "heloc",
+                throwExceptions = false,
+            )
+        }.assertNull("Expected the response value to be null on a successful no-exceptions run")
+        suite.mockQueryNullResponse()
+        assertSucceeds("Expected no exception to be thrown when the contract returns a null response") {
+            suite.querier.queryFeePaymentsByAssetUuidOrNull(
+                assetUuid = UUID.randomUUID(),
+                assetType = "heloc",
+                throwExceptions = true,
+            )
+        }.assertNull("Expected the response value to be null when the contract returns a null response")
+        val feePayments = suite.mockFeePaymentDetail()
+        suite.mockQueryReturns(feePayments)
+        val feePaymentsFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
+            suite.querier.queryFeePaymentsByAssetUuidOrNull(
+                assetUuid = UUID.randomUUID(),
+                assetType = "heloc",
+                throwExceptions = true,
+            )
+        }.assertNotNull("Expected the response to be non-null when a value is returned")
+        assertEquals(
+            expected = feePayments,
+            actual = feePaymentsFromQuery,
+            message = "Expected the output to match the fee payments initial value",
+        )
+    }
+
+    @Test
+    fun `test queryFeePaymentsByAssetUuid`() {
+        val suite = MockSuite.new()
+        suite.mockQueryThrows(IllegalStateException("Failed to do fee payment things"))
+        assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
+            suite.querier.queryFeePaymentsByAssetUuid(
+                assetUuid = UUID.randomUUID(),
+                assetType = "heloc",
+            )
+        }
+        suite.mockQueryNullResponse()
+        assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
+            suite.querier.queryFeePaymentsByAssetUuid(
+                assetUuid = UUID.randomUUID(),
+                assetType = "heloc",
+            )
+        }
+        val feePayments = suite.mockFeePaymentDetail()
+        suite.mockQueryReturns(feePayments)
+        val feePaymentsFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
+            suite.querier.queryFeePaymentsByAssetUuid(
+                assetUuid = UUID.randomUUID(),
+                assetType = "heloc",
+            )
+        }
+        assertEquals(
+            expected = feePayments,
+            actual = feePaymentsFromQuery,
+            message = "Expected the output to match the fee payments initial value",
+        )
+    }
+
+    @Test
+    fun `test queryFeePaymentsByScopeAddressOrNull`() {
+        val suite = MockSuite.new()
+        suite.mockQueryThrows(IllegalStateException("Failed to do fee payment things"))
+        assertThrows<IllegalStateException>("Expected an exception to be rethrown when requested") {
+            suite.querier.queryFeePaymentsByScopeAddressOrNull(
+                scopeAddress = "address",
+                assetType = "heloc",
+                throwExceptions = true,
+            )
+        }
+        assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
+            suite.querier.queryFeePaymentsByScopeAddressOrNull(
+                scopeAddress = "address",
+                assetType = "heloc",
+                throwExceptions = false,
+            )
+        }.assertNull("Expected the response value to be null on a successful no-exceptions run")
+        suite.mockQueryNullResponse()
+        assertSucceeds("Expected no exception to be thrown when the contract returns a null response") {
+            suite.querier.queryFeePaymentsByScopeAddressOrNull(
+                scopeAddress = "address",
+                assetType = "heloc",
+                throwExceptions = true,
+            )
+        }.assertNull("Expected the response value to be null when the contract returns a null response")
+        val feePayments = suite.mockFeePaymentDetail()
+        suite.mockQueryReturns(feePayments)
+        val feePaymentsFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
+            suite.querier.queryFeePaymentsByScopeAddressOrNull(
+                scopeAddress = "address",
+                assetType = "heloc",
+                throwExceptions = true,
+            )
+        }.assertNotNull("Expected the response to be non-null when a value is returned")
+        assertEquals(
+            expected = feePayments,
+            actual = feePaymentsFromQuery,
+            message = "Expected the output to match the fee payments initial value",
+        )
+    }
+
+    @Test
+    fun `test queryFeePaymentsByScopeAddress`() {
+        val suite = MockSuite.new()
+        suite.mockQueryThrows(IllegalStateException("Failed to do fee payment things"))
+        assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
+            suite.querier.queryFeePaymentsByScopeAddress(
+                scopeAddress = "address",
+                assetType = "heloc",
+            )
+        }
+        suite.mockQueryNullResponse()
+        assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
+            suite.querier.queryFeePaymentsByScopeAddress(
+                scopeAddress = "address",
+                assetType = "heloc",
+            )
+        }
+        val feePayments = suite.mockFeePaymentDetail()
+        suite.mockQueryReturns(feePayments)
+        val feePaymentsFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
+            suite.querier.queryFeePaymentsByScopeAddress(
+                scopeAddress = "address",
+                assetType = "heloc",
+            )
+        }
+        assertEquals(
+            expected = feePayments,
+            actual = feePaymentsFromQuery,
+            message = "Expected the output to match the fee payments initial value",
+        )
+    }
+
+
+    @Test
     fun `test queryContractState`() {
         val suite = MockSuite.new()
         val state = ACContractState(baseContractName = DEFAULT_CONTRACT_NAME, admin = "no-u")
@@ -491,6 +644,7 @@ class DefaultACQuerierTest {
                 )
             ),
             enabled = true,
+            displayName = assetType.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
         )
 
         fun mockScopeAttribute(): AssetScopeAttribute = AssetScopeAttribute(
@@ -505,6 +659,23 @@ class DefaultACQuerierTest {
                 success = true,
             ),
             accessDefinitions = emptyList(),
+        )
+
+        fun mockFeePaymentDetail(): FeePaymentDetail = FeePaymentDetail(
+            scopeAddress = "randomscopeaddress",
+            assetType = "heloc",
+            payments = listOf(
+                FeePayment(
+                    amount = Coin.newBuilder().setAmount("100").setDenom("nhash").build(),
+                    name = "Verifier payment",
+                    recipient = "verifieraddress",
+                ),
+                FeePayment(
+                    amount = Coin.newBuilder().setAmount("10").setDenom("nhash").build(),
+                    name = "Admin fee",
+                    recipient = "adminaddress",
+                )
+            )
         )
 
         fun getNullContractResponse(): QuerySmartContractStateResponse = QuerySmartContractStateResponse
