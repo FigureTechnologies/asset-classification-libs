@@ -4,6 +4,7 @@ import tech.figure.classification.asset.client.domain.model.ACContractState
 import tech.figure.classification.asset.client.domain.model.ACVersionInfo
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
+import tech.figure.classification.asset.client.domain.model.FeePaymentDetail
 import java.util.UUID
 
 /**
@@ -169,6 +170,72 @@ interface ACQuerier {
      * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
      */
     fun queryAssetScopeAttributesByScopeAddress(scopeAddress: String): List<AssetScopeAttribute>
+
+    /**
+     * Retrieves the FeePaymentDetail related to an asset by reference its asset uuid and the specific asset type to be
+     * verified.  This includes information for each entity that will receive payment when the verifier completes its
+     * verification.
+     * If no detail is present or an error occurs, null will be returned.
+     *
+     * @param assetUuid The asset uuid that correlates to the scope address.
+     * @param assetType The type of asset for which the scope is receiving verification.
+     * @param throwExceptions If an exception occurs in the smart contract or with the [PbClient][io.provenance.client.grpc.PbClient], it will be re-thrown
+     * unless this value is set to false.  An exception is normally thrown by the smart contract when the scope
+     * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
+     * boolean's value.
+     */
+    fun queryFeePaymentsByAssetUuidOrNull(
+        assetUuid: UUID,
+        assetType: String,
+        throwExceptions: Boolean = false,
+    ): FeePaymentDetail?
+
+    /**
+     * Retrieves the FeePaymentDetail related to an asset by reference its asset uuid and the specific asset type to be
+     * verified.  This includes information for each entity that will receive payment when the verifier completes its
+     * verification.
+     * If no detail is present or an error occurs, an exception will be thrown.
+     *
+     * @param assetUuid The asset uuid that correlates to the scope address.
+     * @param assetType The type of asset for which the scope is receiving verification.
+     */
+    fun queryFeePaymentsByAssetUuid(
+        assetUuid: UUID,
+        assetType: String,
+    ): FeePaymentDetail
+
+    /**
+     * Retrieves the FeePaymentDetail related to an asset by directly referencing its scope address and the specific
+     * asset type to be verified.  This includes information for each entity that will receive payment when the verifier
+     * completes its verification.
+     * If no detail is present or an error occurs, null will be returned.
+     *
+     * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
+     * @param assetType The type of asset for which the scope is receiving verification.
+     * @param throwExceptions If an exception occurs in the smart contract or with the [PbClient][io.provenance.client.grpc.PbClient], it will be re-thrown
+     * unless this value is set to false.  An exception is normally thrown by the smart contract when the scope
+     * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
+     * boolean's value.
+     */
+    fun queryFeePaymentsByScopeAddressOrNull(
+        scopeAddress: String,
+        assetType: String,
+        throwExceptions: Boolean = false,
+    ): FeePaymentDetail?
+
+    /**
+     * Retrieves the FeePaymentDetail related to an asset by directly referencing its scope address and the specific
+     * asset type to be verified.  This includes information for each entity that will receive payment when the verifier
+     * completes its verification.
+     * If no detail is present or an error occurs, an exception will be thrown.
+     *
+     * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
+     * @param assetType The type of asset for which the scope is receiving verification.
+     */
+    fun queryFeePaymentsByScopeAddress(
+        scopeAddress: String,
+        assetType: String,
+    ): FeePaymentDetail
 
     /**
      * Retrieves the base contract state for the current environment.  This response notably includes the admin address

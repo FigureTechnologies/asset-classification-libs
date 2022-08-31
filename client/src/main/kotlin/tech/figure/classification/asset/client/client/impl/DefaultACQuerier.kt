@@ -13,10 +13,12 @@ import tech.figure.classification.asset.client.domain.model.ACVersionInfo
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
+import tech.figure.classification.asset.client.domain.model.FeePaymentDetail
 import tech.figure.classification.asset.client.domain.query.QueryAssetDefinition
 import tech.figure.classification.asset.client.domain.query.QueryAssetDefinitions
 import tech.figure.classification.asset.client.domain.query.QueryAssetScopeAttributeForAssetType
 import tech.figure.classification.asset.client.domain.query.QueryAssetScopeAttributes
+import tech.figure.classification.asset.client.domain.query.QueryFeePayments
 import tech.figure.classification.asset.client.domain.query.QueryState
 import tech.figure.classification.asset.client.domain.query.QueryVersion
 import tech.figure.classification.asset.client.domain.query.base.ContractQuery
@@ -148,6 +150,50 @@ class DefaultACQuerier(
             identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
         ),
         typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE,
+    )
+
+    override fun queryFeePaymentsByAssetUuidOrNull(
+        assetUuid: UUID,
+        assetType: String,
+        throwExceptions: Boolean,
+    ): FeePaymentDetail? = doQueryOrNull(
+        query = QueryFeePayments(
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+            assetType = assetType,
+        ),
+        throwExceptions = throwExceptions,
+    )
+
+    override fun queryFeePaymentsByAssetUuid(
+        assetUuid: UUID,
+        assetType: String,
+    ): FeePaymentDetail = doQuery(
+        query = QueryFeePayments(
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+            assetType = assetType,
+        )
+    )
+
+    override fun queryFeePaymentsByScopeAddressOrNull(
+        scopeAddress: String,
+        assetType: String,
+        throwExceptions: Boolean,
+    ): FeePaymentDetail? = doQueryOrNull(
+        query = QueryFeePayments(
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+            assetType = assetType,
+        ),
+        throwExceptions = throwExceptions,
+    )
+
+    override fun queryFeePaymentsByScopeAddress(
+        scopeAddress: String,
+        assetType: String,
+    ): FeePaymentDetail = doQuery(
+        query = QueryFeePayments(
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+            assetType = assetType,
+        )
     )
 
     override fun queryContractState(): ACContractState = doQuery(
