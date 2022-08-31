@@ -551,7 +551,6 @@ class DefaultACQuerierTest {
         )
     }
 
-
     @Test
     fun `test queryContractState`() {
         val suite = MockSuite.new()
