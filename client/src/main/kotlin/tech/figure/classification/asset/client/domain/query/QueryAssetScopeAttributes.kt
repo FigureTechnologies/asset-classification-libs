@@ -10,8 +10,8 @@ import tech.figure.classification.asset.client.domain.query.base.ContractQuery
 
 @JsonNaming(SnakeCaseStrategy::class)
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
-@JsonTypeName("query_all_asset_scope_attributes")
-data class QueryAllAssetScopeAttributes<T>(val identifier: AssetIdentifier<T>) : ContractQuery {
+@JsonTypeName("query_asset_scope_attributes")
+data class QueryAssetScopeAttributes<T>(val identifier: AssetIdentifier<T>) : ContractQuery {
     @JsonIgnore
     override val queryFailureMessage: String = "Query all asset scope attributes by id $identifier"
 }

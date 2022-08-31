@@ -54,10 +54,11 @@ class ExecuteIntTest : IntTestBase() {
 
     @Test
     fun `test verifyAsset`() {
-        val verifyAnAsset: (assetUuid: UUID, success: Boolean) -> Unit = { assetUuid, success ->
+        val verifyAnAsset: (assetUuid: UUID, assetType: String, success: Boolean) -> Unit = { assetUuid, assetType, success ->
             acClient.verifyAsset(
                 execute = VerifyAssetExecute(
                     identifier = AssetIdentifier.AssetUuid(assetUuid),
+                    assetType = assetType,
                     success = success,
                     message = "We verified an asset all on our own!",
                     accessRoutes = AccessRoute(route = "someroute", name = "somename").wrapListAc(),
@@ -66,11 +67,11 @@ class ExecuteIntTest : IntTestBase() {
             )
         }
         assertFails("Attempting to verify an asset that does not exist should fail") {
-            verifyAnAsset(UUID.randomUUID(), true)
+            verifyAnAsset(UUID.randomUUID(), "some type", true)
         }
         val assetType = "payable"
         val firstAsset = assetOnboardingService.storeAndOnboardTestAsset(assetType = assetType)
-        verifyAnAsset(firstAsset.assetUuid, true)
+        verifyAnAsset(firstAsset.assetUuid, firstAsset.assetType, true)
         val firstScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
             assetUuid = firstAsset.assetUuid,
             assetType = firstAsset.assetType,
@@ -82,7 +83,7 @@ class ExecuteIntTest : IntTestBase() {
         )
         testProvenanceScopeAttributeEquality(firstScopeAttribute)
         assertFails("Attempting to verify an already-verified asset should fail") {
-            verifyAnAsset(firstAsset.assetUuid, true)
+            verifyAnAsset(firstAsset.assetUuid, firstAsset.assetType, true)
         }
         assertFails("Attempting to re-onboard an already successfully verified asset should fail") {
             acClient.onboardAsset(
@@ -96,7 +97,7 @@ class ExecuteIntTest : IntTestBase() {
             )
         }
         val secondAsset = assetOnboardingService.storeAndOnboardTestAsset(assetType = assetType)
-        verifyAnAsset(secondAsset.assetUuid, false)
+        verifyAnAsset(secondAsset.assetUuid, secondAsset.assetType, false)
         // After verifying an asset as success = false, the asset should be allowed to onboard again
         acClient.onboardAsset(
             execute = OnboardAssetExecute(
@@ -108,7 +109,7 @@ class ExecuteIntTest : IntTestBase() {
             signer = AppResources.assetOnboardingAccount.toAccountSigner(),
         )
         // Re-verify after the re-onboard process runs
-        verifyAnAsset(secondAsset.assetUuid, true)
+        verifyAnAsset(secondAsset.assetUuid, secondAsset.assetType, true)
         val secondScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
             assetUuid = secondAsset.assetUuid,
             assetType = secondAsset.assetType,

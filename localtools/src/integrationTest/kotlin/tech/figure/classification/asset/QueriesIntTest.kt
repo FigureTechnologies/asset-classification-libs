@@ -39,7 +39,7 @@ class QueriesIntTest : IntTestBase() {
 
     @Test
     fun `test queryAssetDefinitions`() {
-        val assetDefinitions = acClient.queryAssetDefinitions().assetDefinitions
+        val assetDefinitions = acClient.queryAssetDefinitions()
         assertEquals(
             expected = AssetSpecifications.size,
             actual = assetDefinitions.size,
@@ -151,13 +151,13 @@ class QueriesIntTest : IntTestBase() {
     }
 
     @Test
-    fun `test queryAllAssetScopeAttributesByAssetUuid`() {
+    fun `test queryAssetScopeAttributesByAssetUuid`() {
         assertNull(
-            actual = acClient.queryAllAssetScopeAttributesByAssetUuidOrNull(UUID.randomUUID()),
-            message = "Querying all asset scope attributes should produce null when using an unknown asset uuid with queryAllAssetScopeAttributesByAssetUuidOrNull",
+            actual = acClient.queryAssetScopeAttributesByAssetUuidOrNull(UUID.randomUUID()),
+            message = "Querying all asset scope attributes should produce null when using an unknown asset uuid with queryAssetScopeAttributesByAssetUuidOrNull",
         )
-        assertFails("Querying all asset scope attributes should produce an exception when using an unknown asset uuid with queryAllAssetScopeAttributesByAssetUuid") {
-            acClient.queryAllAssetScopeAttributesByAssetUuid(UUID.randomUUID())
+        assertFails("Querying all asset scope attributes should produce an exception when using an unknown asset uuid with queryAssetScopeAttributesByAssetUuid") {
+            acClient.queryAssetScopeAttributesByAssetUuid(UUID.randomUUID())
         }
         val owner = AppResources.assetOnboardingAccount
         val asset = assetOnboardingService.createAsset(assetType = "heloc", ownerAccount = owner)
@@ -195,24 +195,24 @@ class QueriesIntTest : IntTestBase() {
             }
         }
         testScopeAttributes(
-            acClient.queryAllAssetScopeAttributesByAssetUuid(asset.assetUuid),
-            "queryAllAssetScopeAttributesByAssetUuid",
+            acClient.queryAssetScopeAttributesByAssetUuid(asset.assetUuid),
+            "queryAssetScopeAttributesByAssetUuid",
         )
         testScopeAttributes(
-            acClient.queryAllAssetScopeAttributesByAssetUuidOrNull(asset.assetUuid)
-                .assertNotNullAc("Expected the queryAllAssetScopeAttributesByAssetUuidOrNull function to return a non-null result"),
-            "queryAllAssetScopeAttributesByAssetUuidOrNull",
+            acClient.queryAssetScopeAttributesByAssetUuidOrNull(asset.assetUuid)
+                .assertNotNullAc("Expected the queryAssetScopeAttributesByAssetUuidOrNull function to return a non-null result"),
+            "queryAssetScopeAttributesByAssetUuidOrNull",
         )
     }
 
     @Test
-    fun `test queryAllAssetScopeAttributesByScopeAddress`() {
+    fun `test queryAssetScopeAttributesByScopeAddress`() {
         assertNull(
-            actual = acClient.queryAllAssetScopeAttributesByScopeAddressOrNull("somescopeaddress"),
-            message = "Querying all asset scope attributes should produce null when using an unknown asset uuid with queryAllAssetScopeAttributesByScopeAddressOrNull",
+            actual = acClient.queryAssetScopeAttributesByScopeAddressOrNull("somescopeaddress"),
+            message = "Querying all asset scope attributes should produce null when using an unknown asset uuid with queryAssetScopeAttributesByScopeAddressOrNull",
         )
-        assertFails("Querying all asset scope attributes should produce an exception when using an unknown asset uuid with queryAllAssetScopeAttributesByScopeAddress") {
-            acClient.queryAllAssetScopeAttributesByScopeAddress("somescopeaddress")
+        assertFails("Querying all asset scope attributes should produce an exception when using an unknown asset uuid with queryAssetScopeAttributesByScopeAddress") {
+            acClient.queryAssetScopeAttributesByScopeAddress("somescopeaddress")
         }
         val owner = AppResources.assetOnboardingAccount
         val asset = assetOnboardingService.createAsset(assetType = "heloc", ownerAccount = owner)
@@ -251,13 +251,13 @@ class QueriesIntTest : IntTestBase() {
         }
         val scopeAddress = MetadataAddress.forScope(asset.assetUuid).toString()
         testScopeAttributes(
-            acClient.queryAllAssetScopeAttributesByScopeAddress(scopeAddress),
-            "queryAllAssetScopeAttributesByScopeAddress",
+            acClient.queryAssetScopeAttributesByScopeAddress(scopeAddress),
+            "queryAssetScopeAttributesByScopeAddress",
         )
         testScopeAttributes(
-            acClient.queryAllAssetScopeAttributesByScopeAddressOrNull(scopeAddress)
-                .assertNotNullAc("Expected the queryAllAssetScopeAttributesByScopeAddressOrNull function to return a non-null result"),
-            "queryAllAssetScopeAttributesByScopeAddressOrNull",
+            acClient.queryAssetScopeAttributesByScopeAddressOrNull(scopeAddress)
+                .assertNotNullAc("Expected the queryAssetScopeAttributesByScopeAddressOrNull function to return a non-null result"),
+            "queryAssetScopeAttributesByScopeAddressOrNull",
         )
     }
 

@@ -1,7 +1,6 @@
 package tech.figure.classification.asset.verifier.event.defaults
 
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
-import tech.figure.classification.asset.verifier.config.VerifierEvent
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingAssetType
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress

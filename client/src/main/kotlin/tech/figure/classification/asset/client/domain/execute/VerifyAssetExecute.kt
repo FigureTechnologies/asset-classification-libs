@@ -21,6 +21,7 @@ import tech.figure.classification.asset.client.domain.model.AssetIdentifier
  * val txResponse = acClient.verifyAsset(executeForScope, signer, options)
  * ```
  * @param identifier Identifies the asset by uuid or scope address.
+ * @param assetType The type of asset for which this verification approves or denies validity.
  * @param success Whether or not verification succeeded.
  * @param message A custom message indicating the reason for the chosen verification result.
  * @param accessRoutes An optional field that specifies a location at which the verifier has exposed the asset data to
@@ -31,6 +32,7 @@ import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 @JsonTypeName("verify_asset")
 class VerifyAssetExecute<T>(
     val identifier: AssetIdentifier<T>,
+    val assetType: String,
     val success: Boolean,
     val message: String? = null,
     val accessRoutes: List<AccessRoute>? = null,

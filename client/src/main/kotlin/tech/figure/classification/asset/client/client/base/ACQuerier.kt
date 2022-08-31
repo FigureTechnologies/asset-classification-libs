@@ -4,7 +4,6 @@ import tech.figure.classification.asset.client.domain.model.ACContractState
 import tech.figure.classification.asset.client.domain.model.ACVersionInfo
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
-import tech.figure.classification.asset.client.domain.model.QueryAssetDefinitionsResponse
 import java.util.UUID
 
 /**
@@ -47,7 +46,7 @@ interface ACQuerier {
      * This function can be used to dynamically establish a list of all available values without having foreknowledge
      * of each asset type and scope spec address associated with the smart contract.
      */
-    fun queryAssetDefinitions(): QueryAssetDefinitionsResponse
+    fun queryAssetDefinitions(): List<AssetDefinition>
 
     /**
      * Retrieves a scope attribute, if present, on a scope by referencing the scope's asset uuid and the type of asset
@@ -129,7 +128,7 @@ interface ACQuerier {
      * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
      * boolean's value.
      */
-    fun queryAllAssetScopeAttributesByAssetUuidOrNull(
+    fun queryAssetScopeAttributesByAssetUuidOrNull(
         assetUuid: UUID,
         throwExceptions: Boolean = false,
     ): List<AssetScopeAttribute>?
@@ -142,7 +141,7 @@ interface ACQuerier {
      *
      * @param assetUuid The asset uuid that correlates to the scope address.
      */
-    fun queryAllAssetScopeAttributesByAssetUuid(assetUuid: UUID): List<AssetScopeAttribute>
+    fun queryAssetScopeAttributesByAssetUuid(assetUuid: UUID): List<AssetScopeAttribute>
 
     /**
      * Retrieves all asset scope attributes related to an asset by directly referencing the scope's address.  This can include
@@ -156,7 +155,7 @@ interface ACQuerier {
      * attribute is missing, but that exception will be ignored and null will be returned instead, regardless of this
      * boolean's value.
      */
-    fun queryAllAssetScopeAttributesByScopeAddressOrNull(
+    fun queryAssetScopeAttributesByScopeAddressOrNull(
         scopeAddress: String,
         throwExceptions: Boolean = false,
     ): List<AssetScopeAttribute>?
@@ -169,7 +168,7 @@ interface ACQuerier {
      *
      * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
      */
-    fun queryAllAssetScopeAttributesByScopeAddress(scopeAddress: String): List<AssetScopeAttribute>
+    fun queryAssetScopeAttributesByScopeAddress(scopeAddress: String): List<AssetScopeAttribute>
 
     /**
      * Retrieves the base contract state for the current environment.  This response notably includes the admin address

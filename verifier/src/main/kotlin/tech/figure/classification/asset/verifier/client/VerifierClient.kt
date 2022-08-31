@@ -204,6 +204,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
                         config.acClient.verifyAsset(
                             execute = VerifyAssetExecute(
                                 identifier = AssetIdentifier.ScopeAddress(message.scopeAttribute.scopeAddress),
+                                assetType = message.scopeAttribute.assetType,
                                 success = message.verification.success,
                                 message = message.verification.message,
                                 accessRoutes = message.verification.accessRoutes,
