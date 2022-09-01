@@ -378,6 +378,21 @@ sealed interface VerifierEvent {
     ) : VerifierEvent
 
     /**
+     * This event is emitted when an asset classification smart contract event is detected, but it does not contain the
+     * expected asset type for an onboarded scope.  This is an error case and indicates bad smart contract code.
+     *
+     * @param event All values from the encountered event that match the event attribute structure emitted by the
+     * asset classification smart contract.
+     * @param eventType The asset classification event type emitted that was missing its scope address.
+     * @param message A message indicating the nature of the event.
+     */
+    data class EventIgnoredMissingAssetType(
+        val event: AssetClassificationEvent,
+        val eventType: ACContractEvent,
+        val message: String,
+    ) : VerifierEvent
+
+    /**
      * This event is emitted when an asset classification smart contract event is detected, but the scope
      * that was onboarded does not yet have an AssetScopeAttribute on it.  This should only ever occur due to a
      * blockchain error, or indicates a smart contract bug.
@@ -733,6 +748,17 @@ sealed interface VerifierEventType<E : VerifierEvent> {
      * @param message A message indicating the nature of the event.
      */
     object EventIgnoredMissingScopeAddress : VerifierEventType<VerifierEvent.EventIgnoredMissingScopeAddress>
+
+    /**
+     * This event is emitted when an asset classification smart contract event is detected, but it does not contain the
+     * expected asset type for an onboarded scope.  This is an error case and indicates bad smart contract code.
+     *
+     * @param event All values from the encountered event that match the event attribute structure emitted by the
+     * asset classification smart contract.
+     * @param eventType The asset classification event type emitted that was missing its scope address.
+     * @param message A message indicating the nature of the event.
+     */
+    object EventIgnoredMissingAssetType : VerifierEventType<VerifierEvent.EventIgnoredMissingAssetType>
 
     /**
      * This event is emitted when an asset classification smart contract event is detected, but the scope

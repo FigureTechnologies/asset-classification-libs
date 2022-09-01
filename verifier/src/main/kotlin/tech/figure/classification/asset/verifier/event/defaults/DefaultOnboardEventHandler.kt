@@ -4,6 +4,7 @@ import tech.figure.classification.asset.client.domain.model.AccessDefinitionType
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.verifier.client.VerificationMessage
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
+import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingAssetType
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
@@ -48,8 +49,18 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
             )
             return
         }
+        val assetType = event.assetType ?: run {
+            eventChannel.send(
+                EventIgnoredMissingAssetType(
+                    event = event,
+                    eventType = this.eventType,
+                    message = "$messagePrefix Expected the onboard asset event to include an asset type, but it was missing",
+                )
+            )
+            return
+        }
         val scopeAttribute = try {
-            acClient.queryAssetScopeAttributeByScopeAddress(scopeAddress)
+            acClient.queryAssetScopeAttributeByScopeAddress(scopeAddress = scopeAddress, assetType = assetType)
         } catch (t: Throwable) {
             eventChannel.send(
                 EventIgnoredMissingScopeAttribute(

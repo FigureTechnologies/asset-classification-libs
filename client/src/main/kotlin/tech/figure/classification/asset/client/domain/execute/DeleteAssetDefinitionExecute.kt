@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import tech.figure.classification.asset.client.domain.execute.base.ContractExecute
-import tech.figure.classification.asset.client.domain.model.AssetQualifier
 
 /**
  * This class is a reflection of the request body used in the Asset Classification smart contract's delete asset
@@ -15,16 +14,13 @@ import tech.figure.classification.asset.client.domain.model.AssetQualifier
  *
  * Sample usage:
  * ```kotlin
- * val deleteByTypeExecute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("heloc"))
- * val txResponse = acClient.deleteAssetDefinition(deleteByTypeExecute, signer, options)
- *
- * val deleteByScopeSpecExecute = DeleteAssetDefinitionExecute(AssetQualifier.ScopeSpecAddress("scopespec1q3qmhkgypn7prmvg8shhslufxhxqlefpnh"))
- * val txResponse = acClient.deleteAssetDefinition(deleteByScopeSpecExecute, signer, options)
+ * val deleteExecute = DeleteAssetDefinitionExecute("heloc")
+ * val txResponse = acClient.deleteAssetDefinition(deleteExecute, signer, options)
  * ```
  *
- * @param qualifier The asset qualifier used to identify the asset definition to delete.
+ * @param assetType The asset type used to identify the asset definition to delete.
  */
 @JsonNaming(SnakeCaseStrategy::class)
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @JsonTypeName("delete_asset_definition")
-data class DeleteAssetDefinitionExecute(val qualifier: AssetQualifier) : ContractExecute
+data class DeleteAssetDefinitionExecute(val assetType: String) : ContractExecute

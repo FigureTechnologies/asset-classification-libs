@@ -18,7 +18,6 @@ import io.provenance.scope.encryption.ecies.ProvenanceKeyGenerator
 import io.provenance.scope.objectstore.client.OsClient
 import io.provenance.scope.util.MetadataAddress
 import io.provenance.scope.util.toByteString
-import io.provenance.spec.AssetSpecifications
 import mu.KLogging
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.client.domain.execute.OnboardAssetExecute
@@ -26,6 +25,7 @@ import tech.figure.classification.asset.client.domain.model.AccessRoute
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
+import tech.figure.spec.AssetSpecifications
 import testconfiguration.extensions.getContractSpecFromScopeSpec
 import testconfiguration.extensions.toBase64StringAc
 import testconfiguration.models.TestAsset
@@ -34,25 +34,44 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 
-class InvoiceOnboardingService(
+class AssetOnboardingService(
     private val acClient: ACClient,
     private val osClient: OsClient,
 ) {
     private companion object : KLogging()
 
-    fun onboardTestAsset(
+    fun createAsset(
         assetUuid: UUID = UUID.randomUUID(),
         assetType: String = "payable",
         assetMessage: String = "TEST ASSET: $assetUuid",
         ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
-    ): TestAsset {
-        val asset = TestAsset(
+    ): TestAsset = TestAsset(
+        assetUuid = assetUuid,
+        assetType = assetType,
+        message = assetMessage,
+        ownerAddress = ownerAccount.bech32Address,
+    )
+
+    fun storeAndOnboardNewAsset(
+        assetUuid: UUID = UUID.randomUUID(),
+        assetType: String = "payable",
+        assetMessage: String = "TEST ASSET: $assetUuid",
+        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
+    ): TestAsset = storeAndOnboardTestAsset(
+        asset = this.createAsset(
             assetUuid = assetUuid,
             assetType = assetType,
-            message = assetMessage,
-            ownerAddress = ownerAccount.bech32Address,
-        )
-        logger.info("Storing TestAsset [$assetUuid] as an Asset in Object Store")
+            assetMessage = assetMessage,
+            ownerAccount = ownerAccount,
+        ),
+        ownerAccount = ownerAccount,
+    )
+
+    fun storeAndOnboardTestAsset(
+        asset: TestAsset,
+        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
+    ): TestAsset = asset.also {
+        logger.info("Storing TestAsset [${asset.assetUuid}] as an Asset in Object Store")
         val assetProto = asset.toProto()
         val assetHash = osClient.put(
             message = assetProto,
@@ -60,19 +79,19 @@ class InvoiceOnboardingService(
             signer = Pen(ProvenanceKeyGenerator.generateKeyPair(ownerAccount.publicKey)),
             additionalAudiences = setOf(AppResources.assetManagerAccount.publicKey),
         ).get(20, TimeUnit.SECONDS).hash.toByteArray().toBase64StringAc()
-        logger.info("Successfully added asset [$assetUuid] to Object Store and got hash")
-        logger.info("Writing scope for asset [$assetUuid]")
-        val assetDefinition = acClient.queryAssetDefinitionByAssetType(assetType)
+        logger.info("Successfully added asset [${asset.assetUuid}] to Object Store and got hash")
+        logger.info("Writing scope for asset [${asset.assetUuid}]")
+        val assetDefinition = acClient.queryAssetDefinitionByAssetType(asset.assetType)
         val assetSpecification = AssetSpecifications.singleOrNull { it.recordSpecConfigs.single().name == assetDefinition.assetType }
-            ?: error("Failed to find asset specification for asset type [$assetType]")
-        val scopeMetadata = MetadataAddress.forScope(assetUuid)
-        val scopeSpecMetadata = MetadataAddress.fromBech32(assetDefinition.scopeSpecAddress)
+            ?: error("Failed to find asset specification for asset type [${asset.assetType}]")
+        val scopeMetadata = MetadataAddress.forScope(asset.assetUuid)
+        val scopeSpecMetadata = MetadataAddress.forScopeSpecification(assetSpecification.scopeSpecConfig.id)
         val sessionUuid = UUID.randomUUID()
-        val sessionMetadata = MetadataAddress.forSession(assetUuid, sessionUuid)
-        val contractSpecMetadata = acClient.pbClient.getContractSpecFromScopeSpec(assetDefinition.scopeSpecAddress)
-        logger.info("Writing scope with address [$scopeMetadata], scope spec address [${assetDefinition.scopeSpecAddress}] and owner [${ownerAccount.bech32Address}]")
+        val sessionMetadata = MetadataAddress.forSession(asset.assetUuid, sessionUuid)
+        val contractSpecMetadata = acClient.pbClient.getContractSpecFromScopeSpec(scopeSpecMetadata.toString())
+        logger.info("Writing scope with address [$scopeMetadata], scope spec address [$scopeSpecMetadata] and owner [${ownerAccount.bech32Address}]")
         val writeScopeRequest = MsgWriteScopeRequest.newBuilder().also { req ->
-            req.scopeUuid = assetUuid.toString()
+            req.scopeUuid = asset.assetUuid.toString()
             req.specUuid = scopeSpecMetadata.getPrimaryUuid().toString()
             req.addSigners(ownerAccount.bech32Address)
             req.scopeBuilder.scopeId = scopeMetadata.bytes.toByteString()
@@ -93,7 +112,7 @@ class InvoiceOnboardingService(
         }.build().toAny()
         val writeSessionRequest = MsgWriteSessionRequest.newBuilder().also { req ->
             req.addSigners(ownerAccount.bech32Address)
-            req.sessionIdComponentsBuilder.scopeUuid = assetUuid.toString()
+            req.sessionIdComponentsBuilder.scopeUuid = asset.assetUuid.toString()
             req.sessionIdComponentsBuilder.sessionUuid = sessionUuid.toString()
             req.sessionBuilder.sessionId = sessionMetadata.bytes.toByteString()
             req.sessionBuilder.specificationId = contractSpecMetadata.bytes.toByteString()
@@ -133,19 +152,8 @@ class InvoiceOnboardingService(
             // A literal sha256 on the method name: sha256("OnboardTestAsset")
             req.recordBuilder.processBuilder.hash = "32D60974A2B2E9A9D9E93D9956E3A7D2BD226E1511D64D1EA39F86CBED62CE78"
         }.build().toAny()
-        val onboardRequest = acClient.generateOnboardAssetMsg(
-            execute = OnboardAssetExecute(
-                identifier = AssetIdentifier.ScopeAddress(scopeMetadata.toString()),
-                assetType = assetType,
-                verifierAddress = AppResources.verifierAccount.bech32Address,
-                accessRoutes = AccessRoute(
-                    route = "grpc://localhost:16549",
-                    name = "gateway",
-                ).wrapListAc(),
-            ),
-            signerAddress = ownerAccount.bech32Address,
-        ).toAny()
-        logger.info("Writing scope / ession / record to provenance for scope [$scopeMetadata] and onboarding scope to asset classification smart contract")
+        val onboardRequest = generateOnboardTestAssetMsg(asset)
+        logger.info("Writing scope / session / record to provenance for scope [$scopeMetadata] and onboarding scope to asset classification smart contract")
         acClient.pbClient.estimateAndBroadcastTx(
             txBody = listOf(writeScopeRequest, writeSessionRequest, writeRecordRequest, onboardRequest).toTxBody(),
             signers = BaseReqSigner(signer = ownerAccount.toAccountSigner()).wrapListAc(),
@@ -161,7 +169,7 @@ class InvoiceOnboardingService(
                 .firstOrNull { event ->
                     event.type == "assess_custom_msg_fee"
                 }?.let { event ->
-                    event.attributesList.map { it.key.toStringUtf8() to it.value.toStringUtf8() }.toMap().let { attributes ->
+                    event.attributesList.associate { it.key.toStringUtf8() to it.value.toStringUtf8() }.let { attributes ->
                         assertEquals(AppResources.ONBOARDING_CUSTOM_FEE_NAME, attributes["name"], "Custom onboarding message fee name does not match")
                         assertEquals("${verifier.onboardingCost}${verifier.onboardingDenom}", attributes["amount"], "Custom onboarding message fee amount does not match")
                         assertEquals(acClient.queryContractAddress(), attributes["recipient"], "Custom onboarding message fee does not match contract address")
@@ -171,4 +179,51 @@ class InvoiceOnboardingService(
         logger.info("Successfully wrote scope / session / record to provenance for scope [$scopeMetadata]")
         return asset
     }
+
+    fun onboardTestAsset(
+        asset: TestAsset,
+        assetType: String = asset.assetType,
+        ownerAccount: ProvenanceAccountDetail,
+    ): TestAsset = asset.also {
+        assertEquals(
+            expected = asset.ownerAddress,
+            actual = ownerAccount.bech32Address,
+            message = "Provided owner account address is expected to be equal to the TestAsset's owner address",
+        )
+        acClient.pbClient.estimateAndBroadcastTx(
+            txBody = generateOnboardTestAssetMsg(asset = asset, assetType = assetType).toTxBody(),
+            signers = BaseReqSigner(signer = ownerAccount.toAccountSigner()).wrapListAc(),
+            gasAdjustment = 1.2,
+            mode = BroadcastMode.BROADCAST_MODE_BLOCK,
+        ).also { response ->
+            assertEquals(
+                expected = 0,
+                actual = response.txResponse.code,
+                message = "Expected the transaction response code to be zero, indicating a successful asset onboarding",
+            )
+        }
+    }
+
+    /**
+     * Generates an asset classification onboarding message for a given TestAsset.
+     *
+     * @param asset The asset related to the scope to onboard.
+     * @param assetType The type of asset classification to choose.  This value may differ from the TestAsset's initial
+     * asset type because assets should be able to be onboarded as multiple types simultaneously.
+     */
+    private fun generateOnboardTestAssetMsg(
+        asset: TestAsset,
+        assetType: String = asset.assetType,
+    ): com.google.protobuf.Any = acClient.generateOnboardAssetMsg(
+        execute = OnboardAssetExecute(
+            identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
+            assetType = assetType,
+            verifierAddress = AppResources.verifierAccount.bech32Address,
+            accessRoutes = AccessRoute(
+                route = "grpc://localhost:16549",
+                name = "gateway",
+            ).wrapListAc(),
+        ),
+        signerAddress = asset.ownerAddress,
+    ).toAny()
 }

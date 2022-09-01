@@ -69,24 +69,24 @@ class DefaultACExecutor(
         options: BroadcastOptions,
     ): BroadcastTxResponse = doExecute(generateVerifyAssetMsg(execute, signer.address()), signer, options)
 
-    override fun <T> generateAddAssetDefinitionMsg(
-        execute: AddAssetDefinitionExecute<T>,
+    override fun generateAddAssetDefinitionMsg(
+        execute: AddAssetDefinitionExecute,
         signerAddress: String,
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
-    override fun <T> addAssetDefinition(
-        execute: AddAssetDefinitionExecute<T>,
+    override fun addAssetDefinition(
+        execute: AddAssetDefinitionExecute,
         signer: Signer,
         options: BroadcastOptions,
     ): BroadcastTxResponse = doExecute(generateAddAssetDefinitionMsg(execute, signer.address()), signer, options)
 
-    override fun <T> generateUpdateAssetDefinitionMsg(
-        execute: UpdateAssetDefinitionExecute<T>,
+    override fun generateUpdateAssetDefinitionMsg(
+        execute: UpdateAssetDefinitionExecute,
         signerAddress: String,
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
-    override fun <T> updateAssetDefinition(
-        execute: UpdateAssetDefinitionExecute<T>,
+    override fun updateAssetDefinition(
+        execute: UpdateAssetDefinitionExecute,
         signer: Signer,
         options: BroadcastOptions,
     ): BroadcastTxResponse = doExecute(generateUpdateAssetDefinitionMsg(execute, signer.address()), signer, options)

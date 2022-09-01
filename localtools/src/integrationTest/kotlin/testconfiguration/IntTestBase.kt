@@ -14,7 +14,7 @@ import testconfiguration.containers.ManagedContainerType
 import testconfiguration.containers.instances.ManagedObjectStoreTestContainer
 import testconfiguration.containers.instances.ManagedPostgresTestContainer
 import testconfiguration.containers.instances.ManagedProvenanceTestContainer
-import testconfiguration.services.InvoiceOnboardingService
+import testconfiguration.services.AssetOnboardingService
 import java.net.URI
 import java.util.TimeZone
 import java.util.UUID
@@ -65,7 +65,7 @@ abstract class IntTestBase {
             }
         }
 
-        val invoiceOnboardingService: InvoiceOnboardingService by lazy { InvoiceOnboardingService(acClient, osClient) }
+        val assetOnboardingService: AssetOnboardingService by lazy { AssetOnboardingService(acClient, osClient) }
 
         val objectMapper: ObjectMapper by lazy { ACObjectMapperUtil.getObjectMapper() }
     }

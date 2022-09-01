@@ -2,7 +2,6 @@ package tech.figure.classification.asset.client.domain.execute
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import tech.figure.classification.asset.client.domain.execute.base.ContractExecute
-import tech.figure.classification.asset.client.domain.model.ScopeSpecIdentifier
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.client.domain.serialization.AddAssetDefinitionExecuteSerializer
 
@@ -12,20 +11,20 @@ import tech.figure.classification.asset.client.domain.serialization.AddAssetDefi
  *
  * To use it, simply create the execute class and call the appropriate function:
  * ```kotlin
- * val execute = AddAssetDefinitionExecute(assetType, ScopeSpecIdentifier.Uuid(UUID.randomUUID()), verifiers, enabled = true)
+ * val execute = AddAssetDefinitionExecute(assetType, displayName, verifiers, enabled = true)
  * val txResponse = acClient.addAssetDefinition(execute, signer, options)
  * ```
  *
  * @param assetType The type of asset that will be added. This value is a unique key in the contract.
- * @param scopeSpecIdentifier Identifies the scope spec that this asset definition is associated with. This value is a unique constraint and can only be mapped to one asset definition.
+ * @param displayName A pretty human-readable name for this asset type (vs a typically snake_case asset_type name).
  * @param verifiers All verifiers that are allowed to do verification for this specific asset type.
  * @param enabled Whether or not this asset type will accept incoming onboard requests.  If left null, the default value used will be `true`
  * @param bindName Whether or not to bind the name value creating an asset definition.
  */
 @JsonSerialize(using = AddAssetDefinitionExecuteSerializer::class)
-data class AddAssetDefinitionExecute<T>(
+data class AddAssetDefinitionExecute(
     val assetType: String,
-    val scopeSpecIdentifier: ScopeSpecIdentifier<T>,
+    val displayName: String? = null,
     val verifiers: List<VerifierDetail>,
     val enabled: Boolean? = null,
     val bindName: Boolean? = null,

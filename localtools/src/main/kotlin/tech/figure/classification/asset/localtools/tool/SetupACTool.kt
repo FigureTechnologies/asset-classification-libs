@@ -10,12 +10,10 @@ import io.provenance.client.protobuf.extensions.toTxBody
 import io.provenance.name.v1.MsgBindNameRequest
 import io.provenance.name.v1.NameRecord
 import io.provenance.scope.util.toByteString
-import io.provenance.spec.AssetSpecifications
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.client.client.base.ContractIdentifier
 import tech.figure.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import tech.figure.classification.asset.client.domain.model.EntityDetail
-import tech.figure.classification.asset.client.domain.model.ScopeSpecIdentifier
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.localtools.extensions.broadcastTxAc
 import tech.figure.classification.asset.localtools.extensions.checkNotNullAc
@@ -28,6 +26,7 @@ import tech.figure.classification.asset.util.extensions.isErrorAc
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import tech.figure.classification.asset.util.objects.ACObjectMapperUtil
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
+import tech.figure.spec.AssetSpecifications
 import java.io.File
 import java.net.URL
 
@@ -152,7 +151,8 @@ object SetupACTool {
 
     private fun setupAssetDefinitions(config: SetupACToolConfig, contractAddress: String) {
         val messages = AssetSpecifications.flatMap { specification ->
-            val specType = specification.recordSpecConfigs.single().name
+            val specType = specification.recordSpecConfigs.singleOrNull()?.name
+                ?: error("Got unexpected record spec configs list size [${specification.recordSpecConfigs.size}] for asset specification with display name [${specification.scopeSpecConfig.name}]")
             config.logger("Generating create scope spec messages for type [$specType]")
             val messages = specification.specificationMsgs(config.contractAdminAccount.bech32Address).toMutableList()
             config.logger("Generating add asset definition message to asset classification contract for type [$specType]")
@@ -162,17 +162,17 @@ object SetupACTool {
             ).generateAddAssetDefinitionMsg(
                 execute = AddAssetDefinitionExecute(
                     assetType = specType,
-                    scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(specification.scopeSpecConfig.id),
+                    displayName = specification.scopeSpecConfig.name,
                     verifiers = VerifierDetail(
                         address = config.verifierBech32Address,
                         onboardingCost = "100000".toBigInteger(),
                         onboardingDenom = "nhash",
                         feeDestinations = emptyList(),
                         entityDetail = EntityDetail(
-                            name = "Provenance Blockchain Verifier: $specType",
-                            description = "The standard asset classification verifier provided by the Provenance Blockchain Foundation",
-                            homeUrl = "https://provenance.io",
-                            sourceUrl = "https://github.com/provenance-io/asset-classification-libs",
+                            name = "Figure Tech Verifier: $specType",
+                            description = "The standard asset classification verifier provided by Figure Technologies",
+                            homeUrl = "https://figure.tech",
+                            sourceUrl = "https://github.com/FigureTechnologies/asset-classification-libs",
                         )
                     ).wrapListAc(),
                     enabled = true,

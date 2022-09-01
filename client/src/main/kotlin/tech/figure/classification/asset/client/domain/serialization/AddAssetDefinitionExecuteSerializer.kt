@@ -22,8 +22,8 @@ import tech.figure.classification.asset.client.domain.execute.AddAssetDefinition
  * }
  * ```
  */
-class AddAssetDefinitionExecuteSerializer : JsonSerializer<AddAssetDefinitionExecute<*>>() {
-    override fun serialize(value: AddAssetDefinitionExecute<*>, gen: JsonGenerator, provider: SerializerProvider?) {
+class AddAssetDefinitionExecuteSerializer : JsonSerializer<AddAssetDefinitionExecute>() {
+    override fun serialize(value: AddAssetDefinitionExecute, gen: JsonGenerator, provider: SerializerProvider?) {
         // Root node
         gen.writeStartObject()
         // Start add_asset_definition node
@@ -31,7 +31,7 @@ class AddAssetDefinitionExecuteSerializer : JsonSerializer<AddAssetDefinitionExe
         // Start asset_definition node
         gen.writeObjectFieldStart("asset_definition")
         gen.writeStringField("asset_type", value.assetType)
-        gen.writeObjectField("scope_spec_identifier", value.scopeSpecIdentifier)
+        value.displayName?.also { displayName -> gen.writeStringField("display_name", displayName) }
         gen.writeArrayFieldStart("verifiers")
         value.verifiers.forEach { verifier -> gen.writeObject(verifier) }
         gen.writeEndArray()

@@ -15,14 +15,14 @@ import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.model.AccessRoute
 import tech.figure.classification.asset.client.domain.model.AssetDefinition
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
-import tech.figure.classification.asset.client.domain.model.AssetQualifier
+import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.client.domain.model.EntityDetail
 import tech.figure.classification.asset.client.domain.model.FeeDestination
-import tech.figure.classification.asset.client.domain.model.ScopeSpecIdentifier
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import testconfiguration.IntTestBase
+import testconfiguration.assertions.assertFeePaymentDetailValidity
 import testconfiguration.util.AppResources
 import java.util.UUID
 import kotlin.test.assertEquals
@@ -31,12 +31,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class ExecuteIntTest : IntTestBase() {
     @Test
     fun `test onboardAsset`() {
-        val asset = invoiceOnboardingService.onboardTestAsset()
-        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuidOrNull(asset.assetUuid)
+        val asset = assetOnboardingService.storeAndOnboardNewAsset()
+        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuidOrNull(asset.assetUuid, asset.assetType)
         assertNotNull(
             actual = scopeAttribute,
             message = "The asset scope attribute should be available after onboarding the asset",
@@ -56,10 +57,11 @@ class ExecuteIntTest : IntTestBase() {
 
     @Test
     fun `test verifyAsset`() {
-        val verifyAnAsset: (assetUuid: UUID, success: Boolean) -> Unit = { assetUuid, success ->
+        val verifyAnAsset: (assetUuid: UUID, assetType: String, success: Boolean) -> Unit = { assetUuid, assetType, success ->
             acClient.verifyAsset(
                 execute = VerifyAssetExecute(
                     identifier = AssetIdentifier.AssetUuid(assetUuid),
+                    assetType = assetType,
                     success = success,
                     message = "We verified an asset all on our own!",
                     accessRoutes = AccessRoute(route = "someroute", name = "somename").wrapListAc(),
@@ -68,12 +70,16 @@ class ExecuteIntTest : IntTestBase() {
             )
         }
         assertFails("Attempting to verify an asset that does not exist should fail") {
-            verifyAnAsset(UUID.randomUUID(), true)
+            verifyAnAsset(UUID.randomUUID(), "some type", true)
         }
         val assetType = "payable"
-        val firstAsset = invoiceOnboardingService.onboardTestAsset(assetType = assetType)
-        verifyAnAsset(firstAsset.assetUuid, true)
-        val firstScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(firstAsset.assetUuid)
+        val firstAsset = assetOnboardingService.storeAndOnboardNewAsset(assetType = assetType)
+        assertFeePaymentDetailValidity(asset = firstAsset)
+        verifyAnAsset(firstAsset.assetUuid, firstAsset.assetType, true)
+        val firstScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = firstAsset.assetUuid,
+            assetType = firstAsset.assetType,
+        )
         assertEquals(
             expected = true,
             actual = firstScopeAttribute.latestVerificationResult?.success,
@@ -81,7 +87,7 @@ class ExecuteIntTest : IntTestBase() {
         )
         testProvenanceScopeAttributeEquality(firstScopeAttribute)
         assertFails("Attempting to verify an already-verified asset should fail") {
-            verifyAnAsset(firstAsset.assetUuid, true)
+            verifyAnAsset(firstAsset.assetUuid, firstAsset.assetType, true)
         }
         assertFails("Attempting to re-onboard an already successfully verified asset should fail") {
             acClient.onboardAsset(
@@ -94,8 +100,9 @@ class ExecuteIntTest : IntTestBase() {
                 signer = AppResources.assetOnboardingAccount.toAccountSigner(),
             )
         }
-        val secondAsset = invoiceOnboardingService.onboardTestAsset(assetType = assetType)
-        verifyAnAsset(secondAsset.assetUuid, false)
+        val secondAsset = assetOnboardingService.storeAndOnboardNewAsset(assetType = assetType)
+        assertFeePaymentDetailValidity(secondAsset)
+        verifyAnAsset(secondAsset.assetUuid, secondAsset.assetType, false)
         // After verifying an asset as success = false, the asset should be allowed to onboard again
         acClient.onboardAsset(
             execute = OnboardAssetExecute(
@@ -106,15 +113,163 @@ class ExecuteIntTest : IntTestBase() {
             ),
             signer = AppResources.assetOnboardingAccount.toAccountSigner(),
         )
+        assertFeePaymentDetailValidity(secondAsset)
         // Re-verify after the re-onboard process runs
-        verifyAnAsset(secondAsset.assetUuid, true)
-        val secondScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(secondAsset.assetUuid)
+        verifyAnAsset(secondAsset.assetUuid, secondAsset.assetType, true)
+        val secondScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = secondAsset.assetUuid,
+            assetType = secondAsset.assetType,
+        )
         assertEquals(
             expected = true,
             actual = secondScopeAttribute.latestVerificationResult?.success,
             message = "The re-onboard and re-verification process should mark the asset as successfully verified",
         )
         testProvenanceScopeAttributeEquality(secondScopeAttribute)
+    }
+
+    @Test
+    fun `test multiple verifications`() {
+        val owner = AppResources.assetOnboardingAccount
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(assetType = "heloc", ownerAccount = owner)
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        val preVerifyHelocScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "heloc",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.PENDING,
+            actual = preVerifyHelocScopeAttribute.onboardingStatus,
+            message = "The heloc attribute should indicate that the asset is awaiting verification",
+        )
+        assertFeePaymentDetailValidity(asset, assetType = "heloc")
+        val preVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.PENDING,
+            actual = preVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "The mortgage attribute should indicate that the asset is awaiting verification",
+        )
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        acClient.verifyAsset(
+            execute = VerifyAssetExecute(
+                identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                assetType = "heloc",
+                success = true,
+                message = "Successful heloc verification",
+            ),
+            signer = AppResources.verifierAccount.toAccountSigner(),
+        )
+        assertNull(
+            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "heloc"),
+            message = "Fee payments should be null for the heloc record after heloc verification runs",
+        )
+        val postVerifyHelocScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "heloc",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.APPROVED,
+            actual = postVerifyHelocScopeAttribute.onboardingStatus,
+            message = "Expected the onboarding status to show that the heloc attribute has been approved",
+        )
+        acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        ).also { mortgageScopeAttribute ->
+            assertEquals(
+                expected = preVerifyMortgageScopeAttribute,
+                actual = mortgageScopeAttribute,
+                message = "The mortgage scope attribute should be wholly unchanged by the heloc verification",
+            )
+            assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        }
+        acClient.verifyAsset(
+            execute = VerifyAssetExecute(
+                identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                assetType = "mortgage",
+                success = false,
+                message = "Failed because this is a heloc, duh",
+            ),
+            signer = AppResources.verifierAccount.toAccountSigner(),
+        )
+        assertNull(
+            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "mortgage"),
+            message = "Fee payments should be null for the mortgage record after mortgage verification runs",
+        )
+        val postVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.DENIED,
+            actual = postVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "Expected the onboarding status to show that the mortgage attribute has been denied",
+        )
+        assertFails("Attempting to onboarding a second time as heloc should fail because the asset is already approved") {
+            acClient.onboardAsset(
+                execute = OnboardAssetExecute(
+                    identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                    assetType = "heloc",
+                    verifierAddress = AppResources.verifierAccount.bech32Address,
+                ),
+                signer = owner.toAccountSigner(),
+            )
+        }
+        // Onboard a second time as mortgage to show that the retry flow is still allowed in this odd circumstance
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        val preSecondVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.PENDING,
+            actual = preSecondVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "The mortgage verification should move back to pending status after a second onboard",
+        )
+        acClient.verifyAsset(
+            execute = VerifyAssetExecute(
+                identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
+                assetType = "mortgage",
+                success = true,
+                message = "Oh, I guess this somehow is a heloc and a mortgage",
+            ),
+            signer = AppResources.verifierAccount.toAccountSigner(),
+        )
+        val postSecondVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "mortgage",
+        )
+        assertEquals(
+            expected = AssetOnboardingStatus.APPROVED,
+            actual = postSecondVerifyMortgageScopeAttribute.onboardingStatus,
+            message = "The asset should be moved to approved for mortgage after the second successful verification",
+        )
+        assertNull(
+            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "mortgage"),
+            message = "Fee payments for the mortgage flow should be removed after the second verification",
+        )
+        acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = "heloc"
+        ).also { helocScopeAttribute ->
+            assertEquals(
+                expected = postVerifyHelocScopeAttribute,
+                actual = helocScopeAttribute,
+                message = "The heloc scope attribute should be unchanged by all mortgage contract actions",
+            )
+        }
     }
 
     @Test
@@ -137,7 +292,6 @@ class ExecuteIntTest : IntTestBase() {
             acClient.updateAssetDefinition(
                 execute = UpdateAssetDefinitionExecute(
                     assetType = "some fake type",
-                    scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(UUID.randomUUID()),
                     verifiers = getDefaultVerifierDetail().wrapListAc(),
                     enabled = false,
                 ),
@@ -152,7 +306,7 @@ class ExecuteIntTest : IntTestBase() {
             acClient.updateAssetDefinition(
                 execute = UpdateAssetDefinitionExecute(
                     assetType = "faketype",
-                    scopeSpecIdentifier = ScopeSpecIdentifier.Address(assetDefinition.scopeSpecAddress),
+                    displayName = "some display name",
                     verifiers = assetDefinition.verifiers,
                     enabled = false,
                 ),
@@ -164,9 +318,14 @@ class ExecuteIntTest : IntTestBase() {
                 message = "The update should successfully disable the asset definition",
             )
             assertEquals(
-                expected = assetDefinition.copy(enabled = false),
+                expected = "some display name",
+                actual = newDefinition.displayName,
+                message = "The update should successfully change the display name",
+            )
+            assertEquals(
+                expected = assetDefinition.copy(displayName = "some display name", enabled = false),
                 actual = newDefinition,
-                message = "The definitions should be identical except for their enabled property",
+                message = "The definitions should be identical except for their enabled and displayName properties",
             )
         }
     }
@@ -294,24 +453,29 @@ class ExecuteIntTest : IntTestBase() {
             acClient.updateAccessRoutes(
                 execute = UpdateAccessRoutesExecute(
                     identifier = AssetIdentifier.AssetUuid(UUID.randomUUID()),
+                    assetType = "sometype",
                     ownerAddress = AppResources.assetOnboardingAccount.bech32Address,
                     accessRoutes = AccessRoute("route", "name").wrapListAc(),
                 ),
                 signer = AppResources.assetOnboardingAccount.toAccountSigner()
             )
         }
-        val asset = invoiceOnboardingService.onboardTestAsset(ownerAccount = AppResources.assetOnboardingAccount)
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(ownerAccount = AppResources.assetOnboardingAccount)
         assertFails("Attempting to update access routes for an unrelated account should fail") {
             acClient.updateAccessRoutes(
                 execute = UpdateAccessRoutesExecute(
                     identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
+                    assetType = asset.assetType,
                     ownerAddress = AppResources.assetManagerAccount.bech32Address,
                     accessRoutes = AccessRoute("route", "name").wrapListAc()
                 ),
                 signer = AppResources.contractAdminAccount.toAccountSigner(),
             )
         }
-        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+        val scopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
+            assetUuid = asset.assetUuid,
+            assetType = asset.assetType,
+        )
         val originalAccessRoutes = scopeAttribute.accessDefinitions.singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }?.accessRoutes
         assertNotNull(
             actual = originalAccessRoutes,
@@ -330,12 +494,13 @@ class ExecuteIntTest : IntTestBase() {
         acClient.updateAccessRoutes(
             execute = UpdateAccessRoutesExecute(
                 identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
+                assetType = asset.assetType,
                 ownerAddress = AppResources.assetOnboardingAccount.bech32Address,
                 accessRoutes = newAccessRoutes,
             ),
             signer = AppResources.assetOnboardingAccount.toAccountSigner(),
         )
-        acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+        acClient.queryAssetScopeAttributeByAssetUuid(assetUuid = asset.assetUuid, assetType = asset.assetType)
             .accessDefinitions
             .singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }
             ?.accessRoutes
@@ -350,12 +515,13 @@ class ExecuteIntTest : IntTestBase() {
         acClient.updateAccessRoutes(
             execute = UpdateAccessRoutesExecute(
                 identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
+                assetType = asset.assetType,
                 ownerAddress = AppResources.assetOnboardingAccount.bech32Address,
                 accessRoutes = originalAccessRoutes,
             ),
             signer = AppResources.contractAdminAccount.toAccountSigner(),
         )
-        acClient.queryAssetScopeAttributeByAssetUuid(asset.assetUuid)
+        acClient.queryAssetScopeAttributeByAssetUuid(assetUuid = asset.assetUuid, assetType = asset.assetType)
             .accessDefinitions
             .singleOrNull { it.ownerAddress == AppResources.assetOnboardingAccount.bech32Address }
             ?.accessRoutes
@@ -372,14 +538,13 @@ class ExecuteIntTest : IntTestBase() {
     fun `test deleteAssetDefinition`() {
         assertFails("Attempting to delete an asset definition that does not exist should fail") {
             acClient.deleteAssetDefinition(
-                execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("faketype")),
+                execute = DeleteAssetDefinitionExecute(assetType = "faketype"),
                 signer = AppResources.contractAdminAccount.toAccountSigner(),
             )
         }
         acClient.addAssetDefinition(
             execute = AddAssetDefinitionExecute(
                 assetType = "deleteme",
-                scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(UUID.randomUUID()),
                 verifiers = getDefaultVerifierDetail().wrapListAc(),
                 enabled = true,
                 // This test simulates how the blockchain operates - the "asset" name is restricted and
@@ -391,12 +556,12 @@ class ExecuteIntTest : IntTestBase() {
         )
         assertFails("Attempting to delete an asset definition from an account that is not the admin should fail") {
             acClient.deleteAssetDefinition(
-                execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("deleteme")),
+                execute = DeleteAssetDefinitionExecute("deleteme"),
                 signer = AppResources.assetOnboardingAccount.toAccountSigner(),
             )
         }
         acClient.deleteAssetDefinition(
-            execute = DeleteAssetDefinitionExecute(AssetQualifier.AssetType("deleteme")),
+            execute = DeleteAssetDefinitionExecute("deleteme"),
             signer = AppResources.contractAdminAccount.toAccountSigner(),
         )
         assertNull(
@@ -433,7 +598,6 @@ class ExecuteIntTest : IntTestBase() {
         acClient.addAssetDefinition(
             execute = AddAssetDefinitionExecute(
                 assetType = assetType,
-                scopeSpecIdentifier = ScopeSpecIdentifier.Uuid(UUID.randomUUID()),
                 verifiers = getDefaultVerifierDetail().wrapListAc(),
                 enabled = enabled,
                 // This test simulates how the blockchain operates - the "asset" name is restricted and
@@ -444,15 +608,23 @@ class ExecuteIntTest : IntTestBase() {
             signer = AppResources.contractAdminAccount.toAccountSigner(),
         )
         val assetDefinition = acClient.queryAssetDefinitionByAssetType(assetType)
-        testFunction.invoke(assetDefinition)
-        acClient.deleteAssetDefinition(
-            execute = DeleteAssetDefinitionExecute(qualifier = AssetQualifier.AssetType(assetType)),
-            signer = AppResources.contractAdminAccount.toAccountSigner(),
-        )
-        assertNull(
-            actual = acClient.queryAssetDefinitionByAssetTypeOrNull(assetType),
-            message = "Expected the asset definition to be removed after deleting it.  Bad test behavior might occur after this failure",
-        )
+        try {
+            testFunction.invoke(assetDefinition)
+        } catch (e: Exception) {
+            fail("Custom test assertions failed when using addTempraryAssetDefinition", e)
+        } finally {
+            // Always remove the created asset definition, even if the upstream function fails.  This ensures that
+            // failing assertions in a test don't cause orphaned asset definitions to remain and cause all sorts of
+            // ripple effects to other tests
+            acClient.deleteAssetDefinition(
+                execute = DeleteAssetDefinitionExecute(assetType = assetType),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+            assertNull(
+                actual = acClient.queryAssetDefinitionByAssetTypeOrNull(assetType),
+                message = "Expected the asset definition to be removed after deleting it.  Bad test behavior might occur after this failure",
+            )
+        }
     }
 
     private fun getDefaultVerifierDetail(): VerifierDetail = VerifierDetail(
