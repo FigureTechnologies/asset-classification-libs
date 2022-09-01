@@ -31,6 +31,7 @@ class UpdateAssetDefinitionExecuteSerializer : JsonSerializer<UpdateAssetDefinit
         // Start asset_definition node
         gen.writeObjectFieldStart("asset_definition")
         gen.writeStringField("asset_type", value.assetType)
+        value.displayName?.also { displayName -> gen.writeStringField("display_name", displayName) }
         gen.writeArrayFieldStart("verifiers")
         value.verifiers.forEach { verifier -> gen.writeObject(verifier) }
         gen.writeEndArray()

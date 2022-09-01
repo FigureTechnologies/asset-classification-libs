@@ -151,7 +151,8 @@ object SetupACTool {
 
     private fun setupAssetDefinitions(config: SetupACToolConfig, contractAddress: String) {
         val messages = AssetSpecifications.flatMap { specification ->
-            val specType = specification.recordSpecConfigs.single().name
+            val specType = specification.recordSpecConfigs.singleOrNull()?.name
+                ?: error("Got unexpected record spec configs list size [${specification.recordSpecConfigs.size}] for asset specification with display name [${specification.scopeSpecConfig.name}]")
             config.logger("Generating create scope spec messages for type [$specType]")
             val messages = specification.specificationMsgs(config.contractAdminAccount.bech32Address).toMutableList()
             config.logger("Generating add asset definition message to asset classification contract for type [$specType]")
@@ -161,6 +162,7 @@ object SetupACTool {
             ).generateAddAssetDefinitionMsg(
                 execute = AddAssetDefinitionExecute(
                     assetType = specType,
+                    displayName = specification.scopeSpecConfig.name,
                     verifiers = VerifierDetail(
                         address = config.verifierBech32Address,
                         onboardingCost = "100000".toBigInteger(),

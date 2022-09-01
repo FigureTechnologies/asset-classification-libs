@@ -31,6 +31,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class ExecuteIntTest : IntTestBase() {
     @Test
@@ -198,10 +199,10 @@ class ExecuteIntTest : IntTestBase() {
             ),
             signer = AppResources.verifierAccount.toAccountSigner(),
         )
-//        assertNull(
-//            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "mortgage"),
-//            message = "Fee payments should be null for the mortgage record after mortgage verification runs",
-//        )
+        assertNull(
+            actual = acClient.queryFeePaymentsByAssetUuidOrNull(assetUuid = asset.assetUuid, assetType = "mortgage"),
+            message = "Fee payments should be null for the mortgage record after mortgage verification runs",
+        )
         val postVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
             assetUuid = asset.assetUuid,
             assetType = "mortgage",
@@ -305,6 +306,7 @@ class ExecuteIntTest : IntTestBase() {
             acClient.updateAssetDefinition(
                 execute = UpdateAssetDefinitionExecute(
                     assetType = "faketype",
+                    displayName = "some display name",
                     verifiers = assetDefinition.verifiers,
                     enabled = false,
                 ),
@@ -316,9 +318,14 @@ class ExecuteIntTest : IntTestBase() {
                 message = "The update should successfully disable the asset definition",
             )
             assertEquals(
-                expected = assetDefinition.copy(enabled = false),
+                expected = "some display name",
+                actual = newDefinition.displayName,
+                message = "The update should successfully change the display name",
+            )
+            assertEquals(
+                expected = assetDefinition.copy(displayName = "some display name", enabled = false),
                 actual = newDefinition,
-                message = "The definitions should be identical except for their enabled property",
+                message = "The definitions should be identical except for their enabled and displayName properties",
             )
         }
     }
@@ -601,15 +608,23 @@ class ExecuteIntTest : IntTestBase() {
             signer = AppResources.contractAdminAccount.toAccountSigner(),
         )
         val assetDefinition = acClient.queryAssetDefinitionByAssetType(assetType)
-        testFunction.invoke(assetDefinition)
-        acClient.deleteAssetDefinition(
-            execute = DeleteAssetDefinitionExecute(assetType = assetType),
-            signer = AppResources.contractAdminAccount.toAccountSigner(),
-        )
-        assertNull(
-            actual = acClient.queryAssetDefinitionByAssetTypeOrNull(assetType),
-            message = "Expected the asset definition to be removed after deleting it.  Bad test behavior might occur after this failure",
-        )
+        try {
+            testFunction.invoke(assetDefinition)
+        } catch (e: Exception) {
+            fail("Custom test assertions failed when using addTempraryAssetDefinition", e)
+        } finally {
+            // Always remove the created asset definition, even if the upstream function fails.  This ensures that
+            // failing assertions in a test don't cause orphaned asset definitions to remain and cause all sorts of
+            // ripple effects to other tests
+            acClient.deleteAssetDefinition(
+                execute = DeleteAssetDefinitionExecute(assetType = assetType),
+                signer = AppResources.contractAdminAccount.toAccountSigner(),
+            )
+            assertNull(
+                actual = acClient.queryAssetDefinitionByAssetTypeOrNull(assetType),
+                message = "Expected the asset definition to be removed after deleting it.  Bad test behavior might occur after this failure",
+            )
+        }
     }
 
     private fun getDefaultVerifierDetail(): VerifierDetail = VerifierDetail(

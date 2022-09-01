@@ -14,10 +14,10 @@ import tech.figure.classification.asset.client.domain.model.AssetIdentifier
  *
  * Sample usage:
  * ```kotlin
- * val executeForAsset = UpdateAccessRoutesExecute(AssetIdentifier.AssetUuid(UUID.randomUUID()), ownerAddress, routes)
+ * val executeForAsset = UpdateAccessRoutesExecute(AssetIdentifier.AssetUuid(UUID.randomUUID()), "heloc", ownerAddress, routes)
  * val txResponse = acClient.updateAccessRoutes(executeForAsset, signer, options)
  *
- * val executeForScope = UpdateAccessRoutesExecute(AssetIdentifier.ScopeAddress("scope1qq4kmly2pn73rmdydd0k58wt4djq2na9yg"), ownerAddress, routes)
+ * val executeForScope = UpdateAccessRoutesExecute(AssetIdentifier.ScopeAddress("scope1qq4kmly2pn73rmdydd0k58wt4djq2na9yg"), "heloc", ownerAddress, routes)
  * val txResponse = acClient.updateAccessRoutes(executeForAsset, signer, options)
  * ```
  *

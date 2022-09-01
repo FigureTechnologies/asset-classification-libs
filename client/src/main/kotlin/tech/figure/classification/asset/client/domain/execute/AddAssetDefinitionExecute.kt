@@ -16,6 +16,7 @@ import tech.figure.classification.asset.client.domain.serialization.AddAssetDefi
  * ```
  *
  * @param assetType The type of asset that will be added. This value is a unique key in the contract.
+ * @param displayName A pretty human-readable name for this asset type (vs a typically snake_case asset_type name).
  * @param verifiers All verifiers that are allowed to do verification for this specific asset type.
  * @param enabled Whether or not this asset type will accept incoming onboard requests.  If left null, the default value used will be `true`
  * @param bindName Whether or not to bind the name value creating an asset definition.
@@ -23,6 +24,7 @@ import tech.figure.classification.asset.client.domain.serialization.AddAssetDefi
 @JsonSerialize(using = AddAssetDefinitionExecuteSerializer::class)
 data class AddAssetDefinitionExecute(
     val assetType: String,
+    val displayName: String? = null,
     val verifiers: List<VerifierDetail>,
     val enabled: Boolean? = null,
     val bindName: Boolean? = null,

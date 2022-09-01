@@ -14,10 +14,10 @@ import tech.figure.classification.asset.client.domain.model.AssetIdentifier
  *
  * Sample usage:
  * ```kotlin
- * val executeForAsset = VerifyAssetExecute(AssetIdentifier.AssetUuid(UUID.randomUUID()), true, "verify success", listOf("route"))
+ * val executeForAsset = VerifyAssetExecute(AssetIdentifier.AssetUuid(UUID.randomUUID()), "heloc", true, "verify success", listOf("route"))
  * val txResponse = acClient.verifyAsset(executeForAsset, signer, options)
  *
- * val executeForScope = VerifyAssetExecute(AssetIdentifier.ScopeAddress("scope1qpkad3gkpn73rmvt7ype8x3tga7sr3ke68"), true, "MAJOR SUCCESS", listOf("some-route"))
+ * val executeForScope = VerifyAssetExecute(AssetIdentifier.ScopeAddress("scope1qpkad3gkpn73rmvt7ype8x3tga7sr3ke68"), "heloc", true, "MAJOR SUCCESS", listOf("some-route"))
  * val txResponse = acClient.verifyAsset(executeForScope, signer, options)
  * ```
  * @param identifier Identifies the asset by uuid or scope address.

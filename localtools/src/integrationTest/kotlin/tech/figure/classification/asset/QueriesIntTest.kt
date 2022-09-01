@@ -61,6 +61,12 @@ class QueriesIntTest : IntTestBase() {
                         "(Type: ${it.assetType})"
                     }
             )
+            // This verifies that the SetupACTool is using the proper fields when setting up test data for the contract
+            assertEquals(
+                expected = assetSpecification.scopeSpecConfig.name,
+                actual = assetDefinition.displayName,
+                message = "The asset definition should use the scope spec config name for its display name",
+            )
         }
     }
 
