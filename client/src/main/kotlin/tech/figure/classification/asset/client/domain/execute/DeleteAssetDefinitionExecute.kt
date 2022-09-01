@@ -14,8 +14,8 @@ import tech.figure.classification.asset.client.domain.execute.base.ContractExecu
  *
  * Sample usage:
  * ```kotlin
- * val deleteByTypeExecute = DeleteAssetDefinitionExecute("heloc")
- * val txResponse = acClient.deleteAssetDefinition(deleteByTypeExecute, signer, options)
+ * val deleteExecute = DeleteAssetDefinitionExecute("heloc")
+ * val txResponse = acClient.deleteAssetDefinition(deleteExecute, signer, options)
  * ```
  *
  * @param assetType The asset type used to identify the asset definition to delete.

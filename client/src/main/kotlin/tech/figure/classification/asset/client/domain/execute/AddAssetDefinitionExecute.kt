@@ -11,7 +11,7 @@ import tech.figure.classification.asset.client.domain.serialization.AddAssetDefi
  *
  * To use it, simply create the execute class and call the appropriate function:
  * ```kotlin
- * val execute = AddAssetDefinitionExecute(assetType, verifiers, enabled = true)
+ * val execute = AddAssetDefinitionExecute(assetType, displayName, verifiers, enabled = true)
  * val txResponse = acClient.addAssetDefinition(execute, signer, options)
  * ```
  *

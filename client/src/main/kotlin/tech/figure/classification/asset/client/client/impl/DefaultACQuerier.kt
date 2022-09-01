@@ -34,7 +34,9 @@ class DefaultACQuerier(
     private val pbClient: PbClient,
 ) : ACQuerier {
     private companion object {
+        // Static instance of a TypeReference for List<AssetDefinition> to prevent multiple instantiations
         private val ASSET_DEFINITION_LIST_TYPE_REFERENCE = object : TypeReference<List<AssetDefinition>>() {}
+        // Static instance of a TypeReference for List<AssetScopeAttribute> to prevent multiple instantiations
         private val SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE = object : TypeReference<List<AssetScopeAttribute>>() {}
     }
 

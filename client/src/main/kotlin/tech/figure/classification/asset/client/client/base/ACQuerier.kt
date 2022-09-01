@@ -119,8 +119,7 @@ interface ACQuerier {
 
     /**
      * Retrieves all asset scope attributes related to an asset by referencing the scope's UUID.  This can include
-     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
-     * passes for those types.
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset.
      * If no attributes are present, an empty list will be returned.  If an error occurs, null will be returned.
      *
      * @param assetUuid The asset uuid that correlates to the scope address.
@@ -136,8 +135,7 @@ interface ACQuerier {
 
     /**
      * Retrieves all asset scope attributes related to an asset by referencing the scope's UUID.  This can include
-     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
-     * passes for those types.
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset.
      * If no attributes are present, an empty list will be returned.  If an error occurs, an exception will be thrown.
      *
      * @param assetUuid The asset uuid that correlates to the scope address.
@@ -146,8 +144,7 @@ interface ACQuerier {
 
     /**
      * Retrieves all asset scope attributes related to an asset by directly referencing the scope's address.  This can include
-     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
-     * passes for those types.
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset.
      * If no attributes are present, an empty list will be returned.  If an error occurs, null will be returned.
      *
      * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
@@ -163,8 +160,7 @@ interface ACQuerier {
 
     /**
      * Retrieves all asset scope attributes related to an asset by directly referencing the scope's address.  This can include
-     * multiple results to accommodate the fact that multiple asset types may be associated with an asset, if verification
-     * passes for those types.
+     * multiple results to accommodate the fact that multiple asset types may be associated with an asset.
      * If no attributes are present, an empty list will be returned.  If an error occurs, an exception will be thrown.
      *
      * @param scopeAddress The bech32 address assigned to the scope.  Begins with "scope"
