@@ -58,7 +58,13 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
                     contractAdminAccount = AppResources.contractAdminAccount,
                     verifierBech32Address = AppResources.verifierAccount.bech32Address,
                     contractAliasNames = listOf("assetclassificationalias.pb", "testassets.pb"),
-                    wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
+                    // To test the smart contract before it has been released, do the following:
+                    // - Run 'make optimize' from the smart contract directory
+                    // - Copy asset_classification_smart_contract.wasm from the artifacts directory that is created from that command
+                    // - Paste the wasm into localtools/integrationTest/resources
+                    // - Uncomment the following line, and comment out the other wasmLocation line:
+                    wasmLocation = ContractWasmLocation.LocalFile.ProjectResource("asset_classification_smart_contract.wasm"),
+                    // wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
                     logger = SetupACToolLogging.Custom(log = logger::info),
                 )
             )

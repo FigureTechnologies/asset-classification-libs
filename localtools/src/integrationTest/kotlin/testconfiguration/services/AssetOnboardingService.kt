@@ -52,19 +52,26 @@ class AssetOnboardingService(
         ownerAddress = ownerAccount.bech32Address,
     )
 
-    fun storeAndOnboardTestAsset(
+    fun storeAndOnboardNewAsset(
         assetUuid: UUID = UUID.randomUUID(),
         assetType: String = "payable",
         assetMessage: String = "TEST ASSET: $assetUuid",
         ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
-    ): TestAsset {
-        val asset = this.createAsset(
+    ): TestAsset = storeAndOnboardTestAsset(
+        asset = this.createAsset(
             assetUuid = assetUuid,
             assetType = assetType,
             assetMessage = assetMessage,
             ownerAccount = ownerAccount,
-        )
-        logger.info("Storing TestAsset [$assetUuid] as an Asset in Object Store")
+        ),
+        ownerAccount = ownerAccount,
+    )
+
+    fun storeAndOnboardTestAsset(
+        asset: TestAsset,
+        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
+    ): TestAsset = asset.also {
+        logger.info("Storing TestAsset [${asset.assetUuid}] as an Asset in Object Store")
         val assetProto = asset.toProto()
         val assetHash = osClient.put(
             message = assetProto,
@@ -72,19 +79,19 @@ class AssetOnboardingService(
             signer = Pen(ProvenanceKeyGenerator.generateKeyPair(ownerAccount.publicKey)),
             additionalAudiences = setOf(AppResources.assetManagerAccount.publicKey),
         ).get(20, TimeUnit.SECONDS).hash.toByteArray().toBase64StringAc()
-        logger.info("Successfully added asset [$assetUuid] to Object Store and got hash")
-        logger.info("Writing scope for asset [$assetUuid]")
-        val assetDefinition = acClient.queryAssetDefinitionByAssetType(assetType)
+        logger.info("Successfully added asset [${asset.assetUuid}] to Object Store and got hash")
+        logger.info("Writing scope for asset [${asset.assetUuid}]")
+        val assetDefinition = acClient.queryAssetDefinitionByAssetType(asset.assetType)
         val assetSpecification = AssetSpecifications.singleOrNull { it.recordSpecConfigs.single().name == assetDefinition.assetType }
-            ?: error("Failed to find asset specification for asset type [$assetType]")
-        val scopeMetadata = MetadataAddress.forScope(assetUuid)
+            ?: error("Failed to find asset specification for asset type [${asset.assetType}]")
+        val scopeMetadata = MetadataAddress.forScope(asset.assetUuid)
         val scopeSpecMetadata = MetadataAddress.forScopeSpecification(assetSpecification.scopeSpecConfig.id)
         val sessionUuid = UUID.randomUUID()
-        val sessionMetadata = MetadataAddress.forSession(assetUuid, sessionUuid)
+        val sessionMetadata = MetadataAddress.forSession(asset.assetUuid, sessionUuid)
         val contractSpecMetadata = acClient.pbClient.getContractSpecFromScopeSpec(scopeSpecMetadata.toString())
         logger.info("Writing scope with address [$scopeMetadata], scope spec address [$scopeSpecMetadata] and owner [${ownerAccount.bech32Address}]")
         val writeScopeRequest = MsgWriteScopeRequest.newBuilder().also { req ->
-            req.scopeUuid = assetUuid.toString()
+            req.scopeUuid = asset.assetUuid.toString()
             req.specUuid = scopeSpecMetadata.getPrimaryUuid().toString()
             req.addSigners(ownerAccount.bech32Address)
             req.scopeBuilder.scopeId = scopeMetadata.bytes.toByteString()
@@ -105,7 +112,7 @@ class AssetOnboardingService(
         }.build().toAny()
         val writeSessionRequest = MsgWriteSessionRequest.newBuilder().also { req ->
             req.addSigners(ownerAccount.bech32Address)
-            req.sessionIdComponentsBuilder.scopeUuid = assetUuid.toString()
+            req.sessionIdComponentsBuilder.scopeUuid = asset.assetUuid.toString()
             req.sessionIdComponentsBuilder.sessionUuid = sessionUuid.toString()
             req.sessionBuilder.sessionId = sessionMetadata.bytes.toByteString()
             req.sessionBuilder.specificationId = contractSpecMetadata.bytes.toByteString()

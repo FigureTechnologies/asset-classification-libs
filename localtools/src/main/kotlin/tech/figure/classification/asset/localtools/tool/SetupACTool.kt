@@ -167,10 +167,10 @@ object SetupACTool {
                         onboardingDenom = "nhash",
                         feeDestinations = emptyList(),
                         entityDetail = EntityDetail(
-                            name = "Provenance Blockchain Verifier: $specType",
-                            description = "The standard asset classification verifier provided by the Provenance Blockchain Foundation",
-                            homeUrl = "https://provenance.io",
-                            sourceUrl = "https://github.com/provenance-io/asset-classification-libs",
+                            name = "Figure Tech Verifier: $specType",
+                            description = "The standard asset classification verifier provided by Figure Technologies",
+                            homeUrl = "https://figure.tech",
+                            sourceUrl = "https://github.com/FigureTechnologies/asset-classification-libs",
                         )
                     ).wrapListAc(),
                     enabled = true,

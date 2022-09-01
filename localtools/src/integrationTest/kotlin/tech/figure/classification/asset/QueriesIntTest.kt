@@ -49,7 +49,9 @@ class QueriesIntTest : IntTestBase() {
             message = "There should be one asset definition per asset specification",
         )
         AssetSpecifications.forEach { assetSpecification ->
-            val targetAssetType = assetSpecification.scopeSpecConfig.name
+            val targetAssetType = assetSpecification.recordSpecConfigs.singleOrNull()
+                .assertNotNullAc("Expected only a single record spec config to exist for specification of type [${assetSpecification.scopeSpecConfig.name}], but found: ${assetSpecification.recordSpecConfigs.size}")
+                .name
             val assetDefinition = assetDefinitions.singleOrNull { it.assetType == targetAssetType }
             assertNotNull(
                 actual = assetDefinition,
@@ -65,7 +67,7 @@ class QueriesIntTest : IntTestBase() {
     @Test
     fun `test queryAssetScopeAttributeByAssetUuid`() {
         val owner = AppResources.assetOnboardingAccount
-        val asset = assetOnboardingService.storeAndOnboardTestAsset(
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(
             assetType = "mortgage",
             ownerAccount = owner,
         )
@@ -104,7 +106,7 @@ class QueriesIntTest : IntTestBase() {
     @Test
     fun `test queryAssetScopeAttributeByScopeAddress`() {
         val owner = AppResources.assetOnboardingAccount
-        val asset = assetOnboardingService.storeAndOnboardTestAsset(
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(
             assetType = "heloc",
             ownerAccount = owner,
         )
@@ -163,12 +165,8 @@ class QueriesIntTest : IntTestBase() {
             acClient.queryAssetScopeAttributesByAssetUuid(UUID.randomUUID())
         }
         val owner = AppResources.assetOnboardingAccount
-        val asset = assetOnboardingService.createAsset(assetType = "heloc", ownerAccount = owner)
         // First, onboard the asset using its given type to create a heloc.asset attribute on the scope
-        assetOnboardingService.onboardTestAsset(
-            asset = asset,
-            ownerAccount = owner,
-        )
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(assetType = "heloc", ownerAccount = owner)
         // Second, onboard the asset using the type "mortgage" to create a secondary mortgage.asset attribute on the scope.
         // Realistically, an asset would not likely be verified as both a heloc and a mortgage, but it's still an action that
         // can be taken to create two scope attributes on the same asset.  One or both of these, in a real scenario,
@@ -218,12 +216,8 @@ class QueriesIntTest : IntTestBase() {
             acClient.queryAssetScopeAttributesByScopeAddress("somescopeaddress")
         }
         val owner = AppResources.assetOnboardingAccount
-        val asset = assetOnboardingService.createAsset(assetType = "heloc", ownerAccount = owner)
         // First, onboard the asset using its given type to create a heloc.asset attribute on the scope
-        assetOnboardingService.onboardTestAsset(
-            asset = asset,
-            ownerAccount = owner,
-        )
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(assetType = "heloc", ownerAccount = owner)
         // Second, onboard the asset using the type "mortgage" to create a secondary mortgage.asset attribute on the scope.
         // Realistically, an asset would not likely be verified as both a heloc and a mortgage, but it's still an action that
         // can be taken to create two scope attributes on the same asset.  One or both of these, in a real scenario,
@@ -279,7 +273,7 @@ class QueriesIntTest : IntTestBase() {
                 assetType = "heloc",
             )
         }
-        val asset = assetOnboardingService.storeAndOnboardTestAsset()
+        val asset = assetOnboardingService.storeAndOnboardNewAsset()
         assertFeePaymentDetailValidity(asset) {
             acClient.queryFeePaymentsByAssetUuid(
                 assetUuid = asset.assetUuid,
@@ -325,7 +319,7 @@ class QueriesIntTest : IntTestBase() {
                 assetType = "heloc",
             )
         }
-        val asset = assetOnboardingService.storeAndOnboardTestAsset()
+        val asset = assetOnboardingService.storeAndOnboardNewAsset()
         val scopeAddress = MetadataAddress.forScope(asset.assetUuid).toString()
         assertFeePaymentDetailValidity(asset) {
             acClient.queryFeePaymentsByScopeAddress(

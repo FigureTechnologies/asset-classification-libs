@@ -22,11 +22,6 @@ fun assertFeePaymentDetailValidity(
 ) {
     val feePayments = getFeePaymentDetail()
     assertEquals(
-        expected = assetType,
-        actual = feePayments.assetType,
-        message = "Expected the FeePaymentDetail to include the correct asset type",
-    )
-    assertEquals(
         expected = MetadataAddress.forScope(asset.assetUuid).toString(),
         actual = feePayments.scopeAddress,
         message = "Expected the FeePaymentDetail to include the correct scope address",

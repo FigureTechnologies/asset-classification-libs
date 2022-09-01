@@ -662,7 +662,6 @@ class DefaultACQuerierTest {
 
         fun mockFeePaymentDetail(): FeePaymentDetail = FeePaymentDetail(
             scopeAddress = "randomscopeaddress",
-            assetType = "heloc",
             payments = listOf(
                 FeePayment(
                     amount = Coin.newBuilder().setAmount("100").setDenom("nhash").build(),

@@ -22,6 +22,8 @@ import tech.figure.classification.asset.client.domain.model.AssetIdentifier
  * ```
  *
  * @param identifier Identifiers the asset containing the access routes by uuid or scope address.
+ * @param assetType The type of asset for which this update will occur.  Assets may include multiple types, so this
+ *                  links a specific scope attribute to the update.
  * @param ownerAddress The bech32 address listed on an [AccessDefinition][tech.figure.classification.asset.client.domain.model.AccessDefinition] on the target [AssetScopeAttribute][tech.figure.classification.asset.client.domain.model.AssetScopeAttribute].
  * @param accessRoutes All the new access routes to include in the [AccessDefinition][tech.figure.classification.asset.client.domain.model.AccessDefinition].  Note: All existing routes will be
  *                     completely removed and replaced with these values.  Additionally, this list can be empty, which
@@ -33,6 +35,7 @@ import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 @JsonTypeName("update_access_routes")
 data class UpdateAccessRoutesExecute<T>(
     val identifier: AssetIdentifier<T>,
+    val assetType: String,
     val ownerAddress: String,
     val accessRoutes: List<AccessRoute>,
 ) : ContractExecute
