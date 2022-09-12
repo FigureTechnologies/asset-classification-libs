@@ -17,7 +17,7 @@ object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
 
     override suspend fun handleEvent(parameters: EventHandlerParameters) {
         val (event, acClient, verifierAccount, _, _, eventChannel) = parameters
-        val messagePrefix = "[VERIFY ASSET | Tx: ${event.sourceEvent.txHash} | Asset ${event.scopeAddress}"
+        val messagePrefix = "[VERIFY ASSET | Tx: ${event.sourceEvent.txHash} | Asset ${event.scopeAddress} / ${event.assetType}"
         // This will commonly happen - the contract emits events that don't target the verifier at all, but they'll
         // still pass through here
         if (event.verifierAddress == null) {
