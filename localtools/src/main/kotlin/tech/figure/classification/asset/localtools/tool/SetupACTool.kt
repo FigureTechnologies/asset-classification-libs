@@ -28,6 +28,7 @@ import tech.figure.classification.asset.util.objects.ACObjectMapperUtil
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.spec.AssetSpecifications
 import java.io.File
+import java.math.BigInteger
 import java.net.URL
 
 object SetupACTool {
@@ -151,25 +152,25 @@ object SetupACTool {
 
     private fun setupAssetDefinitions(config: SetupACToolConfig, contractAddress: String) {
         val messages = AssetSpecifications.flatMap { specification ->
-            val specType = specification.recordSpecConfigs.singleOrNull()?.name
+            val assetType = specification.recordSpecConfigs.singleOrNull()?.name
                 ?: error("Got unexpected record spec configs list size [${specification.recordSpecConfigs.size}] for asset specification with display name [${specification.scopeSpecConfig.name}]")
-            config.logger("Generating create scope spec messages for type [$specType]")
+            config.logger("Generating create scope spec messages for asset type [$assetType]")
             val messages = specification.specificationMsgs(config.contractAdminAccount.bech32Address).toMutableList()
-            config.logger("Generating add asset definition message to asset classification contract for type [$specType]")
+            config.logger("Generating add asset definition message to asset classification contract for asset type [$assetType]")
             messages += ACClient.getDefault(
                 contractIdentifier = ContractIdentifier.Address(contractAddress),
                 pbClient = config.pbClient,
             ).generateAddAssetDefinitionMsg(
                 execute = AddAssetDefinitionExecute(
-                    assetType = specType,
+                    assetType = assetType,
                     displayName = specification.scopeSpecConfig.name,
                     verifiers = VerifierDetail(
                         address = config.verifierBech32Address,
-                        onboardingCost = "100000".toBigInteger(),
+                        onboardingCost = config.assetDefinitionOnboardingCostOverrides[assetType] ?: "100000".toBigInteger(),
                         onboardingDenom = "nhash",
                         feeDestinations = emptyList(),
                         entityDetail = EntityDetail(
-                            name = "Figure Tech Verifier: $specType",
+                            name = "Figure Tech Verifier: $assetType",
                             description = "The standard asset classification verifier provided by Figure Technologies",
                             homeUrl = "https://figure.tech",
                             sourceUrl = "https://github.com/FigureTechnologies/asset-classification-libs",
@@ -180,14 +181,14 @@ object SetupACTool {
                 ),
                 signerAddress = config.contractAdminAccount.bech32Address,
             )
-            config.logger("Generating bind name message of type [$specType.asset] to contract address [$contractAddress] for future attribute writes")
+            config.logger("Generating bind name message of type [$assetType.asset] to contract address [$contractAddress] for future attribute writes")
             messages += MsgBindNameRequest.newBuilder().also { bindName ->
                 bindName.parent = NameRecord.newBuilder().also { nameRecord ->
                     nameRecord.name = "asset"
                     nameRecord.address = config.assetNameAdminAccount.bech32Address
                 }.build()
                 bindName.record = NameRecord.newBuilder().also { nameRecord ->
-                    nameRecord.name = specType
+                    nameRecord.name = assetType
                     nameRecord.address = contractAddress
                     nameRecord.restricted = true
                 }.build()
@@ -230,6 +231,9 @@ object SetupACTool {
  * from.  By default, the latest version of the smart contract will be downloaded from GitHub.
  * @param logger Defines how the process does logging.  The default is Disabled, which will not log anything unless an
  * exception occurs.
+ * @param assetDefinitionOnboardingCostOverrides A map of asset type to onboarding cost that will be used when creating
+ * the initial AssetDefinition entries after instantiating the asset classification smart contract on localnet.  If
+ * let unset for a given type, the default value of 100,000nhash will be used for each of the default asset types.
  */
 data class SetupACToolConfig(
     val pbClient: PbClient,
@@ -239,6 +243,7 @@ data class SetupACToolConfig(
     val contractAliasNames: List<String> = listOf("assetclassificationalias.pb", "testassets.pb"),
     val wasmLocation: ContractWasmLocation = ContractWasmLocation.GitHub(),
     val logger: SetupACToolLogging = SetupACToolLogging.Disabled,
+    val assetDefinitionOnboardingCostOverrides: Map<String, BigInteger> = emptyMap(),
 )
 
 /**
@@ -254,7 +259,7 @@ sealed interface SetupACToolLogging {
 
     // Prints out all logs via std println function
     object Println : SetupACToolLogging {
-        override val log: (message: String) -> Unit = { println(it) }
+        override val log: (message: String) -> Unit = ::println
     }
 
     // Disregards all logs. Only exceptions will be displayed, if they occur.
