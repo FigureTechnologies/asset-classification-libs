@@ -233,7 +233,7 @@ object SetupACTool {
  * exception occurs.
  * @param assetDefinitionOnboardingCostOverrides A map of asset type to onboarding cost that will be used when creating
  * the initial AssetDefinition entries after instantiating the asset classification smart contract on localnet.  If
- * let unset for a given type, the default value of 10,000nhash will be used for each of the default asset types.
+ * let unset for a given type, the default value of 100,000nhash will be used for each of the default asset types.
  */
 data class SetupACToolConfig(
     val pbClient: PbClient,
