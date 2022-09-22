@@ -175,6 +175,10 @@ class VerifierClient(private val config: VerifierClientConfig) {
             EventIgnoredUnknownWasmEvent(event).send()
             return
         }
+        // If multiple asset classification smart contracts are instantiated and used in the same Provenance Blockchain
+        // environment, their events will all be detected by this client.  This check avoids attempting to process
+        // correctly-formatted contract events from a wholly different contract than the one registered in the configuration's
+        // ACClient instance
         config.acClient.queryContractAddress().also { contractAddress ->
             if (event.contractAddress != contractAddress) {
                 EventIgnoredContractMismatch(
