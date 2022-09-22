@@ -188,12 +188,6 @@ class VerifierClient(private val config: VerifierClientConfig) {
                 return
             }
         }
-        if (event.contractAddress != config.acClient.queryContractAddress()) {
-            EventIgnoredContractMismatch(
-                event = event,
-                message = "This client instance watches contract"
-            )
-        }
         // Only handle events that are relevant to the verifier
         if (event.eventType !in config.eventDelegator.getHandledEventTypes()) {
             EventIgnoredUnhandledEventType(event).send()
