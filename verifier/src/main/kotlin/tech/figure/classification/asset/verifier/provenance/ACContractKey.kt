@@ -6,6 +6,7 @@ package tech.figure.classification.asset.verifier.provenance
  * @param eventName The string name used by the asset classification smart contract.
  */
 enum class ACContractKey(val eventName: String) {
+    // All wasm events emit this key, and it can be used to determine if an intercepted event matches the contract registered in the ACClient
     CONTRACT_ADDRESS("_contract_address"),
     EVENT_TYPE("asset_event_type"),
     ASSET_TYPE("asset_type"),

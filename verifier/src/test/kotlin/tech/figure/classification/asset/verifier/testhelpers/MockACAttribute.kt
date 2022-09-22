@@ -10,6 +10,11 @@ sealed interface MockACAttribute {
 
     fun toAttribute(): Event = Event(key = key, value = value)
 
+    class ContractAddress(contractAddress: String) : MockACAttribute {
+        override val key: String = ACContractKey.CONTRACT_ADDRESS.eventName
+        override val value: String = contractAddress
+    }
+
     class EventType(eventType: ACContractEvent) : MockACAttribute {
         override val key: String = ACContractKey.EVENT_TYPE.eventName
         override val value: String = eventType.contractName
