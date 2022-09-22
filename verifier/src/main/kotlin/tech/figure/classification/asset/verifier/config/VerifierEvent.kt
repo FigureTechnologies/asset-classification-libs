@@ -106,6 +106,20 @@ sealed interface VerifierEvent {
     ) : VerifierEvent
 
     /**
+     * This event indicates that a parsed classification event on the event stream was originated from a different
+     * asset classification smart contract than the one configured to be watched by the VerifierClient.  This will be
+     * very common in an environment that includes multiple contract instances and can be safely ignored.
+     *
+     * @param event All values from the encountered event that match the event attribute structure emitted by the
+     * asset classification smart contract.
+     * @param message A message indicating the nature of the event.
+     */
+    data class EventIgnoredContractMismatch internal constructor(
+        val event: AssetClassificationEvent,
+        val message: String,
+    ) : VerifierEvent
+
+    /**
      * Only handle events that are relevant to the verifier.  The asset classification smart contract emits many more
      * events than the verifier client needs to handle, and this event is triggered when one of those events occur.
      * This can be safely ignored, but is available for debugging.
@@ -540,6 +554,17 @@ sealed interface VerifierEventType<E : VerifierEvent> {
      * @param message A message indicating the nature of the event.
      */
     object EventIgnoredUnknownWasmEvent : VerifierEventType<VerifierEvent.EventIgnoredUnknownWasmEvent>
+
+    /**
+     * This event indicates that a parsed classification event on the event stream was originated from a different
+     * asset classification smart contract than the one configured to be watched by the VerifierClient.  This will be
+     * very common in an environment that includes multiple contract instances and can be safely ignored.
+     *
+     * @param event All values from the encountered event that match the event attribute structure emitted by the
+     * asset classification smart contract.
+     * @param message A message indicating the nature of the event.
+     */
+    object EventIgnoredContractMismatch : VerifierEventType<VerifierEvent.EventIgnoredContractMismatch>
 
     /**
      * Only handle events that are relevant to the verifier.  The asset classification smart contract emits many more

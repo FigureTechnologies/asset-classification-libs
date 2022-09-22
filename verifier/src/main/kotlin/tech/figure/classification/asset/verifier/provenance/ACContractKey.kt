@@ -6,6 +6,7 @@ package tech.figure.classification.asset.verifier.provenance
  * @param eventName The string name used by the asset classification smart contract.
  */
 enum class ACContractKey(val eventName: String) {
+    CONTRACT_ADDRESS("_contract_address"),
     EVENT_TYPE("asset_event_type"),
     ASSET_TYPE("asset_type"),
     SCOPE_ADDRESS("asset_scope_address"),
