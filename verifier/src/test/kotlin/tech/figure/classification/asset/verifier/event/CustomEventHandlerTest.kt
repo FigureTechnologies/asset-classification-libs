@@ -38,6 +38,8 @@ class CustomEventHandlerTest {
         Security.addProvider(BouncyCastleProvider())
     }
 
+    private val contractAddress: String = "MOCK_CONTRACT_ADDR"
+
     @Test
     fun `test custom event handling`() = runTest {
         val capturedMetadata = mutableListOf<String>()
@@ -64,6 +66,7 @@ class CustomEventHandlerTest {
         client.handleEvent(
             event = MockTxEvent
                 .builder()
+                .addACAttribute(MockACAttribute.ContractAddress(contractAddress))
                 .addACAttribute(MockACAttribute.EventType(ACContractEvent.INSTANTIATE_CONTRACT))
                 .addACAttribute(MockACAttribute.VerifierAddress(config.verifierAccount.bech32Address))
                 .addACAttribute(MockACAttribute.AdditionalMetadata("expected value"))
@@ -79,6 +82,7 @@ class CustomEventHandlerTest {
     }
 
     private fun VerifierClientConfig.registerMocks() {
+        every { acClient.queryContractAddress() } returns contractAddress
         val mockPbClient = mockk<PbClient>()
         every { acClient.pbClient } returns mockPbClient
         val mockAuthClient = mockk<QueryBlockingStub>()

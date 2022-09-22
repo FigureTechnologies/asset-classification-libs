@@ -25,6 +25,7 @@ import tech.figure.classification.asset.verifier.config.StreamRestartMode
 import tech.figure.classification.asset.verifier.config.VerificationProcessor
 import tech.figure.classification.asset.verifier.config.VerifierClientConfig
 import tech.figure.classification.asset.verifier.config.VerifierEvent
+import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredContractMismatch
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredUnhandledEventType
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredUnknownWasmEvent
 import tech.figure.classification.asset.verifier.config.VerifierEvent.NewBlockHeightReceived
@@ -173,6 +174,19 @@ class VerifierClient(private val config: VerifierClientConfig) {
         if (event.eventType == null) {
             EventIgnoredUnknownWasmEvent(event).send()
             return
+        }
+        // If multiple asset classification smart contracts are instantiated and used in the same Provenance Blockchain
+        // environment, their events will all be detected by this client.  This check avoids attempting to process
+        // correctly-formatted contract events from a wholly different contract than the one registered in the configuration's
+        // ACClient instance
+        config.acClient.queryContractAddress().also { contractAddress ->
+            if (event.contractAddress != contractAddress) {
+                EventIgnoredContractMismatch(
+                    event = event,
+                    message = "This client instance watches contract address [$contractAddress], but this event originated from address [${event.contractAddress}]",
+                ).send()
+                return
+            }
         }
         // Only handle events that are relevant to the verifier
         if (event.eventType !in config.eventDelegator.getHandledEventTypes()) {

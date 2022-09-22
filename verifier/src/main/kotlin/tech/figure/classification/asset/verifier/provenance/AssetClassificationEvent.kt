@@ -26,6 +26,7 @@ class AssetClassificationEvent(
     val sourceEvent: TxEvent,
     private val inputValuesEncoded: Boolean,
 ) {
+    val contractAddress: String? by lazy { this.getEventStringValue(ACContractKey.CONTRACT_ADDRESS) }
     val eventType: ACContractEvent? by lazy {
         this.getEventValue(ACContractKey.EVENT_TYPE) { ACContractEvent.forContractName(it) }
     }
