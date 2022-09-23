@@ -49,6 +49,7 @@ class ExecuteIntTest : IntTestBase() {
                     identifier = AssetIdentifier.AssetUuid(UUID.randomUUID()),
                     assetType = "heloc",
                     verifierAddress = AppResources.verifierAccount.bech32Address,
+                    addOsGatewayPermission = true,
                 ),
                 signer = AppResources.assetOnboardingAccount.toAccountSigner(),
             )
@@ -96,6 +97,7 @@ class ExecuteIntTest : IntTestBase() {
                     assetType = assetType,
                     verifierAddress = AppResources.verifierAccount.bech32Address,
                     accessRoutes = AccessRoute("some route", "some name").wrapListAc(),
+                    addOsGatewayPermission = false,
                 ),
                 signer = AppResources.assetOnboardingAccount.toAccountSigner(),
             )
@@ -110,6 +112,7 @@ class ExecuteIntTest : IntTestBase() {
                 assetType = assetType,
                 verifierAddress = AppResources.verifierAccount.bech32Address,
                 accessRoutes = AccessRoute("some route", "some name").wrapListAc(),
+                addOsGatewayPermission = true,
             ),
             signer = AppResources.assetOnboardingAccount.toAccountSigner(),
         )
