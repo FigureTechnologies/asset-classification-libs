@@ -1,6 +1,5 @@
 package tech.figure.classification.asset.verifier.event.defaults
 
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -10,10 +9,9 @@ import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingAssetType
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
-import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
-import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventFailedOnboardingStatusStillPending
 import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventSuccessful
+import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventUnexpectedOnboardingStatus
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.ACContractEvent
 import tech.figure.classification.asset.verifier.testhelpers.MockACAttribute
@@ -21,9 +19,9 @@ import tech.figure.classification.asset.verifier.testhelpers.MockTxEvent
 import tech.figure.classification.asset.verifier.testhelpers.MockTxEvent.MockTxEventBuilder
 import tech.figure.classification.asset.verifier.testhelpers.assertLastEvent
 import tech.figure.classification.asset.verifier.testhelpers.getMockAccountDetail
-import tech.figure.classification.asset.verifier.testhelpers.getMockScopeAttribute
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
@@ -72,7 +70,7 @@ class DefaultVerifyAssetEventHandlerTest {
     }
 
     @Test
-    fun `test no scope attribute included in event`() = runTest {
+    fun `test no scope address attribute included in event`() = runTest {
         val parameters = getMockParameters()
         parameters.handleEvent()
         assertLastEvent<EventIgnoredMissingScopeAddress>(parameters) { (event, eventType, message) ->
@@ -118,37 +116,26 @@ class DefaultVerifyAssetEventHandlerTest {
     }
 
     @Test
-    fun `test failure to find scope attribute`() = runTest {
+    fun `test failure due to null onboarding status`() = runTest {
         val parameters = getMockParameters { builder ->
             builder
                 .addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
                 .addACAttribute(MockACAttribute.AssetType("mock-asset-type"))
         }
-        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any(), any()) } throws IllegalStateException("Failed to query for scope")
         parameters.handleEvent()
-        assertLastEvent<EventIgnoredMissingScopeAttribute>(parameters) { (event, eventType, message, t) ->
+        assertLastEvent<VerifyEventUnexpectedOnboardingStatus>(parameters) { (event, message) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
                 message = "Expected the event to contain the asset classification event",
             )
-            assertEquals(
-                expected = ACContractEvent.VERIFY_ASSET,
-                actual = eventType,
-                message = "Expected the event type to be a verify asset event",
+            assertNull(
+                actual = event.assetOnboardingStatus,
+                message = "Expected the event to be missing an onboarding status",
             )
             assertTrue(
-                actual = "Intercepted verification did not point to a scope with a scope attribute" in message,
+                actual = "Verification produced an unexpected onboarding status of [null]" in message,
                 message = "Expected the correct event message to be included in the output",
-            )
-            assertTrue(
-                actual = t is IllegalStateException,
-                message = "Expected the correct exception to be encountered",
-            )
-            assertEquals(
-                expected = "Failed to query for scope",
-                actual = t.message,
-                message = "Expected the correct exception text to be encountered",
             )
         }
     }
@@ -159,23 +146,22 @@ class DefaultVerifyAssetEventHandlerTest {
             builder
                 .addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
                 .addACAttribute(MockACAttribute.AssetType("mock-asset-type"))
+                .addACAttribute(MockACAttribute.OnboardingStatus(AssetOnboardingStatus.PENDING))
         }
-        val mockScopeAttribute = getMockScopeAttribute(onboardingStatus = AssetOnboardingStatus.PENDING)
-        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any(), any()) } returns mockScopeAttribute
         parameters.handleEvent()
-        assertLastEvent<VerifyEventFailedOnboardingStatusStillPending>(parameters) { (event, scopeAttribute, message) ->
+        assertLastEvent<VerifyEventUnexpectedOnboardingStatus>(parameters) { (event, message) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
                 message = "Expected the event to contain the asset classification event",
             )
             assertEquals(
-                expected = mockScopeAttribute,
-                actual = scopeAttribute,
-                message = "Expected the event to contain the scope attribute",
+                expected = event.assetOnboardingStatus,
+                actual = AssetOnboardingStatus.PENDING,
+                message = "Expected the event to contain the onboarding status that caused the issue",
             )
             assertTrue(
-                actual = "Verification did not successfully move onboarding status from pending" in message,
+                actual = "Verification produced an unexpected onboarding status of [${AssetOnboardingStatus.PENDING.contractName}]" in message,
                 message = "Expected the correct event message to be included in the output",
             )
         }
@@ -187,20 +173,19 @@ class DefaultVerifyAssetEventHandlerTest {
             builder
                 .addACAttribute(MockACAttribute.ScopeAddress("mock-scope-address"))
                 .addACAttribute(MockACAttribute.AssetType("mock-asset-type"))
+                .addACAttribute(MockACAttribute.OnboardingStatus(AssetOnboardingStatus.APPROVED))
         }
-        val mockScopeAttribute = getMockScopeAttribute(onboardingStatus = AssetOnboardingStatus.APPROVED)
-        every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any(), any()) } returns mockScopeAttribute
         parameters.handleEvent()
-        assertLastEvent<VerifyEventSuccessful>(parameters) { (event, scopeAttribute) ->
+        assertLastEvent<VerifyEventSuccessful>(parameters) { (event, onboardingStatus) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
                 message = "Expected the event to contain the asset classification event",
             )
             assertEquals(
-                expected = mockScopeAttribute,
-                actual = scopeAttribute,
-                message = "Expected the event to contain the scope attribute",
+                expected = AssetOnboardingStatus.APPROVED,
+                actual = onboardingStatus,
+                message = "Expected the event to contain the scope proper onboarding status",
             )
         }
     }

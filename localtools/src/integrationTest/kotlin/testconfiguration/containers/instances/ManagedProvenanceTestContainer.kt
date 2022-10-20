@@ -63,8 +63,8 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
                     // - Copy asset_classification_smart_contract.wasm from the artifacts directory that is created from that command
                     // - Paste the wasm into localtools/integrationTest/resources
                     // - Uncomment the following line, and comment out the other wasmLocation line:
-                    // wasmLocation = ContractWasmLocation.LocalFile.ProjectResource("asset_classification_smart_contract.wasm"),
-                    wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
+                    wasmLocation = ContractWasmLocation.LocalFile.ProjectResource("asset_classification_smart_contract.wasm"),
+//                    wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
                     logger = SetupACToolLogging.Custom(log = logger::info),
                 )
             )

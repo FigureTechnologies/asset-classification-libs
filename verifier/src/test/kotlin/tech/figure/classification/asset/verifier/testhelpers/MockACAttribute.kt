@@ -1,6 +1,7 @@
 package tech.figure.classification.asset.verifier.testhelpers
 
 import io.provenance.eventstream.stream.models.Event
+import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.verifier.provenance.ACContractEvent
 import tech.figure.classification.asset.verifier.provenance.ACContractKey
 
@@ -38,6 +39,11 @@ sealed interface MockACAttribute {
     class ScopeOwnerAddress(scopeOwnerAddress: String) : MockACAttribute {
         override val key: String = ACContractKey.SCOPE_OWNER_ADDRESS.eventName
         override val value: String = scopeOwnerAddress
+    }
+
+    class OnboardingStatus(assetOnboardingStatus: AssetOnboardingStatus) : MockACAttribute {
+        override val key: String = ACContractKey.ASSET_ONBOARDING_STATUS.eventName
+        override val value: String = assetOnboardingStatus.contractName
     }
 
     class NewValue(newValue: String) : MockACAttribute {

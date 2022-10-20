@@ -1,13 +1,21 @@
 package testconfiguration
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
+import io.provenance.client.grpc.BaseReqSigner
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
+import io.provenance.client.protobuf.extensions.toAny
+import io.provenance.client.protobuf.extensions.toTxBody
 import io.provenance.scope.objectstore.client.OsClient
 import mu.KLogging
 import org.testcontainers.containers.Network
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.client.client.base.ContractIdentifier
+import tech.figure.classification.asset.client.domain.execute.DeleteAssetDefinitionExecute
+import tech.figure.classification.asset.client.domain.execute.UpdateAssetDefinitionExecute
+import tech.figure.classification.asset.client.domain.model.AssetDefinition
+import tech.figure.classification.asset.localtools.tool.SetupACTool
 import tech.figure.classification.asset.util.objects.ACObjectMapperUtil
 import testconfiguration.containers.ContainerRegistry
 import testconfiguration.containers.ManagedContainerType
@@ -15,10 +23,12 @@ import testconfiguration.containers.instances.ManagedObjectStoreTestContainer
 import testconfiguration.containers.instances.ManagedPostgresTestContainer
 import testconfiguration.containers.instances.ManagedProvenanceTestContainer
 import testconfiguration.services.AssetOnboardingService
+import testconfiguration.util.AppResources
 import java.net.URI
 import java.util.TimeZone
 import java.util.UUID
 import kotlin.system.exitProcess
+import kotlin.test.BeforeTest
 
 abstract class IntTestBase {
     companion object : KLogging() {
@@ -72,5 +82,52 @@ abstract class IntTestBase {
 
     init {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+    }
+
+    /**
+     * In order to allow tests to freely modify asset definitions in the contract without affecting other tests, all
+     * asset definitions must be removed and the defaults must be re-added before each test executes.
+     */
+    @BeforeTest
+    fun resetAssetDefinitions() {
+        logger.info("Resetting asset definitions before test")
+        val messages = acClient.queryAssetDefinitions()
+            .map { assetDefinition ->
+                acClient.generateDeleteAssetDefinitionMsg(
+                    execute = DeleteAssetDefinitionExecute(assetDefinition.assetType),
+                    signerAddress = AppResources.contractAdminAccount.bech32Address,
+                )
+            }
+            .plus(
+                SetupACTool
+                    .generateAssetDefinitionExecutes(verifierBech32Address = AppResources.verifierAccount.bech32Address)
+                    .map {
+                        acClient.generateAddAssetDefinitionMsg(
+                            execute = it,
+                            signerAddress = AppResources.contractAdminAccount.bech32Address
+                        )
+                    }
+            )
+            .map { it.toAny() }
+        pbClient.estimateAndBroadcastTx(
+            txBody = messages.toTxBody(),
+            signers = BaseReqSigner(AppResources.contractAdminAccount.toAccountSigner()).let(::listOf),
+            mode = BroadcastMode.BROADCAST_MODE_BLOCK,
+        )
+        logger.info("Successfully reset default asset definitions")
+    }
+
+    fun updateAssetDefinition(assetDefinition: AssetDefinition) {
+        logger.info("Updating asset definition for asset type [${assetDefinition.assetType}]")
+        acClient.updateAssetDefinition(
+            execute = UpdateAssetDefinitionExecute(
+                assetType = assetDefinition.assetType,
+                displayName = assetDefinition.displayName,
+                verifiers = assetDefinition.verifiers,
+                enabled = assetDefinition.enabled,
+            ),
+            signer = AppResources.contractAdminAccount.toAccountSigner(),
+        )
+        logger.info("Successfully updated asset definition for asset type [${assetDefinition.assetType}")
     }
 }
