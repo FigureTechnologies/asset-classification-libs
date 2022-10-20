@@ -63,8 +63,8 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
                     // - Copy asset_classification_smart_contract.wasm from the artifacts directory that is created from that command
                     // - Paste the wasm into localtools/integrationTest/resources
                     // - Uncomment the following line, and comment out the other wasmLocation line:
-                    wasmLocation = ContractWasmLocation.LocalFile.ProjectResource("asset_classification_smart_contract.wasm"),
-//                    wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
+                    // wasmLocation = ContractWasmLocation.LocalFile.ProjectResource("asset_classification_smart_contract.wasm"),
+                    wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
                     logger = SetupACToolLogging.Custom(log = logger::info),
                 )
             )
@@ -98,11 +98,11 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
     }
 }
 
-class ProvenanceTestContainer : GenericContainer<ProvenanceTestContainer>("provenanceio/provenance:v1.11.1") {
+class ProvenanceTestContainer : GenericContainer<ProvenanceTestContainer>("provenanceio/provenance:v1.12.0") {
     private companion object : KLogging()
 
     init {
-        logger.info("Starting Provenance Blockchain container version v1.11.1")
+        logger.info("Starting Provenance Blockchain container version v1.12.0")
     }
 }
 
