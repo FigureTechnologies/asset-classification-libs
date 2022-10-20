@@ -9,11 +9,13 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
  *
  * @param cost The onboarding cost to use when classifying an asset using the associated verifier after having already
  * classified it as a different type with the same verifier.  If not set, the default verifier costs are used.
- * @param allowedAssetTypes Specifies the asset types that an asset can already be classified as when using this
- * verifier.  If not set, any asset type may be used.  This value will be rejected if it is supplied as an empty vector.
+ * @param applicableAssetTypes Specifies the asset types that an asset can be to have the subsequent classification cost
+ * apply to them.  If an asset has been classified as any of the types in this list, the cost will be used.  If the list
+ * is supplied as a null variant, any subsequent classifications will use the cost.  This value will be rejected if it
+ * is supplied as an empty, non-null list.
  */
 @JsonNaming(SnakeCaseStrategy::class)
 data class SubsequentClassificationDetail(
     val cost: OnboardingCost? = null,
-    val allowedAssetTypes: List<String>? = null,
+    val applicableAssetTypes: List<String>? = null,
 )
