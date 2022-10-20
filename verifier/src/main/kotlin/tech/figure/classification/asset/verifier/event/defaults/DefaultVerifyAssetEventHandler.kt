@@ -4,19 +4,23 @@ import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatu
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredDifferentVerifierAddress
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingAssetType
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAddress
-import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredMissingScopeAttribute
 import tech.figure.classification.asset.verifier.config.VerifierEvent.EventIgnoredNoVerifierAddress
-import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventFailedOnboardingStatusStillPending
 import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventSuccessful
+import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEventUnexpectedOnboardingStatus
 import tech.figure.classification.asset.verifier.event.AssetClassificationEventHandler
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.ACContractEvent
 
 object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
+    private val expectedOnboardingStatuses: List<AssetOnboardingStatus> = listOf(
+        AssetOnboardingStatus.APPROVED,
+        AssetOnboardingStatus.DENIED,
+    )
+
     override val eventType: ACContractEvent = ACContractEvent.VERIFY_ASSET
 
     override suspend fun handleEvent(parameters: EventHandlerParameters) {
-        val (event, acClient, verifierAccount, _, _, eventChannel) = parameters
+        val (event, _, verifierAccount, _, _, eventChannel) = parameters
         val messagePrefix = "[VERIFY ASSET | Tx: ${event.sourceEvent.txHash} | Asset ${event.scopeAddress} / ${event.assetType}"
         // This will commonly happen - the contract emits events that don't target the verifier at all, but they'll
         // still pass through here
@@ -35,7 +39,8 @@ object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
             )
             return
         }
-        val scopeAddress = event.scopeAddress ?: run {
+        // Verify event construction integrity to ensure that contract anomalies did not occur
+        event.scopeAddress ?: run {
             eventChannel.send(
                 EventIgnoredMissingScopeAddress(
                     event = event,
@@ -45,7 +50,7 @@ object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
             )
             return
         }
-        val assetType = event.assetType ?: run {
+        event.assetType ?: run {
             eventChannel.send(
                 EventIgnoredMissingAssetType(
                     event = event,
@@ -55,29 +60,17 @@ object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
             )
             return
         }
-        val scopeAttribute = try {
-            acClient.queryAssetScopeAttributeByScopeAddress(scopeAddress = scopeAddress, assetType = assetType)
-        } catch (t: Throwable) {
-            eventChannel.send(
-                EventIgnoredMissingScopeAttribute(
-                    event = event,
-                    eventType = this.eventType,
-                    message = "$messagePrefix Intercepted verification did not point to a scope with a scope attribute",
-                    t = t,
+        val onboardingStatus = event.assetOnboardingStatus
+            ?.takeIf { it in expectedOnboardingStatuses }
+            ?: run {
+                eventChannel.send(
+                    VerifyEventUnexpectedOnboardingStatus(
+                        event = event,
+                        message = "$messagePrefix Verification produced an unexpected onboarding status of [${event.assetOnboardingStatus?.contractName}]",
+                    )
                 )
-            )
-            return
-        }
-        if (scopeAttribute.onboardingStatus == AssetOnboardingStatus.PENDING) {
-            eventChannel.send(
-                VerifyEventFailedOnboardingStatusStillPending(
-                    event = event,
-                    scopeAttribute = scopeAttribute,
-                    message = "$messagePrefix Verification did not successfully move onboarding status from pending",
-                )
-            )
-            return
-        }
-        eventChannel.send(VerifyEventSuccessful(event, scopeAttribute))
+                return
+            }
+        eventChannel.send(VerifyEventSuccessful(event, onboardingStatus))
     }
 }

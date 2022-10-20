@@ -1,6 +1,7 @@
 package tech.figure.classification.asset.verifier.config
 
 import io.provenance.eventstream.stream.clients.BlockData
+import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.verifier.client.AssetVerification
 import tech.figure.classification.asset.verifier.provenance.ACContractEvent
@@ -215,21 +216,18 @@ sealed interface VerifierEvent {
     ) : VerifierEvent
 
     /**
-     * This event is emitted when an asset classification smart contract "verify asset" event is detected and its scope
-     * attribute has been fetched.  This is an error case that indicates that although a verification event was run,
-     * the resulting scope attribute is now in pending state.  This can theoretically happen if verification has been
-     * denied and then onboarding has been once again invoked, but the likelihood of that occurrence versus bad data
-     * is low.
+     * This event is emitted when an asset classification smart contract "verify asset" event is detected and its
+     * new onboarding status is not in an expected state.  This is an error case that indicates that although a
+     * verification event was run, the resulting scope attribute is now in an unexpected state.  This can theoretically
+     * happen if verification has been denied and then onboarding has been once again invoked, but the likelihood of
+     * that occurrence versus bad data is low.
      *
      * @param event All values from the encountered event that match the event attribute structure emitted by the
      * asset classification smart contract.
-     * @param scopeAttribute All details related to the asset, memorialized in an attribute attached to the asset's
-     * Provenance Blockchain Metadata Scope.
      * @param message A message indicating the nature of the event.
      */
-    data class VerifyEventFailedOnboardingStatusStillPending internal constructor(
+    data class VerifyEventUnexpectedOnboardingStatus internal constructor(
         val event: AssetClassificationEvent,
-        val scopeAttribute: AssetScopeAttribute,
         val message: String,
     ) : VerifierEvent
 
@@ -240,12 +238,11 @@ sealed interface VerifierEvent {
      *
      * @param event All values from the encountered event that match the event attribute structure emitted by the
      * asset classification smart contract.
-     * @param scopeAttribute All details related to the asset, memorialized in an attribute attached to the asset's
-     * Provenance Blockchain Metadata Scope.
+     * @param newOnboardingStatus The new status that the asset has been moved to after successful onboarding.
      */
     data class VerifyEventSuccessful internal constructor(
         val event: AssetClassificationEvent,
-        val scopeAttribute: AssetScopeAttribute,
+        val newOnboardingStatus: AssetOnboardingStatus,
     ) : VerifierEvent
 
     /**
@@ -642,17 +639,15 @@ sealed interface VerifierEventType<E : VerifierEvent> {
     /**
      * This event is emitted when an asset classification smart contract "verify asset" event is detected and its scope
      * attribute has been fetched.  This is an error case that indicates that although a verification event was run,
-     * the resulting scope attribute is now in pending state.  This can theoretically happen if verification has been
+     * the resulting scope attribute is now in an unexpected state.  This can theoretically happen if verification has been
      * denied and then onboarding has been once again invoked, but the likelihood of that occurrence versus bad data
      * is low.
      *
      * @param event All values from the encountered event that match the event attribute structure emitted by the
      * asset classification smart contract.
-     * @param scopeAttribute All details related to the asset, memorialized in an attribute attached to the asset's
-     * Provenance Blockchain Metadata Scope.
      * @param message A message indicating the nature of the event.
      */
-    object VerifyEventFailedOnboardingStatusStillPending : VerifierEventType<VerifierEvent.VerifyEventFailedOnboardingStatusStillPending>
+    object VerifyEventFailedUnexpectedOnboardingStatus : VerifierEventType<VerifierEvent.VerifyEventUnexpectedOnboardingStatus>
 
     /**
      * This event is emitted when an asset classification smart contract "verify asset" event is processed and has
@@ -661,8 +656,7 @@ sealed interface VerifierEventType<E : VerifierEvent> {
      *
      * @param event All values from the encountered event that match the event attribute structure emitted by the
      * asset classification smart contract.
-     * @param scopeAttribute All details related to the asset, memorialized in an attribute attached to the asset's
-     * Provenance Blockchain Metadata Scope.
+     * @param newOnboardingStatus The new status that the asset has been moved to after successful onboarding.
      */
     object VerifyEventSuccessful : VerifierEventType<VerifierEvent.VerifyEventSuccessful>
 

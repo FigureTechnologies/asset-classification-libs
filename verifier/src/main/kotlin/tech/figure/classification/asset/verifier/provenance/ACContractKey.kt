@@ -13,6 +13,7 @@ enum class ACContractKey(val eventName: String) {
     SCOPE_ADDRESS("asset_scope_address"),
     VERIFIER_ADDRESS("asset_verifier_address"),
     SCOPE_OWNER_ADDRESS("asset_scope_owner_address"),
+    ASSET_ONBOARDING_STATUS("asset_onboarding_status"),
     NEW_VALUE("asset_new_value"),
     ADDITIONAL_METADATA("asset_additional_metadata"),
     ;

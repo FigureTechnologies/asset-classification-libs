@@ -33,14 +33,20 @@ data class AssetScopeAttribute(
 /**
  * Denotes the status of the asset during the onboarding and verification process.
  */
-enum class AssetOnboardingStatus {
+enum class AssetOnboardingStatus(val contractName: String) {
     // Denotes that the asset has been onboarded, but not yet verified
     @JsonProperty("pending")
-    PENDING,
+    PENDING("pending"),
     // Denotes that the asset has been rejected by its chosen verifier and must be run through onboarding again to be classified
     @JsonProperty("denied")
-    DENIED,
+    DENIED("denied"),
     // Denotes that the asset is fully verified and should be classified as the chosen type
     @JsonProperty("approved")
-    APPROVED,
+    APPROVED("approved");
+
+    companion object {
+        private val contractNameMap: Map<String, AssetOnboardingStatus> by lazy { values().associateBy { it.contractName } }
+
+        fun fromContractNameOrNull(contractName: String): AssetOnboardingStatus? = contractNameMap[contractName]
+    }
 }

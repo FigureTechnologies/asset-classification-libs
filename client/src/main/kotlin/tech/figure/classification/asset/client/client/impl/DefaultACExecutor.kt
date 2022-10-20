@@ -33,24 +33,10 @@ class DefaultACExecutor(
     private val pbClient: PbClient,
     private val querier: ACQuerier,
 ) : ACExecutor {
-    /**
-     * Automatically derives the message to onboard the asset for the specified verifier,
-     * if it exists for the provided asset type.
-     */
     override fun <T> generateOnboardAssetMsg(
         execute: OnboardAssetExecute<T>,
         signerAddress: String,
-    ): MsgExecuteContract = querier
-        .queryAssetDefinitionByAssetType(execute.assetType)
-        .verifiers
-        .singleOrNull { it.address == execute.verifierAddress }
-        ?.let { verifier ->
-            generateMsg(
-                executeMsg = execute,
-                signerAddress = signerAddress,
-            )
-        }
-        ?: throw IllegalStateException("Asset definition for type [${execute.assetType}] did not include a verifier for address [${execute.verifierAddress}]")
+    ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun <T> onboardAsset(
         execute: OnboardAssetExecute<T>,

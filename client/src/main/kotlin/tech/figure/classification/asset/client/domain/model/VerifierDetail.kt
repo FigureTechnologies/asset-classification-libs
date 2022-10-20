@@ -19,8 +19,13 @@ import java.math.BigInteger
  * onboarding cost to determine a coin required.
  * @param feeDestinations A collection of addresses and fee distribution amounts that dictates how the fee amount is
  * distributed to other addresses than the verifier.  The amounts of all destinations should never sum to a value
- * greater than the onboarding cost.
+ * greater than half the onboarding cost (to account for the 50% MsgFees module community split).
  * @param entityDetail An optional set of fields defining the validator in a human-readable way.
+ * @param retryCost Defines the cost to use in place of the root onboarding cost and fee destination when retrying
+ * classification for a failed verification.  If not present, the original values used for the first verification will
+ * be used.
+ * @param subsequentClassificationDetail An optional set of fields that define behaviors when classification is being
+ * run for an asset that is already classified as a different type.
  */
 @JsonNaming(SnakeCaseStrategy::class)
 data class VerifierDetail(
@@ -31,4 +36,6 @@ data class VerifierDetail(
     val onboardingDenom: String,
     val feeDestinations: List<FeeDestination> = emptyList(),
     val entityDetail: EntityDetail? = null,
+    val retryCost: OnboardingCost? = null,
+    val subsequentClassificationDetail: SubsequentClassificationDetail? = null,
 )

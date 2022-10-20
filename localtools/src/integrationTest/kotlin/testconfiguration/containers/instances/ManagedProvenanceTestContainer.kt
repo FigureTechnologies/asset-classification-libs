@@ -98,11 +98,11 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
     }
 }
 
-class ProvenanceTestContainer : GenericContainer<ProvenanceTestContainer>("provenanceio/provenance:v1.11.1") {
+class ProvenanceTestContainer : GenericContainer<ProvenanceTestContainer>("provenanceio/provenance:v1.12.0") {
     private companion object : KLogging()
 
     init {
-        logger.info("Starting Provenance Blockchain container version v1.11.1")
+        logger.info("Starting Provenance Blockchain container version v1.12.0")
     }
 }
 

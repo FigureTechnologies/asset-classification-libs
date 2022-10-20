@@ -19,6 +19,8 @@ import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatu
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.client.domain.model.EntityDetail
 import tech.figure.classification.asset.client.domain.model.FeeDestination
+import tech.figure.classification.asset.client.domain.model.OnboardingCost
+import tech.figure.classification.asset.client.domain.model.SubsequentClassificationDetail
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.util.extensions.wrapListAc
 import testconfiguration.IntTestBase
@@ -116,7 +118,7 @@ class ExecuteIntTest : IntTestBase() {
             ),
             signer = AppResources.assetOnboardingAccount.toAccountSigner(),
         )
-        assertFeePaymentDetailValidity(secondAsset)
+        assertFeePaymentDetailValidity(secondAsset, isRetry = true)
         // Re-verify after the re-onboard process runs
         verifyAnAsset(secondAsset.assetUuid, secondAsset.assetType, true)
         val secondScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
@@ -132,8 +134,24 @@ class ExecuteIntTest : IntTestBase() {
     }
 
     @Test
-    fun `test multiple verifications`() {
+    fun `test multiple verifications with subsequent classifications and applicable asset type`() {
         val owner = AppResources.assetOnboardingAccount
+        // Update the contract to ensure that mortgages have a low subsequent classification cost to differentiate the
+        // result from retries (which are free by default).  This also establishes "heloc" as an applicable asset type
+        // to show that the subsequent cost is used only when an applicable asset type is used
+        acClient.queryAssetDefinitionByAssetType("mortgage").let { mortgageDef ->
+            mortgageDef.copy(
+                verifiers = mortgageDef.verifiers.singleOrNull()?.copy(
+                    subsequentClassificationDetail = SubsequentClassificationDetail(
+                        // This number is arbitrary, but it's also important to note that only EVEN numbers are accepted
+                        // as onboarding costs, so putting 12345 here would fail
+                        cost = OnboardingCost(cost = "123456".toBigInteger()),
+                        applicableAssetTypes = listOf("heloc"),
+                    )
+                )?.let(::listOf)
+                    ?: fail("Expected only a single verifier to exist for the mortgage asset definition")
+            )
+        }.also(::updateAssetDefinition)
         val asset = assetOnboardingService.storeAndOnboardNewAsset(assetType = "heloc", ownerAccount = owner)
         assetOnboardingService.onboardTestAsset(
             asset = asset,
@@ -159,7 +177,7 @@ class ExecuteIntTest : IntTestBase() {
             actual = preVerifyMortgageScopeAttribute.onboardingStatus,
             message = "The mortgage attribute should indicate that the asset is awaiting verification",
         )
-        assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage", isSubsequentClassification = true)
         acClient.verifyAsset(
             execute = VerifyAssetExecute(
                 identifier = AssetIdentifier.AssetUuid(value = asset.assetUuid),
@@ -191,7 +209,7 @@ class ExecuteIntTest : IntTestBase() {
                 actual = mortgageScopeAttribute,
                 message = "The mortgage scope attribute should be wholly unchanged by the heloc verification",
             )
-            assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+            assertFeePaymentDetailValidity(asset, assetType = "mortgage", isSubsequentClassification = true)
         }
         acClient.verifyAsset(
             execute = VerifyAssetExecute(
@@ -231,7 +249,7 @@ class ExecuteIntTest : IntTestBase() {
             assetType = "mortgage",
             ownerAccount = owner,
         )
-        assertFeePaymentDetailValidity(asset, assetType = "mortgage")
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage", isRetry = true)
         val preSecondVerifyMortgageScopeAttribute = acClient.queryAssetScopeAttributeByAssetUuid(
             assetUuid = asset.assetUuid,
             assetType = "mortgage",
@@ -273,6 +291,75 @@ class ExecuteIntTest : IntTestBase() {
                 message = "The heloc scope attribute should be unchanged by all mortgage contract actions",
             )
         }
+    }
+
+    @Test
+    fun `test subsequent classification with no applicable asset types defined`() {
+        val owner = AppResources.assetOnboardingAccount
+        // Update the contract to ensure that mortgages have a low subsequent classification cost to differentiate the
+        // result from retries (which are free by default).  This also purposefully omits applicable asset types, which
+        // will cause the contract to apply its cost to any subsequent onboard
+        acClient.queryAssetDefinitionByAssetType("mortgage").let { mortgageDef ->
+            mortgageDef.copy(
+                verifiers = mortgageDef.verifiers.singleOrNull()?.copy(
+                    subsequentClassificationDetail = SubsequentClassificationDetail(
+                        // This number is arbitrary, but it's also important to note that only EVEN numbers are accepted
+                        // as onboarding costs, so putting 12345 here would fail
+                        cost = OnboardingCost(cost = "123456".toBigInteger()),
+                    )
+                )?.let(::listOf)
+                    ?: fail("Expected only a single verifier to exist for the mortgage asset definition")
+            )
+        }.also(::updateAssetDefinition)
+        // Ensure that a new mortgage will not use subsequent classification costs because it has no other asset types
+        val nonSubsequentMortgage = assetOnboardingService.storeAndOnboardNewAsset(assetType = "mortgage", ownerAccount = owner)
+        assertFeePaymentDetailValidity(nonSubsequentMortgage, assetType = "mortgage")
+        // Store a scope first as a heloc to then subsequently classify as mortgage
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(assetType = "heloc", ownerAccount = owner)
+        // Sanity check that this heloc got normal costs
+        assertFeePaymentDetailValidity(asset, assetType = "heloc")
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        // Check then that the mortgage got subsequent costs applied
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage", isSubsequentClassification = true)
+    }
+
+    @Test
+    fun `test subsequent classification as non applicable type uses default costs`() {
+        val owner = AppResources.assetOnboardingAccount
+        // Update the contract to ensure that mortgages have a low subsequent classification cost to differentiate the
+        // result from retries (which are free by default).  This sets the applicable types for using the subsequent
+        // costs to be pl only, which will not be used here.
+        acClient.queryAssetDefinitionByAssetType("mortgage").let { mortgageDef ->
+            mortgageDef.copy(
+                verifiers = mortgageDef.verifiers.singleOrNull()?.copy(
+                    subsequentClassificationDetail = SubsequentClassificationDetail(
+                        // This number is arbitrary, but it's also important to note that only EVEN numbers are accepted
+                        // as onboarding costs, so putting 12345 here would fail
+                        cost = OnboardingCost(cost = "123456".toBigInteger()),
+                        applicableAssetTypes = listOf("pl"),
+                    )
+                )?.let(::listOf)
+                    ?: fail("Expected only a single verifier to exist for the mortgage asset definition")
+            )
+        }.also(::updateAssetDefinition)
+        // Ensure that a new mortgage will not use subsequent classification costs because it has no other asset types
+        val nonSubsequentMortgage = assetOnboardingService.storeAndOnboardNewAsset(assetType = "mortgage", ownerAccount = owner)
+        assertFeePaymentDetailValidity(nonSubsequentMortgage, assetType = "mortgage")
+        // Store a scope first as a heloc to then subsequently classify as mortgage
+        val asset = assetOnboardingService.storeAndOnboardNewAsset(assetType = "heloc", ownerAccount = owner)
+        // Sanity check that this heloc got normal costs
+        assertFeePaymentDetailValidity(asset, assetType = "heloc")
+        assetOnboardingService.onboardTestAsset(
+            asset = asset,
+            assetType = "mortgage",
+            ownerAccount = owner,
+        )
+        // Check then that the mortgage did not get subsequent costs applied
+        assertFeePaymentDetailValidity(asset, assetType = "mortgage")
     }
 
     @Test

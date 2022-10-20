@@ -18,6 +18,8 @@ import kotlin.test.assertTrue
 fun assertFeePaymentDetailValidity(
     asset: TestAsset,
     assetType: String = asset.assetType,
+    isRetry: Boolean = false,
+    isSubsequentClassification: Boolean = false,
     getFeePaymentDetail: () -> FeePaymentDetail = { acClient.queryFeePaymentsByAssetUuid(asset.assetUuid, assetType) },
 ) {
     val feePayments = getFeePaymentDetail()
@@ -46,9 +48,10 @@ fun assertFeePaymentDetailValidity(
             )
             nonVerifierFeeTotal + feePaid
         }
-    val expectedVerifierFee = verifierDetail.onboardingCost
-        .divide("2".toBigInteger())
-        .minus(nonVerifierFeesPaid)
+    val expectedOnboardingCost = verifierDetail.retryCost?.cost?.takeIf { isRetry }
+        ?: verifierDetail.subsequentClassificationDetail?.cost?.cost?.takeIf { isSubsequentClassification }
+        ?: verifierDetail.onboardingCost
+    val expectedVerifierFee = expectedOnboardingCost.divide("2".toBigInteger()).minus(nonVerifierFeesPaid)
     assertTrue(
         actual = expectedVerifierFee >= BigInteger.ZERO,
         message = "Non verifier-targeted fees should always sum to a value less or equal to half the verifier detail's onboarding cost [${verifierDetail.onboardingCost}] divided by two, but was [$nonVerifierFeesPaid]",

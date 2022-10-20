@@ -8,6 +8,7 @@ import io.provenance.eventstream.stream.models.TxEvent
 import io.provenance.eventstream.stream.models.extensions.dateTime
 import io.provenance.eventstream.stream.models.extensions.txData
 import io.provenance.eventstream.stream.models.extensions.txEvents
+import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.util.models.ProvenanceTxEvents
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -34,6 +35,10 @@ class AssetClassificationEvent(
     val scopeAddress: String? by lazy { this.getEventStringValue(ACContractKey.SCOPE_ADDRESS) }
     val verifierAddress: String? by lazy { this.getEventStringValue(ACContractKey.VERIFIER_ADDRESS) }
     val scopeOwnerAddress: String? by lazy { this.getEventStringValue(ACContractKey.SCOPE_OWNER_ADDRESS) }
+    val assetOnboardingStatus: AssetOnboardingStatus? by lazy {
+        this.getEventStringValue(ACContractKey.ASSET_ONBOARDING_STATUS)
+            ?.let(AssetOnboardingStatus::fromContractNameOrNull)
+    }
     val newValue: String? by lazy { this.getEventStringValue(ACContractKey.NEW_VALUE) }
     val additionalMetadata: String? by lazy { this.getEventStringValue(ACContractKey.ADDITIONAL_METADATA) }
 

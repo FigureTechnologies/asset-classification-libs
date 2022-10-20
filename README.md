@@ -22,6 +22,7 @@ The following client/verifier versions should be used with the asset classificat
 
 | Client / Verifier | AC Smart Contract |
 |-------------------|-------------------|
+| v3.2.0+           | v3.2.0+           |
 | v3.1.0+           | v3.1.0+           |
 | v3.0.0+           | v3.0.0+           |
 | v2.0.0 - v2.0.2   | v2.0.0 - v2.0.1   |

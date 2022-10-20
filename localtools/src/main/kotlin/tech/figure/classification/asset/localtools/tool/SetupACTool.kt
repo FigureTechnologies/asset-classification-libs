@@ -9,11 +9,15 @@ import io.provenance.client.protobuf.extensions.toAny
 import io.provenance.client.protobuf.extensions.toTxBody
 import io.provenance.name.v1.MsgBindNameRequest
 import io.provenance.name.v1.NameRecord
+import io.provenance.scope.util.or
 import io.provenance.scope.util.toByteString
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.client.client.base.ContractIdentifier
 import tech.figure.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import tech.figure.classification.asset.client.domain.model.EntityDetail
+import tech.figure.classification.asset.client.domain.model.FeeDestination
+import tech.figure.classification.asset.client.domain.model.OnboardingCost
+import tech.figure.classification.asset.client.domain.model.SubsequentClassificationDetail
 import tech.figure.classification.asset.client.domain.model.VerifierDetail
 import tech.figure.classification.asset.localtools.extensions.broadcastTxAc
 import tech.figure.classification.asset.localtools.extensions.checkNotNullAc
@@ -38,6 +42,57 @@ object SetupACTool {
         val contractAddress = downloadAndInstantiateSmartContract(config)
         setupAssetDefinitions(config, contractAddress)
     }
+
+    fun generateAssetDefinitionExecutes(
+        config: SetupACToolConfig,
+    ): List<AddAssetDefinitionExecute> = generateAssetDefinitionExecutes(
+        verifierBech32Address = config.verifierBech32Address,
+        onboardingCostOverrides = config.assetDefinitionOnboardingCostOverrides,
+        retryCostOverrides = config.retryCostOverrides,
+        subsequentClassificationOverrides = config.subsequentClassificationOverrides,
+    )
+
+    fun generateAssetDefinitionExecutes(
+        verifierBech32Address: String,
+        assetTypeOverrides: Set<String> = emptySet(),
+        assetTypeDisplayNameOverrides: Map<String, String> = AssetSpecifications.mapNotNull { spec ->
+            spec.recordSpecConfigs.singleOrNull()?.let { recordSpec -> recordSpec.name to spec.scopeSpecConfig.name }
+        }.toMap(),
+        feeDestinationOverrides: Map<String, List<FeeDestination>> = emptyMap(),
+        onboardingCostOverrides: Map<String, BigInteger> = emptyMap(),
+        retryCostOverrides: Map<String, OnboardingCost> = emptyMap(),
+        subsequentClassificationOverrides: Map<String, SubsequentClassificationDetail> = emptyMap(),
+        bindNameOverrides: Map<String, Boolean> = emptyMap(),
+    ): List<AddAssetDefinitionExecute> = assetTypeOverrides
+        .takeIf { it.isNotEmpty() }
+        .or {
+            AssetSpecifications.map { spec ->
+                spec.recordSpecConfigs.singleOrNull()?.name
+                    ?: error("Got unexpected record spec configs list size [${spec.recordSpecConfigs.size}] for asset specification with display name [${spec.scopeSpecConfig.name}]")
+            }
+        }
+        .map { assetType ->
+            AddAssetDefinitionExecute(
+                assetType = assetType,
+                displayName = assetTypeDisplayNameOverrides[assetType] ?: assetType,
+                verifiers = VerifierDetail(
+                    address = verifierBech32Address,
+                    onboardingCost = onboardingCostOverrides[assetType] ?: "100000".toBigInteger(),
+                    onboardingDenom = "nhash",
+                    feeDestinations = feeDestinationOverrides[assetType] ?: emptyList(),
+                    entityDetail = EntityDetail(
+                        name = "Figure Tech Verifier: $assetType",
+                        description = "The standard asset classification verifier provided by Figure Technologies",
+                        homeUrl = "https://figure.tech",
+                        sourceUrl = "https://github.com/FigureTechnologies/asset-classification-libs",
+                    ),
+                    retryCost = retryCostOverrides[assetType] ?: OnboardingCost(BigInteger.ZERO),
+                    subsequentClassificationDetail = subsequentClassificationOverrides[assetType],
+                ).wrapListAc(),
+                enabled = true,
+                bindName = bindNameOverrides[assetType] ?: false,
+            )
+        }
 
     private fun getCompressedWasmBytes(config: SetupACToolConfig): ByteArray =
         when (config.wasmLocation) {
@@ -151,50 +206,36 @@ object SetupACTool {
     }
 
     private fun setupAssetDefinitions(config: SetupACToolConfig, contractAddress: String) {
-        val messages = AssetSpecifications.flatMap { specification ->
-            val assetType = specification.recordSpecConfigs.singleOrNull()?.name
-                ?: error("Got unexpected record spec configs list size [${specification.recordSpecConfigs.size}] for asset specification with display name [${specification.scopeSpecConfig.name}]")
-            config.logger("Generating create scope spec messages for asset type [$assetType]")
-            val messages = specification.specificationMsgs(config.contractAdminAccount.bech32Address).toMutableList()
-            config.logger("Generating add asset definition message to asset classification contract for asset type [$assetType]")
-            messages += ACClient.getDefault(
-                contractIdentifier = ContractIdentifier.Address(contractAddress),
-                pbClient = config.pbClient,
-            ).generateAddAssetDefinitionMsg(
-                execute = AddAssetDefinitionExecute(
-                    assetType = assetType,
-                    displayName = specification.scopeSpecConfig.name,
-                    verifiers = VerifierDetail(
-                        address = config.verifierBech32Address,
-                        onboardingCost = config.assetDefinitionOnboardingCostOverrides[assetType] ?: "100000".toBigInteger(),
-                        onboardingDenom = "nhash",
-                        feeDestinations = emptyList(),
-                        entityDetail = EntityDetail(
-                            name = "Figure Tech Verifier: $assetType",
-                            description = "The standard asset classification verifier provided by Figure Technologies",
-                            homeUrl = "https://figure.tech",
-                            sourceUrl = "https://github.com/FigureTechnologies/asset-classification-libs",
-                        )
-                    ).wrapListAc(),
-                    enabled = true,
-                    bindName = false,
-                ),
-                signerAddress = config.contractAdminAccount.bech32Address,
+        val messages = AssetSpecifications
+            .flatMap { specification ->
+                config.logger("Generating create scope spec messages for asset type [${specification.recordSpecConfigs.singleOrNull()?.name}]")
+                specification.specificationMsgs(config.contractAdminAccount.bech32Address)
+            }
+            .plus(
+                this.generateAssetDefinitionExecutes(config).flatMap { execute ->
+                    config.logger("Generating add asset definition message to asset classification contract for asset type [${execute.assetType}]")
+                    val addAssetMsg = ACClient.getDefault(
+                        contractIdentifier = ContractIdentifier.Address(contractAddress),
+                        pbClient = config.pbClient,
+                    ).generateAddAssetDefinitionMsg(
+                        execute = execute,
+                        signerAddress = config.contractAdminAccount.bech32Address,
+                    )
+                    config.logger("Generating bind name message of type [${execute.assetType}.asset] to contract address [$contractAddress] for future attribute writes")
+                    val bindNameMsg = MsgBindNameRequest.newBuilder().also { bindName ->
+                        bindName.parent = NameRecord.newBuilder().also { nameRecord ->
+                            nameRecord.name = "asset"
+                            nameRecord.address = config.assetNameAdminAccount.bech32Address
+                        }.build()
+                        bindName.record = NameRecord.newBuilder().also { nameRecord ->
+                            nameRecord.name = execute.assetType
+                            nameRecord.address = contractAddress
+                            nameRecord.restricted = true
+                        }.build()
+                    }.build()
+                    listOf(addAssetMsg, bindNameMsg)
+                }
             )
-            config.logger("Generating bind name message of type [$assetType.asset] to contract address [$contractAddress] for future attribute writes")
-            messages += MsgBindNameRequest.newBuilder().also { bindName ->
-                bindName.parent = NameRecord.newBuilder().also { nameRecord ->
-                    nameRecord.name = "asset"
-                    nameRecord.address = config.assetNameAdminAccount.bech32Address
-                }.build()
-                bindName.record = NameRecord.newBuilder().also { nameRecord ->
-                    nameRecord.name = assetType
-                    nameRecord.address = contractAddress
-                    nameRecord.restricted = true
-                }.build()
-            }.build()
-            messages
-        }
         config.logger("Broadcasting all generated messages...")
         config.pbClient.estimateAndBroadcastTx(
             txBody = messages.map { it.toAny() }.toTxBody(),
@@ -234,6 +275,10 @@ object SetupACTool {
  * @param assetDefinitionOnboardingCostOverrides A map of asset type to onboarding cost that will be used when creating
  * the initial AssetDefinition entries after instantiating the asset classification smart contract on localnet.  If
  * let unset for a given type, the default value of 100,000nhash will be used for each of the default asset types.
+ * @param retryCostOverrides An optional value that allows the standard retry cost of zero to be overridden with a
+ * custom value for various asset types.
+ * @param subsequentClassificationOverrides An optional value that allows subsequent classifications with multiple types
+ * to be set for various asset types.  The default is to not include this value in a new verifier detail.
  */
 data class SetupACToolConfig(
     val pbClient: PbClient,
@@ -244,6 +289,8 @@ data class SetupACToolConfig(
     val wasmLocation: ContractWasmLocation = ContractWasmLocation.GitHub(),
     val logger: SetupACToolLogging = SetupACToolLogging.Disabled,
     val assetDefinitionOnboardingCostOverrides: Map<String, BigInteger> = emptyMap(),
+    val retryCostOverrides: Map<String, OnboardingCost> = emptyMap(),
+    val subsequentClassificationOverrides: Map<String, SubsequentClassificationDetail> = emptyMap(),
 )
 
 /**
