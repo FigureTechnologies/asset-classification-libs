@@ -16,6 +16,7 @@ import java.net.URI
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
+import tech.figure.classification.asset.verifier.util.eventstream.DefaultEventStreamProvider
 
 /**
  * Configurations to tweak the behavior of the VerifierClient created with this class.
@@ -50,6 +51,7 @@ class VerifierClientConfig private constructor(
     val eventDelegator: AssetClassificationEventDelegator,
     val eventProcessors: Map<String, suspend (VerifierEvent) -> Unit>,
     val okHttpClientBuilder: () -> OkHttpClient,
+    val eventStreamProvider: EventStreamProvider,
 ) {
 
     companion object {
@@ -89,6 +91,9 @@ class VerifierClientConfig private constructor(
         private var eventDelegator: AssetClassificationEventDelegator? = null
         private val eventProcessors: MutableMap<String, suspend (VerifierEvent) -> Unit> = mutableMapOf()
         private var okHttpClientBuilder: (() -> OkHttpClient)? = null
+        private var eventStreamProvider: EventStreamProvider? = null
+
+        fun withEventStreamProvider(provider: EventStreamProvider) = apply { eventStreamProvider = provider }
 
         /**
          * Sets the event stream node value to listen to.  If unset, the configuration assumes the node to listen to will
@@ -160,6 +165,7 @@ class VerifierClientConfig private constructor(
             eventDelegator = eventDelegator ?: AssetClassificationEventDelegator.default(),
             eventProcessors = eventProcessors,
             okHttpClientBuilder = okHttpClientBuilder ?: { defaultOkHttpClient() },
+            eventStreamProvider = eventStreamProvider ?: DefaultEventStreamProvider(eventStreamNode ?: URI("ws://localhost:26657"), okHttpClientBuilder?.invoke() ?: defaultOkHttpClient())
         )
     }
 }

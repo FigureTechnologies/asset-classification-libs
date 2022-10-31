@@ -5,15 +5,10 @@ import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
 import io.provenance.client.grpc.PbClient
 import io.provenance.client.protobuf.extensions.getBaseAccount
 import io.provenance.client.protobuf.extensions.getTx
-import io.provenance.eventstream.decoder.moshiDecoderAdapter
-import io.provenance.eventstream.net.okHttpNetAdapter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
@@ -43,7 +38,6 @@ import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEven
 import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
-import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
 import java.util.concurrent.atomic.AtomicLong
 
 class VerifierClient(private val config: VerifierClientConfig) {
@@ -51,7 +45,6 @@ class VerifierClient(private val config: VerifierClientConfig) {
     @Suppress("UNCHECKED_CAST")
     private val verifyProcessor: VerificationProcessor<Any> = config.verificationProcessor as VerificationProcessor<Any>
     private val signer = AccountSigner.fromAccountDetail(config.verifierAccount)
-    private val decoderAdapter = moshiDecoderAdapter()
     private var jobs = VerifierJobs()
     private val tracking: AccountTrackingDetail by lazy {
         AccountTrackingDetail.lookup(
@@ -92,39 +85,23 @@ class VerifierClient(private val config: VerifierClientConfig) {
         startingBlockHeight: Long?,
         retry: BlockRetry = BlockRetry(block = startingBlockHeight),
     ) {
-        val netAdapter = okHttpNetAdapter(
-            node = config.eventStreamNode.toString(),
-            okHttpClient = config.okHttpClientBuilder(),
-        )
-        val currentHeight = netAdapter.rpcAdapter.getCurrentHeight()
+        val currentHeight = config.eventStreamProvider.currentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
-        verifierBlockDataFlow(netAdapter, decoderAdapter, from = latestBlock)
-            .catch { e -> StreamExceptionOccurred(e).send() }
-            .onCompletion { t -> StreamCompleted(t).send() }
-            .onEach { block ->
+
+        config.eventStreamProvider.processBlockForHeight(
+            latestBlock,
+            onBlock = { block ->
                 // Record each block intercepted
                 NewBlockReceived(block).send()
                 // Track new block height
                 latestBlock = trackBlockHeight(latestBlock, block.height)
-            }
-            // Map all captured block data to AssetClassificationEvents, which will remove all non-wasm events
-            // encountered
-            .map(AssetClassificationEvent::fromBlockData)
-            .collect { events ->
-                events.forEach { event -> handleEvent(event) }
-            }
-        // The event stream flow should execute infinitely unless some error occurs, so this line will only be reached
-        // on connection failures or other problems.
-        try {
-            // Attempt to shut down the net adapter before restarting or exiting the stream
-            netAdapter.shutdown()
-        } catch (e: Exception) {
-            // Emit the exception encountered on net adapter shutdown and exit the stream entirely
-            StreamExceptionOccurred(e).send()
-            // Escape the loop entirely if the adapter fails to shut down - there should never be two adapters running
-            // in tandem via this client
-            return
-        }
+            },
+            handleEvent = { event -> handleEvent(event) },
+            onError = { e -> StreamExceptionOccurred(e).send() },
+            onCompletion = { t -> StreamCompleted(t).send() },
+            onNetAdapterShutdownFailure = { e -> StreamExceptionOccurred(e).send() }
+        )
+
         when (config.streamRestartMode) {
             is StreamRestartMode.On -> {
                 // Use the retry count recorded in the retry parameter if the client is stuck on a specific block.  If
