@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
-import okhttp3.OkHttpClient
 import tech.figure.classification.asset.client.client.base.ACClient
 import tech.figure.classification.asset.util.extensions.elvisAc
 import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
@@ -12,7 +11,6 @@ import tech.figure.classification.asset.verifier.client.VerificationMessage
 import tech.figure.classification.asset.verifier.client.VerifierClient
 import tech.figure.classification.asset.verifier.event.AssetClassificationEventDelegator
 import tech.figure.classification.asset.verifier.util.eventstream.DefaultEventStreamProvider
-import java.net.URI
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
@@ -79,15 +77,12 @@ class VerifierClientConfig private constructor(
         private val verifierAccount: ProvenanceAccountDetail,
         private val verificationProcessor: VerificationProcessor<*>,
     ) {
-        private var eventStreamNode: URI? = null
         private var streamRestartMode: StreamRestartMode? = null
         private var verificationChannel: Channel<VerificationMessage>? = null
         private var eventChannel: Channel<VerifierEvent>? = null
         private var coroutineScopeConfig: VerifierCoroutineScopeConfig? = null
         private var eventDelegator: AssetClassificationEventDelegator? = null
         private val eventProcessors: MutableMap<String, suspend (VerifierEvent) -> Unit> = mutableMapOf()
-        private var okHttpClientBuilder: (() -> OkHttpClient)? = null
-
         private var eventStreamProvider: EventStreamProvider? = null
 
         /**
@@ -95,12 +90,6 @@ class VerifierClientConfig private constructor(
          * fetch blocks.
          */
         fun withEventStreamProvider(provider: EventStreamProvider) = apply { eventStreamProvider = provider }
-
-        /**
-         * Sets the event stream node value to listen to.  If unset, the configuration assumes the node to listen to will
-         * be hosted locally.
-         */
-        fun withEventStreamNode(node: URI) = apply { eventStreamNode = node }
 
         /**
          * Defines how the verifier client will behave when the event stream fails.
@@ -145,12 +134,6 @@ class VerifierClientConfig private constructor(
         }
 
         /**
-         * Allows a custom OkHttpClient to be built when starting the event stream.  If omitted, this will use the
-         * default event stream OkHttpClient configurations.
-         */
-        fun withOkHttpClient(builder: () -> OkHttpClient) = apply { okHttpClientBuilder = builder }
-
-        /**
          * Constructs an instance of VerifierClientConfig with all supplied values, using defaults for those not
          * supplied in the builder process.
          */
@@ -164,7 +147,7 @@ class VerifierClientConfig private constructor(
             eventChannel = eventChannel ?: Channel(capacity = Channel.BUFFERED),
             eventDelegator = eventDelegator ?: AssetClassificationEventDelegator.default(),
             eventProcessors = eventProcessors,
-            eventStreamProvider = eventStreamProvider ?: DefaultEventStreamProvider(eventStreamNode, okHttpClientBuilder?.invoke())
+            eventStreamProvider = eventStreamProvider ?: DefaultEventStreamProvider()
         )
     }
 }

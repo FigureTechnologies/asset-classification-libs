@@ -14,13 +14,13 @@ import tech.figure.classification.asset.verifier.provenance.AssetClassificationE
 import java.net.URI
 
 class DefaultEventStreamProvider(
-    eventStreamNode: URI?,
-    httpClient: OkHttpClient?
+    eventStreamNode: URI = URI("ws://localhost:26657"),
+    httpClient: OkHttpClient = defaultOkHttpClient()
 ) : EventStreamProvider {
 
     private val netAdapter = okHttpNetAdapter(
-        node = eventStreamNode?.toString() ?: URI("ws://localhost:26657").toString(),
-        okHttpClient = httpClient ?: defaultOkHttpClient(),
+        node = eventStreamNode.toString(),
+        okHttpClient = httpClient,
     )
 
     private val decoderAdapter = moshiDecoderAdapter()
