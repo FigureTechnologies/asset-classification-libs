@@ -25,7 +25,7 @@ class BlockApiEventStreamProvider(
             if (it > currentHeight) currentHeight else it
         } ?: getStartingBlockHeight(currentHeight)
 
-        (startingHeight..batchSize)
+        (startingHeight..(startingHeight + batchSize))
             .forEach { blockHeight ->
                 runCatching {
                     blockApiClient.getBlockByHeight(
