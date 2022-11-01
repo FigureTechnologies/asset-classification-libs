@@ -6,6 +6,7 @@ dependencies {
         libs.bundles.coroutines,
         libs.bundles.eventStream,
         libs.bundles.scarlet,
+        libs.bundles.blockApi,
 
         // Libraries
         libs.okHttp3,

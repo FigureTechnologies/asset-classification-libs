@@ -1,4 +1,4 @@
-package tech.figure.classification.asset.verifier.util.eventstream
+package tech.figure.classification.asset.verifier.util.eventstream.providers
 
 import io.provenance.eventstream.decoder.moshiDecoderAdapter
 import io.provenance.eventstream.net.defaultOkHttpClient
@@ -12,11 +12,12 @@ import okhttp3.OkHttpClient
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import java.net.URI
+import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
 
 class DefaultEventStreamProvider(
     eventStreamNode: URI = URI("ws://localhost:26657"),
     httpClient: OkHttpClient = defaultOkHttpClient()
-) : EventStreamProvider {
+) : EventStreamProvider<BlockData> {
 
     private val netAdapter = okHttpNetAdapter(
         node = eventStreamNode.toString(),
@@ -31,10 +32,9 @@ class DefaultEventStreamProvider(
     override suspend fun startProcessingFromHeight(
         height: Long?,
         onBlock: suspend (block: BlockData) -> Unit,
-        handleEvent: suspend (event: AssetClassificationEvent) -> Unit,
+        onEvent: suspend (event: AssetClassificationEvent) -> Unit,
         onError: suspend (throwable: Throwable) -> Unit,
-        onCompletion: suspend (throwable: Throwable?) -> Unit,
-        onNetAdapterShutdownFailure: suspend (throwable: Throwable) -> Unit
+        onCompletion: suspend (throwable: Throwable?) -> Unit
     ) {
         verifierBlockDataFlow(netAdapter, decoderAdapter, from = height)
             .catch { e -> onError(e) }
@@ -46,7 +46,7 @@ class DefaultEventStreamProvider(
             // encountered
             .map(AssetClassificationEvent::fromBlockData)
             .collect { events ->
-                events.forEach { event -> handleEvent(event) }
+                events.forEach { event -> onEvent(event) }
             }
         // The event stream flow should execute infinitely unless some error occurs, so this line will only be reached
         // on connection failures or other problems.
@@ -55,7 +55,7 @@ class DefaultEventStreamProvider(
             netAdapter.shutdown()
         } catch (e: Exception) {
             // Emit the exception encountered on net adapter shutdown and exit the stream entirely
-            onNetAdapterShutdownFailure(e)
+            onError(e)
             // Escape the loop entirely if the adapter fails to shut down - there should never be two adapters running
             // in tandem via this client
             return

@@ -12,6 +12,8 @@ import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatu
 import tech.figure.classification.asset.util.models.ProvenanceTxEvents
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import tech.figure.block.api.proto.BlockServiceOuterClass
+import tech.figure.classification.asset.verifier.util.extensions.extractEvents
 
 /**
  * A collection of all values that can be emitted by the asset classification smart contract in an event, parsed
@@ -55,6 +57,26 @@ class AssetClassificationEvent(
                 // the TxEvent, which will be a minor speed increase to downstream processing
                 .filter { it.eventType == WASM_EVENT_TYPE }
                 .map { event -> AssetClassificationEvent(event, inputValuesEncoded = true) }
+
+        fun fromBlockData(data: BlockServiceOuterClass.BlockResult): List<AssetClassificationEvent> =
+            data.transactions.transactions.transactionList.flatMap { tx ->
+                tx.eventsList.map { event ->
+                    AssetClassificationEvent(
+                        TxEvent(
+                            blockHeight = event.height,
+                            txHash = event.txHash,
+                            eventType = event.eventType,
+                            attributes = event.attributesList.map { Event(it.key, it.value, it.index) },
+                            blockDateTime = null,
+                            fee = null,
+                            denom = null,
+                            note = null
+
+                        ),
+                        inputValuesEncoded = false
+                    )
+                }
+            }
 
         fun fromVerifierTxEvents(
             sourceTx: GetTxResponse,

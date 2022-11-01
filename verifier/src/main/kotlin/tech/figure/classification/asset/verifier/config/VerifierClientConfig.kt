@@ -10,10 +10,11 @@ import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.classification.asset.verifier.client.VerificationMessage
 import tech.figure.classification.asset.verifier.client.VerifierClient
 import tech.figure.classification.asset.verifier.event.AssetClassificationEventDelegator
-import tech.figure.classification.asset.verifier.util.eventstream.DefaultEventStreamProvider
+import tech.figure.classification.asset.verifier.util.eventstream.providers.DefaultEventStreamProvider
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
+import tech.figure.block.api.proto.BlockServiceOuterClass
 
 /**
  * Configurations to tweak the behavior of the VerifierClient created with this class.
@@ -45,7 +46,7 @@ class VerifierClientConfig private constructor(
     val eventChannel: Channel<VerifierEvent>,
     val eventDelegator: AssetClassificationEventDelegator,
     val eventProcessors: Map<String, suspend (VerifierEvent) -> Unit>,
-    val eventStreamProvider: EventStreamProvider,
+    val eventStreamProvider: EventStreamProvider<Any>,
 ) {
 
     companion object {
@@ -83,13 +84,13 @@ class VerifierClientConfig private constructor(
         private var coroutineScopeConfig: VerifierCoroutineScopeConfig? = null
         private var eventDelegator: AssetClassificationEventDelegator? = null
         private val eventProcessors: MutableMap<String, suspend (VerifierEvent) -> Unit> = mutableMapOf()
-        private var eventStreamProvider: EventStreamProvider? = null
+        private var eventStreamProvider: EventStreamProvider<Any>? = null
 
         /**
          * Allows for providing a custom event stream implementation that will be used to
          * fetch blocks.
          */
-        fun withEventStreamProvider(provider: EventStreamProvider) = apply { eventStreamProvider = provider }
+        fun withEventStreamProvider(provider: EventStreamProvider<Any>) = apply { eventStreamProvider = provider }
 
         /**
          * Defines how the verifier client will behave when the event stream fails.

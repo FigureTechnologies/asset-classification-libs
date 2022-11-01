@@ -5,6 +5,7 @@ import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
 import io.provenance.client.grpc.PbClient
 import io.provenance.client.protobuf.extensions.getBaseAccount
 import io.provenance.client.protobuf.extensions.getTx
+import io.provenance.eventstream.stream.clients.BlockData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -38,6 +39,7 @@ import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import java.util.concurrent.atomic.AtomicLong
+import tech.figure.block.api.proto.BlockServiceOuterClass
 
 class VerifierClient(private val config: VerifierClientConfig) {
     // Cast the provided processor to T of Any to make creation and usage easier on the consumer of this library
@@ -87,18 +89,28 @@ class VerifierClient(private val config: VerifierClientConfig) {
         val currentHeight = config.eventStreamProvider.currentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
 
+        suspend fun newBlock(height: Long) {
+            // Record each block intercepted
+            NewBlockReceived(height).send()
+            // Track new block height
+            latestBlock = trackBlockHeight(latestBlock, height)
+        }
+
         config.eventStreamProvider.startProcessingFromHeight(
             latestBlock,
             onBlock = { block ->
-                // Record each block intercepted
-                NewBlockReceived(block).send()
-                // Track new block height
-                latestBlock = trackBlockHeight(latestBlock, block.height)
+                when (block) {
+                    is BlockData -> {
+                        newBlock(block.height)
+                    }
+                    is BlockServiceOuterClass.BlockResult -> {
+                        newBlock(block.block.height)
+                    }
+                }
             },
-            handleEvent = { event -> handleEvent(event) },
+            onEvent = { event -> handleEvent(event) },
             onError = { e -> StreamExceptionOccurred(e).send() },
-            onCompletion = { t -> StreamCompleted(t).send() },
-            onNetAdapterShutdownFailure = { e -> StreamExceptionOccurred(e).send() }
+            onCompletion = { t -> StreamCompleted(t).send() }
         )
 
         when (config.streamRestartMode) {

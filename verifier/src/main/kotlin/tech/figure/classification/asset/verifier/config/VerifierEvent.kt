@@ -45,7 +45,7 @@ sealed interface VerifierEvent {
      * @param block The [BlockData] encountered by the stream processor.  Contains raw Provenance Blockchain
      * information.
      */
-    data class NewBlockReceived internal constructor(val block: BlockData) : VerifierEvent
+    data class NewBlockReceived internal constructor(val blockHeight: Long) : VerifierEvent
 
     /**
      * After the stream completes, if the stream has been configured to restart, this function will be called.  This
