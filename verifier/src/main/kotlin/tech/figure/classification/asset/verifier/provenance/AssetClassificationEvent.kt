@@ -1,6 +1,7 @@
 package tech.figure.classification.asset.verifier.provenance
 
 import cosmos.tx.v1beta1.ServiceOuterClass.GetTxResponse
+import io.provenance.client.protobuf.extensions.time.toOffsetDateTimeOrNull
 import io.provenance.eventstream.extensions.decodeBase64
 import io.provenance.eventstream.stream.clients.BlockData
 import io.provenance.eventstream.stream.models.Event
@@ -13,7 +14,6 @@ import tech.figure.classification.asset.util.models.ProvenanceTxEvents
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import tech.figure.block.api.proto.BlockServiceOuterClass
-import tech.figure.classification.asset.verifier.util.extensions.extractEvents
 
 /**
  * A collection of all values that can be emitted by the asset classification smart contract in an event, parsed
@@ -67,7 +67,7 @@ class AssetClassificationEvent(
                             txHash = event.txHash,
                             eventType = event.eventType,
                             attributes = event.attributesList.map { Event(it.key, it.value, it.index) },
-                            blockDateTime = null,
+                            blockDateTime = data.block.time.toOffsetDateTimeOrNull(),
                             fee = null,
                             denom = null,
                             note = null
