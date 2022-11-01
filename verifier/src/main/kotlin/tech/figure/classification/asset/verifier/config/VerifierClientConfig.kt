@@ -14,7 +14,6 @@ import tech.figure.classification.asset.verifier.util.eventstream.providers.Defa
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
-import tech.figure.block.api.proto.BlockServiceOuterClass
 
 /**
  * Configurations to tweak the behavior of the VerifierClient created with this class.

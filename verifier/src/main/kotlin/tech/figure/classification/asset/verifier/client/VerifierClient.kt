@@ -10,6 +10,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
@@ -39,7 +40,6 @@ import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import java.util.concurrent.atomic.AtomicLong
-import tech.figure.block.api.proto.BlockServiceOuterClass
 
 class VerifierClient(private val config: VerifierClientConfig) {
     // Cast the provided processor to T of Any to make creation and usage easier on the consumer of this library

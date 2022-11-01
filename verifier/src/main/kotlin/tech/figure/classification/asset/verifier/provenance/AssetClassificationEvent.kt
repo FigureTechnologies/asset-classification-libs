@@ -9,11 +9,11 @@ import io.provenance.eventstream.stream.models.TxEvent
 import io.provenance.eventstream.stream.models.extensions.dateTime
 import io.provenance.eventstream.stream.models.extensions.txData
 import io.provenance.eventstream.stream.models.extensions.txEvents
+import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.util.models.ProvenanceTxEvents
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import tech.figure.block.api.proto.BlockServiceOuterClass
 
 /**
  * A collection of all values that can be emitted by the asset classification smart contract in an event, parsed

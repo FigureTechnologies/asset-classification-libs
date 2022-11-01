@@ -41,9 +41,9 @@ class BlockApiEventStreamProvider(
                 }.onFailure { error ->
                     onError(error)
                 }
-                .onSuccess {
-                    onCompletion(null)
-                }
+                    .onSuccess {
+                        onCompletion(null)
+                    }
             }
 
         startProcessingFromHeight(startingHeight + batchSize, onBlock, onEvent, onError, onCompletion)
