@@ -3,7 +3,6 @@ package tech.figure.classification.asset.verifier.util.eventstream
 import io.provenance.eventstream.decoder.moshiDecoderAdapter
 import io.provenance.eventstream.net.okHttpNetAdapter
 import io.provenance.eventstream.stream.clients.BlockData
-import java.net.URI
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -11,6 +10,7 @@ import kotlinx.coroutines.flow.onEach
 import okhttp3.OkHttpClient
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import java.net.URI
 
 class DefaultEventStreamProvider(eventStreamNode: URI, httpBuilder: OkHttpClient) : EventStreamProvider {
 

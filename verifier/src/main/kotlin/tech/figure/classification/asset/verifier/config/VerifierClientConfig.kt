@@ -12,11 +12,11 @@ import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.classification.asset.verifier.client.VerificationMessage
 import tech.figure.classification.asset.verifier.client.VerifierClient
 import tech.figure.classification.asset.verifier.event.AssetClassificationEventDelegator
+import tech.figure.classification.asset.verifier.util.eventstream.DefaultEventStreamProvider
 import java.net.URI
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
-import tech.figure.classification.asset.verifier.util.eventstream.DefaultEventStreamProvider
 
 /**
  * Configurations to tweak the behavior of the VerifierClient created with this class.

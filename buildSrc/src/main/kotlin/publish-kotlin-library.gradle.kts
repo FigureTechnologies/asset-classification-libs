@@ -85,8 +85,10 @@ subprojects {
             }
         }
 
-        configure<SigningExtension> {
-            sign(publications["maven"])
+        if (System.getenv("SPRING_PROFILES_ACTIVE") != "development") {
+            configure<SigningExtension> {
+                sign(publications["maven"])
+            }
         }
     }
 }
