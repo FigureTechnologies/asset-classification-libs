@@ -3,7 +3,6 @@ package tech.figure.classification.asset.verifier.util.eventstream.providers
 import io.provenance.eventstream.decoder.moshiDecoderAdapter
 import io.provenance.eventstream.net.defaultOkHttpClient
 import io.provenance.eventstream.net.okHttpNetAdapter
-import io.provenance.eventstream.stream.clients.BlockData
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -12,12 +11,13 @@ import okhttp3.OkHttpClient
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
+import tech.figure.classification.asset.verifier.config.EventStreamBlockData
 import java.net.URI
 
 class DefaultEventStreamProvider(
     eventStreamNode: URI = URI("ws://localhost:26657"),
     httpClient: OkHttpClient = defaultOkHttpClient()
-) : EventStreamProvider<BlockData> {
+) : EventStreamProvider<EventStreamBlockData> {
 
     private val netAdapter = okHttpNetAdapter(
         node = eventStreamNode.toString(),
@@ -31,7 +31,7 @@ class DefaultEventStreamProvider(
 
     override suspend fun startProcessingFromHeight(
         height: Long?,
-        onBlock: suspend (block: BlockData) -> Unit,
+        onBlock: suspend (block: EventStreamBlockData) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
         onError: suspend (throwable: Throwable) -> Unit,
         onCompletion: suspend (throwable: Throwable?) -> Unit
@@ -40,7 +40,7 @@ class DefaultEventStreamProvider(
             .catch { e -> onError(e) }
             .onCompletion { t -> onCompletion(t) }
             .onEach { block ->
-                onBlock(block)
+                onBlock(EventStreamBlockData(block))
             }
             // Map all captured block data to AssetClassificationEvents, which will remove all non-wasm events
             // encountered
