@@ -85,8 +85,10 @@ subprojects {
             }
         }
 
-        configure<SigningExtension> {
-            sign(publications["maven"])
+        if (!System.getenv("DISABLE_SIGNING").toBoolean()) {
+            configure<SigningExtension> {
+                sign(publications["maven"])
+            }
         }
     }
 }
