@@ -85,7 +85,7 @@ subprojects {
             }
         }
 
-        if (System.getenv("SPRING_PROFILES_ACTIVE") != "development") {
+        if (!System.getenv("DISABLE_SIGNING").toBoolean()) {
             configure<SigningExtension> {
                 sign(publications["maven"])
             }

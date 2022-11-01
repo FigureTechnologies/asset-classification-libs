@@ -1,6 +1,5 @@
 package tech.figure.classification.asset.verifier.config
 
-import io.provenance.eventstream.net.defaultOkHttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -28,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger
  * to this account are processed.
  * @param coroutineScope The scope used to dispatch asynchronous tasks, like event processing.
  * @param verificationProcessor A manually-defined class that will process incoming assets.
- * @param eventStreamNode The URI that tells the VerifierClient where to pick up events from the Provenance Blockchain.
  * @param streamRestartMode Defines what actions to take when the event stream fails.
  * @param verificationChannel The channel that VerificationMessage values are processed through.
  * @param eventChannel The channel that VerifierEvents are processed through.  This channel handles all messages emitted
@@ -36,21 +34,19 @@ import java.util.concurrent.atomic.AtomicInteger
  * @param eventDelegator Defines handlers for different event types emitted from the asset classification smart contract.
  * @param eventProcessors All manually-defined event handling code submitted during the builder process.  See the
  * VerifierEvent class for lengthy details about each.
- * @param okHttpClientBuilder Allows for providing a custom OkHttpClient when standing up the event stream subscription.
- * This can assist in handling connection issues.
+ * @param eventStreamProvider Allows for providing a custom event stream implementation that will be used to
+ * fetch blocks.
  */
 class VerifierClientConfig private constructor(
     val acClient: ACClient,
     val verifierAccount: ProvenanceAccountDetail,
     val coroutineScope: CoroutineScope,
     val verificationProcessor: VerificationProcessor<*>,
-    val eventStreamNode: URI,
     val streamRestartMode: StreamRestartMode,
     val verificationChannel: Channel<VerificationMessage>,
     val eventChannel: Channel<VerifierEvent>,
     val eventDelegator: AssetClassificationEventDelegator,
     val eventProcessors: Map<String, suspend (VerifierEvent) -> Unit>,
-    val okHttpClientBuilder: () -> OkHttpClient,
     val eventStreamProvider: EventStreamProvider,
 ) {
 
@@ -91,8 +87,13 @@ class VerifierClientConfig private constructor(
         private var eventDelegator: AssetClassificationEventDelegator? = null
         private val eventProcessors: MutableMap<String, suspend (VerifierEvent) -> Unit> = mutableMapOf()
         private var okHttpClientBuilder: (() -> OkHttpClient)? = null
+
         private var eventStreamProvider: EventStreamProvider? = null
 
+        /**
+         * Allows for providing a custom event stream implementation that will be used to
+         * fetch blocks.
+         */
         fun withEventStreamProvider(provider: EventStreamProvider) = apply { eventStreamProvider = provider }
 
         /**
@@ -158,14 +159,12 @@ class VerifierClientConfig private constructor(
             verifierAccount = verifierAccount,
             coroutineScope = coroutineScopeConfig.elvisAc { VerifierCoroutineScopeConfig.ScopeDefinition() }.toCoroutineScope(),
             verificationProcessor = verificationProcessor,
-            eventStreamNode = eventStreamNode ?: URI("ws://localhost:26657"),
             streamRestartMode = streamRestartMode ?: StreamRestartMode.On(),
             verificationChannel = verificationChannel ?: Channel(capacity = Channel.BUFFERED),
             eventChannel = eventChannel ?: Channel(capacity = Channel.BUFFERED),
             eventDelegator = eventDelegator ?: AssetClassificationEventDelegator.default(),
             eventProcessors = eventProcessors,
-            okHttpClientBuilder = okHttpClientBuilder ?: { defaultOkHttpClient() },
-            eventStreamProvider = eventStreamProvider ?: DefaultEventStreamProvider(eventStreamNode ?: URI("ws://localhost:26657"), okHttpClientBuilder?.invoke() ?: defaultOkHttpClient())
+            eventStreamProvider = eventStreamProvider ?: DefaultEventStreamProvider(eventStreamNode, okHttpClientBuilder?.invoke())
         )
     }
 }

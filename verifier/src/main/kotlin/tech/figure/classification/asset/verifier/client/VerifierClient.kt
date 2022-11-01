@@ -8,7 +8,6 @@ import io.provenance.client.protobuf.extensions.getTx
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
@@ -88,7 +87,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
         val currentHeight = config.eventStreamProvider.currentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
 
-        config.eventStreamProvider.processBlockForHeight(
+        config.eventStreamProvider.startProcessingFromHeight(
             latestBlock,
             onBlock = { block ->
                 // Record each block intercepted

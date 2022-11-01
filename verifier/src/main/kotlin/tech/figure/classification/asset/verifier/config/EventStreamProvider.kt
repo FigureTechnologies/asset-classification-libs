@@ -5,7 +5,7 @@ import tech.figure.classification.asset.verifier.provenance.AssetClassificationE
 
 interface EventStreamProvider {
     suspend fun currentHeight(): Long?
-    suspend fun processBlockForHeight(
+    suspend fun startProcessingFromHeight(
         height: Long? = null,
         onBlock: (suspend (block: BlockData) -> Unit),
         handleEvent: (suspend (event: AssetClassificationEvent) -> Unit),

@@ -1,6 +1,7 @@
 package tech.figure.classification.asset.verifier.util.eventstream
 
 import io.provenance.eventstream.decoder.moshiDecoderAdapter
+import io.provenance.eventstream.net.defaultOkHttpClient
 import io.provenance.eventstream.net.okHttpNetAdapter
 import io.provenance.eventstream.stream.clients.BlockData
 import kotlinx.coroutines.flow.catch
@@ -12,11 +13,14 @@ import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import java.net.URI
 
-class DefaultEventStreamProvider(eventStreamNode: URI, httpBuilder: OkHttpClient) : EventStreamProvider {
+class DefaultEventStreamProvider(
+    eventStreamNode: URI?,
+    httpClient: OkHttpClient?
+) : EventStreamProvider {
 
     private val netAdapter = okHttpNetAdapter(
-        node = eventStreamNode.toString(),
-        okHttpClient = httpBuilder,
+        node = eventStreamNode?.toString() ?: URI("ws://localhost:26657").toString(),
+        okHttpClient = httpClient ?: defaultOkHttpClient(),
     )
 
     private val decoderAdapter = moshiDecoderAdapter()
@@ -24,7 +28,7 @@ class DefaultEventStreamProvider(eventStreamNode: URI, httpBuilder: OkHttpClient
     override suspend fun currentHeight(): Long? =
         netAdapter.rpcAdapter.getCurrentHeight()
 
-    override suspend fun processBlockForHeight(
+    override suspend fun startProcessingFromHeight(
         height: Long?,
         onBlock: suspend (block: BlockData) -> Unit,
         handleEvent: suspend (event: AssetClassificationEvent) -> Unit,
