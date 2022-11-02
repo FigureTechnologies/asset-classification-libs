@@ -1,6 +1,5 @@
 package tech.figure.classification.asset.verifier.config
 
-import io.provenance.eventstream.stream.clients.BlockData
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.verifier.client.AssetVerification

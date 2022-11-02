@@ -51,9 +51,9 @@ class BlockApiEventStreamProvider(
                         }.onFailure { error ->
                             onError(error, true)
                         }
-                        .onSuccess {
-                            onCompletion(null)
-                        }
+                            .onSuccess {
+                                onCompletion(null)
+                            }
                     }
 
                 startingHeight += batchSize
