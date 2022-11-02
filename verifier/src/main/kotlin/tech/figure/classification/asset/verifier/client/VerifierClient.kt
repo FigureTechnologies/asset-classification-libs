@@ -84,6 +84,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
         startingBlockHeight: Long?,
         retry: BlockRetry = BlockRetry(block = startingBlockHeight),
     ) {
+        var recoverable = true
         val currentHeight = config.eventStreamProvider.currentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
 
@@ -96,36 +97,41 @@ class VerifierClient(private val config: VerifierClientConfig) {
                 latestBlock = trackBlockHeight(latestBlock, blockHeight)
             },
             onEvent = { event -> handleEvent(event) },
-            onError = { e -> StreamExceptionOccurred(e).send() },
-            onCompletion = { t -> StreamCompleted(t).send() }
+            onError = { e, canRecover ->
+                recoverable = canRecover
+                StreamExceptionOccurred(e).send()
+            },
+            onCompletion = { t -> StreamCompleted(t).send() },
         )
 
         when (config.streamRestartMode) {
             is StreamRestartMode.On -> {
-                // Use the retry count recorded in the retry parameter if the client is stuck on a specific block.  If
-                // the client is not stuck on the same block, then reset the counter to zero to start a new set of
-                // retries, ensuring that various retries throughout iteration through blocks do not infinitely increase
-                // the delay unless reading the chain has become forever halted
-                val retryCount = retry.retryCount.takeIf { retry.block == latestBlock } ?: 0
-                val restartDelayDuration = config.streamRestartMode.calcDelay(retryCount)
-                // Note that the stream is restarting before the delay occurs to ensure consumers know the state of the
-                // flow is about to begin again from the latest block recorded
-                StreamRestarting(
-                    restartHeight = latestBlock,
-                    restartCount = retryCount + 1,
-                    restartDelayMs = restartDelayDuration.inWholeMilliseconds,
-                ).send()
-                delay(restartDelayDuration)
-                // Note that the stream delay is over and the loop is about to restart
-                StreamRestarted(latestBlock, retryCount + 1).send()
-                // Recurse into a new event stream if the stream needs to restart
-                verifyLoop(
-                    startingBlockHeight = latestBlock,
-                    retry = BlockRetry(
-                        retryCount = retryCount + 1,
-                        block = latestBlock,
-                    ),
-                )
+                if (recoverable) {
+                    // Use the retry count recorded in the retry parameter if the client is stuck on a specific block.  If
+                    // the client is not stuck on the same block, then reset the counter to zero to start a new set of
+                    // retries, ensuring that various retries throughout iteration through blocks do not infinitely increase
+                    // the delay unless reading the chain has become forever halted
+                    val retryCount = retry.retryCount.takeIf { retry.block == latestBlock } ?: 0
+                    val restartDelayDuration = config.streamRestartMode.calcDelay(retryCount)
+                    // Note that the stream is restarting before the delay occurs to ensure consumers know the state of the
+                    // flow is about to begin again from the latest block recorded
+                    StreamRestarting(
+                        restartHeight = latestBlock,
+                        restartCount = retryCount + 1,
+                        restartDelayMs = restartDelayDuration.inWholeMilliseconds,
+                    ).send()
+                    delay(restartDelayDuration)
+                    // Note that the stream delay is over and the loop is about to restart
+                    StreamRestarted(latestBlock, retryCount + 1).send()
+                    // Recurse into a new event stream if the stream needs to restart
+                    verifyLoop(
+                        startingBlockHeight = latestBlock,
+                        retry = BlockRetry(
+                            retryCount = retryCount + 1,
+                            block = latestBlock,
+                        ),
+                    )
+                }
             }
             is StreamRestartMode.Off -> {
                 StreamExited(latestBlock).send()

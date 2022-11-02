@@ -37,11 +37,11 @@ class DefaultEventStreamProvider(
         height: Long?,
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
-        onError: suspend (throwable: Throwable) -> Unit,
+        onError: suspend (throwable: Throwable, recoverable: Boolean) -> Unit,
         onCompletion: suspend (throwable: Throwable?) -> Unit
     ) {
         verifierBlockDataFlow(netAdapter, decoderAdapter, from = height)
-            .catch { e -> onError(e) }
+            .catch { e -> onError(e, true) }
             .onCompletion { t -> onCompletion(t) }
             .onEach { block ->
                 onBlock(block.height)
@@ -59,23 +59,21 @@ class DefaultEventStreamProvider(
             netAdapter.shutdown()
         } catch (e: Exception) {
             // Emit the exception encountered on net adapter shutdown and exit the stream entirely
-            onError(e)
+            onError(e, true)
             // Escape the loop entirely if the adapter fails to shut down - there should never be two adapters running
             // in tandem via this client
             return
         }
     }
 
-    override suspend fun <T> toAssetClassificationEvent(data: T) =
-        if (data is BlockData) {
-            data.blockResult
-                // Use the event stream library's excellent extension functions to grab the needed TxEvent from
-                // the block result, using the same strategy that their EventStream object does
-                .txEvents(data.block.header?.dateTime()) { index -> data.block.txData(index) }
-                // Only keep events of type WASM. All other event types are guaranteed to be unrelated to the
-                // Asset Classification smart contract. This check can happen prior to any other parsing of data inside
-                // the TxEvent, which will be a minor speed increase to downstream processing
-                .filter { it.eventType == WASM_EVENT_TYPE }
-                .map { event -> AssetClassificationEvent(event, inputValuesEncoded = true) }
-        } else throw IllegalArgumentException("Attempted to convert ${data!!::class.java.simpleName} to ${BlockData::class.java.simpleName}")
+    private fun toAssetClassificationEvent(data: BlockData) =
+        data.blockResult
+            // Use the event stream library's excellent extension functions to grab the needed TxEvent from
+            // the block result, using the same strategy that their EventStream object does
+            .txEvents(data.block.header?.dateTime()) { index -> data.block.txData(index) }
+            // Only keep events of type WASM. All other event types are guaranteed to be unrelated to the
+            // Asset Classification smart contract. This check can happen prior to any other parsing of data inside
+            // the TxEvent, which will be a minor speed increase to downstream processing
+            .filter { it.eventType == WASM_EVENT_TYPE }
+            .map { event -> AssetClassificationEvent(event, inputValuesEncoded = true) }
 }

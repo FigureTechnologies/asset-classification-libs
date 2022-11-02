@@ -23,7 +23,7 @@ class BlockApiEventStreamProvider(
         height: Long?,
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
-        onError: suspend (throwable: Throwable) -> Unit,
+        onError: suspend (throwable: Throwable, recoverable: Boolean) -> Unit,
         onCompletion: suspend (throwable: Throwable?) -> Unit
     ) {
 
@@ -32,30 +32,34 @@ class BlockApiEventStreamProvider(
             if (it > currentHeight) currentHeight else it
         } ?: getStartingBlockHeight(currentHeight)
 
-        while (coroutineScope.isActive) {
+        try {
+            while (coroutineScope.isActive) {
 
-            (startingHeight..(startingHeight + batchSize))
-                .forEach { blockHeight ->
-                    runCatching {
-                        blockApiClient.getBlockByHeight(
-                            blockHeight,
-                            BlockServiceOuterClass.PREFER.TX
-                        ).also {
-                            onBlock(it.block.height)
+                (startingHeight..(startingHeight + batchSize))
+                    .forEach { blockHeight ->
+                        runCatching {
+                            blockApiClient.getBlockByHeight(
+                                blockHeight,
+                                BlockServiceOuterClass.PREFER.TX
+                            ).also {
+                                onBlock(it.block.height)
 
-                            toAssetClassificationEvent(it).forEach { classificationEvent ->
-                                onEvent(classificationEvent)
+                                toAssetClassificationEvent(it).forEach { classificationEvent ->
+                                    onEvent(classificationEvent)
+                                }
                             }
+                        }.onFailure { error ->
+                            onError(error, true)
                         }
-                    }.onFailure { error ->
-                        onError(error)
-                    }
                         .onSuccess {
                             onCompletion(null)
                         }
-                }
+                    }
 
-            startingHeight += batchSize
+                startingHeight += batchSize
+            }
+        } catch (ex: Exception) {
+            onError(ex, false)
         }
     }
 
@@ -65,25 +69,23 @@ class BlockApiEventStreamProvider(
         } ?: 1
     }
 
-    override suspend fun <T> toAssetClassificationEvent(data: T): List<AssetClassificationEvent> =
-        if (data is BlockServiceOuterClass.BlockResult) {
-            data.transactions.transactions.transactionList.flatMap { tx ->
-                tx.eventsList.map { event ->
-                    AssetClassificationEvent(
-                        TxEvent(
-                            blockHeight = event.height,
-                            txHash = event.txHash,
-                            eventType = event.eventType,
-                            attributes = event.attributesList.map { Event(it.key, it.value, it.index) },
-                            blockDateTime = data.block.time.toOffsetDateTimeOrNull(),
-                            fee = null,
-                            denom = null,
-                            note = null
+    private fun toAssetClassificationEvent(data: BlockServiceOuterClass.BlockResult): List<AssetClassificationEvent> =
+        data.transactions.transactions.transactionList.flatMap { tx ->
+            tx.eventsList.map { event ->
+                AssetClassificationEvent(
+                    TxEvent(
+                        blockHeight = event.height,
+                        txHash = event.txHash,
+                        eventType = event.eventType,
+                        attributes = event.attributesList.map { Event(it.key, it.value, it.index) },
+                        blockDateTime = data.block.time.toOffsetDateTimeOrNull(),
+                        fee = null,
+                        denom = null,
+                        note = null
 
-                        ),
-                        inputValuesEncoded = false
-                    )
-                }
+                    ),
+                    inputValuesEncoded = false
+                )
             }
-        } else throw IllegalArgumentException("Attempted to convert ${data!!::class.java.simpleName} to ${BlockServiceOuterClass.BlockResult::class.java.simpleName}")
+        }
 }
