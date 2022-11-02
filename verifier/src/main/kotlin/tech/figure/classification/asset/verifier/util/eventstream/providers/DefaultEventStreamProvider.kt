@@ -16,6 +16,7 @@ import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import tech.figure.classification.asset.verifier.provenance.WASM_EVENT_TYPE
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
+import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import java.net.URI
 
 class DefaultEventStreamProvider(
@@ -37,11 +38,11 @@ class DefaultEventStreamProvider(
         height: Long?,
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
-        onError: suspend (throwable: Throwable, recoverable: Boolean) -> Unit,
+        onError: suspend (throwable: Throwable) -> Unit,
         onCompletion: suspend (throwable: Throwable?) -> Unit
-    ) {
+    ): RecoveryStatus {
         verifierBlockDataFlow(netAdapter, decoderAdapter, from = height)
-            .catch { e -> onError(e, true) }
+            .catch { e -> onError(e) }
             .onCompletion { t -> onCompletion(t) }
             .onEach { block ->
                 onBlock(block.height)
@@ -59,11 +60,13 @@ class DefaultEventStreamProvider(
             netAdapter.shutdown()
         } catch (e: Exception) {
             // Emit the exception encountered on net adapter shutdown and exit the stream entirely
-            onError(e, true)
+            onError(e)
             // Escape the loop entirely if the adapter fails to shut down - there should never be two adapters running
             // in tandem via this client
-            return
+            return RecoveryStatus.RECOVERABLE
         }
+
+        return RecoveryStatus.RECOVERABLE
     }
 
     private fun toAssetClassificationEvent(data: BlockData) =

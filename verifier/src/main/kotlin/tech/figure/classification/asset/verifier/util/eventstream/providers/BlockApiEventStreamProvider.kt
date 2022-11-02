@@ -8,6 +8,7 @@ import kotlinx.coroutines.isActive
 import tech.figure.block.api.client.BlockAPIClient
 import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
+import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 
 class BlockApiEventStreamProvider(
@@ -23,9 +24,9 @@ class BlockApiEventStreamProvider(
         height: Long?,
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
-        onError: suspend (throwable: Throwable, recoverable: Boolean) -> Unit,
+        onError: suspend (throwable: Throwable) -> Unit,
         onCompletion: suspend (throwable: Throwable?) -> Unit
-    ) {
+    ): RecoveryStatus {
 
         val currentHeight = currentHeight()
         var startingHeight = height?.let {
@@ -49,7 +50,7 @@ class BlockApiEventStreamProvider(
                                 }
                             }
                         }.onFailure { error ->
-                            onError(error, true)
+                            onError(error)
                         }
                             .onSuccess {
                                 onCompletion(null)
@@ -59,8 +60,11 @@ class BlockApiEventStreamProvider(
                 startingHeight += batchSize
             }
         } catch (ex: Exception) {
-            onError(ex, false)
+            onError(ex)
+            return RecoveryStatus.IRRECOVERABLE
         }
+
+        return RecoveryStatus.RECOVERABLE
     }
 
     private fun getStartingBlockHeight(currentHeight: Long?): Long {

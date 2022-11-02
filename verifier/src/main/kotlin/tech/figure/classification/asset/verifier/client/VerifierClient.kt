@@ -37,6 +37,7 @@ import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEven
 import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import java.util.concurrent.atomic.AtomicLong
 
 class VerifierClient(private val config: VerifierClientConfig) {
@@ -84,11 +85,10 @@ class VerifierClient(private val config: VerifierClientConfig) {
         startingBlockHeight: Long?,
         retry: BlockRetry = BlockRetry(block = startingBlockHeight),
     ) {
-        var recoverable = true
         val currentHeight = config.eventStreamProvider.currentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
 
-        config.eventStreamProvider.startProcessingFromHeight(
+        val recoverable = config.eventStreamProvider.startProcessingFromHeight(
             latestBlock,
             onBlock = { blockHeight ->
                 // Record each block intercepted
@@ -97,16 +97,13 @@ class VerifierClient(private val config: VerifierClientConfig) {
                 latestBlock = trackBlockHeight(latestBlock, blockHeight)
             },
             onEvent = { event -> handleEvent(event) },
-            onError = { e, canRecover ->
-                recoverable = canRecover
-                StreamExceptionOccurred(e).send()
-            },
+            onError = { e -> StreamExceptionOccurred(e).send() },
             onCompletion = { t -> StreamCompleted(t).send() },
         )
 
         when (config.streamRestartMode) {
             is StreamRestartMode.On -> {
-                if (recoverable) {
+                if (recoverable == RecoveryStatus.RECOVERABLE) {
                     // Use the retry count recorded in the retry parameter if the client is stuck on a specific block.  If
                     // the client is not stuck on the same block, then reset the counter to zero to start a new set of
                     // retries, ensuring that various retries throughout iteration through blocks do not infinitely increase
