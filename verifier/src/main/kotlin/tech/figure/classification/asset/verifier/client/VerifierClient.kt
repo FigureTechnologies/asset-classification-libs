@@ -15,6 +15,7 @@ import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 import tech.figure.classification.asset.util.extensions.alsoIfAc
 import tech.figure.classification.asset.util.extensions.toProvenanceTxEventsAc
 import tech.figure.classification.asset.util.wallet.AccountSigner
+import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.config.StreamRestartMode
 import tech.figure.classification.asset.verifier.config.VerificationProcessor
 import tech.figure.classification.asset.verifier.config.VerifierClientConfig
@@ -37,7 +38,6 @@ import tech.figure.classification.asset.verifier.config.VerifierEvent.VerifyEven
 import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
-import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import java.util.concurrent.atomic.AtomicLong
 
 class VerifierClient(private val config: VerifierClientConfig) {

@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import okhttp3.OkHttpClient
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
+import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import tech.figure.classification.asset.verifier.provenance.WASM_EVENT_TYPE
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
-import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import java.net.URI
 
 class DefaultEventStreamProvider(
