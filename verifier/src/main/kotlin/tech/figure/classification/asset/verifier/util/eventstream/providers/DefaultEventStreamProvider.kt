@@ -3,6 +3,10 @@ package tech.figure.classification.asset.verifier.util.eventstream.providers
 import io.provenance.eventstream.decoder.moshiDecoderAdapter
 import io.provenance.eventstream.net.defaultOkHttpClient
 import io.provenance.eventstream.net.okHttpNetAdapter
+import io.provenance.eventstream.stream.clients.BlockData
+import io.provenance.eventstream.stream.models.extensions.dateTime
+import io.provenance.eventstream.stream.models.extensions.txData
+import io.provenance.eventstream.stream.models.extensions.txEvents
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -11,13 +15,13 @@ import okhttp3.OkHttpClient
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
-import tech.figure.classification.asset.verifier.config.EventStreamBlockData
 import java.net.URI
+import tech.figure.classification.asset.verifier.provenance.WASM_EVENT_TYPE
 
 class DefaultEventStreamProvider(
     eventStreamNode: URI = URI("ws://localhost:26657"),
     httpClient: OkHttpClient = defaultOkHttpClient()
-) : EventStreamProvider<EventStreamBlockData> {
+) : EventStreamProvider {
 
     private val netAdapter = okHttpNetAdapter(
         node = eventStreamNode.toString(),
@@ -31,7 +35,7 @@ class DefaultEventStreamProvider(
 
     override suspend fun startProcessingFromHeight(
         height: Long?,
-        onBlock: suspend (block: EventStreamBlockData) -> Unit,
+        onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
         onError: suspend (throwable: Throwable) -> Unit,
         onCompletion: suspend (throwable: Throwable?) -> Unit
@@ -40,11 +44,11 @@ class DefaultEventStreamProvider(
             .catch { e -> onError(e) }
             .onCompletion { t -> onCompletion(t) }
             .onEach { block ->
-                onBlock(EventStreamBlockData(block))
+                onBlock(block.height)
             }
             // Map all captured block data to AssetClassificationEvents, which will remove all non-wasm events
             // encountered
-            .map(AssetClassificationEvent::fromBlockData)
+            .map { toAssetClassificationEvent(it) }
             .collect { events ->
                 events.forEach { event -> onEvent(event) }
             }
@@ -61,4 +65,17 @@ class DefaultEventStreamProvider(
             return
         }
     }
+
+    override suspend fun <T> toAssetClassificationEvent(data: T) =
+        if (data is BlockData) {
+            data.blockResult
+                // Use the event stream library's excellent extension functions to grab the needed TxEvent from
+                // the block result, using the same strategy that their EventStream object does
+                .txEvents(data.block.header?.dateTime()) { index -> data.block.txData(index) }
+                // Only keep events of type WASM. All other event types are guaranteed to be unrelated to the
+                // Asset Classification smart contract. This check can happen prior to any other parsing of data inside
+                // the TxEvent, which will be a minor speed increase to downstream processing
+                .filter { it.eventType == WASM_EVENT_TYPE }
+                .map { event -> AssetClassificationEvent(event, inputValuesEncoded = true) }
+        } else throw IllegalArgumentException("Attempted to convert ${data!!::class.java.simpleName} to ${BlockData::class.java.simpleName}")
 }

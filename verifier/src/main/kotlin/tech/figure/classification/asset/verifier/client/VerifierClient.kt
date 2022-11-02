@@ -5,12 +5,10 @@ import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
 import io.provenance.client.grpc.PbClient
 import io.provenance.client.protobuf.extensions.getBaseAccount
 import io.provenance.client.protobuf.extensions.getTx
-import io.provenance.eventstream.stream.clients.BlockData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
@@ -89,24 +87,13 @@ class VerifierClient(private val config: VerifierClientConfig) {
         val currentHeight = config.eventStreamProvider.currentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
 
-        suspend fun newBlock(height: Long) {
-            // Record each block intercepted
-            NewBlockReceived(height).send()
-            // Track new block height
-            latestBlock = trackBlockHeight(latestBlock, height)
-        }
-
         config.eventStreamProvider.startProcessingFromHeight(
             latestBlock,
-            onBlock = { block ->
-                when (block) {
-                    is BlockData -> {
-                        newBlock(block.height)
-                    }
-                    is BlockServiceOuterClass.BlockResult -> {
-                        newBlock(block.block.height)
-                    }
-                }
+            onBlock = { blockHeight ->
+                // Record each block intercepted
+                NewBlockReceived(blockHeight).send()
+                // Track new block height
+                latestBlock = trackBlockHeight(latestBlock, blockHeight)
             },
             onEvent = { event -> handleEvent(event) },
             onError = { e -> StreamExceptionOccurred(e).send() },
