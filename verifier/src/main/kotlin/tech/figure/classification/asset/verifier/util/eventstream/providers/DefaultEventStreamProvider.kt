@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.onEach
 import okhttp3.OkHttpClient
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import tech.figure.classification.asset.verifier.provenance.WASM_EVENT_TYPE
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
 import java.net.URI
-import tech.figure.classification.asset.verifier.provenance.WASM_EVENT_TYPE
 
 class DefaultEventStreamProvider(
     eventStreamNode: URI = URI("ws://localhost:26657"),
