@@ -10,7 +10,7 @@ import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 import tech.figure.classification.asset.verifier.client.VerificationMessage
 import tech.figure.classification.asset.verifier.client.VerifierClient
 import tech.figure.classification.asset.verifier.event.AssetClassificationEventDelegator
-import tech.figure.classification.asset.verifier.util.eventstream.DefaultEventStreamProvider
+import tech.figure.classification.asset.verifier.util.eventstream.providers.DefaultEventStreamProvider
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
@@ -45,7 +45,7 @@ class VerifierClientConfig private constructor(
     val eventChannel: Channel<VerifierEvent>,
     val eventDelegator: AssetClassificationEventDelegator,
     val eventProcessors: Map<String, suspend (VerifierEvent) -> Unit>,
-    val eventStreamProvider: EventStreamProvider,
+    val eventStreamProvider: EventStreamProvider
 ) {
 
     companion object {

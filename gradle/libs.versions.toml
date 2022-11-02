@@ -21,6 +21,7 @@ provenanceProto = "1.10.0"
 provenanceScope = "0.6.0"
 scarlet = "0.1.12"
 testContainers = "1.17.2"
+blockApi = "0.1.3"
 
 [libraries]
 assetModel = { module = "io.provenance.model:metadata-asset-model", version.ref = "assetModel" }
@@ -67,6 +68,8 @@ scarletWebSocketOkHttp = { module = "com.tinder.scarlet:websocket-okhttp", versi
 testContainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
 testContainersJUnit = { module = "org.testcontainers:junit-jupiter", version.ref = "testContainers" }
 testContainersPostgres = { module = "org.testcontainers:postgresql", version.ref = "testContainers" }
+blockApiClient = { module = "tech.figure.block:api-client", version.ref = "blockApi" }
+blockApiProto = { module = "tech.figure.block:api-proto", version.ref = "blockApi" }
 
 # This doesn't current work in a way that's useful.  Keeping this here for a magical future where it's relevant
 [plugins]
@@ -83,3 +86,4 @@ provenance = ["provenanceGrpcClient", "provenanceHdWallet", "provenanceProto", "
 scarlet = ["scarletMessageAdapterMoshi", "scarlet", "scarletStreamAdapterCoroutines", "scarletWebSocketOkHttp"]
 test = ["kotlinTest", "mockk"]
 testContainers = ["testContainers", "testContainersJUnit", "testContainersPostgres"]
+blockApi = ["blockApiClient", "blockApiProto"]

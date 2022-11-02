@@ -1,6 +1,5 @@
 package tech.figure.classification.asset.verifier.config
 
-import io.provenance.eventstream.stream.clients.BlockData
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.client.domain.model.AssetScopeAttribute
 import tech.figure.classification.asset.verifier.client.AssetVerification
@@ -37,15 +36,14 @@ sealed interface VerifierEvent {
     data class StreamCompleted internal constructor(val t: Throwable?) : VerifierEvent
 
     /**
-     * This is a catch-all function that emits each and every block that the verifier encounters.  The verifier will
+     * This is a catch-all function that emits each and every block height that the verifier encounters.  The verifier will
      * filter down all events to only check "wasm" event types, so only those will be encountered herein.  However,
-     * this function occurs before any sanity checks in the verifier codebase, so these blocks may or may not pertain
+     * this function occurs before any sanity checks in the verifier codebase, so these block heights may or may not pertain
      * to the registered verifier account in the VerifierClientConfig.
      *
-     * @param block The [BlockData] encountered by the stream processor.  Contains raw Provenance Blockchain
-     * information.
+     * @param blockHeight The [Long] most recent block height encountered by the stream processor.
      */
-    data class NewBlockReceived internal constructor(val block: BlockData) : VerifierEvent
+    data class NewBlockReceived internal constructor(val blockHeight: Long) : VerifierEvent
 
     /**
      * After the stream completes, if the stream has been configured to restart, this function will be called.  This
@@ -486,13 +484,12 @@ sealed interface VerifierEventType<E : VerifierEvent> {
     object StreamCompleted : VerifierEventType<VerifierEvent.StreamCompleted>
 
     /**
-     * This is a catch-all function that emits each and every block that the verifier encounters.  The verifier will
+     * This is a catch-all function that emits each and every block height that the verifier encounters.  The verifier will
      * filter down all events to only check "wasm" event types, so only those will be encountered herein.  However,
-     * this function occurs before any sanity checks in the verifier codebase, so these blocks may or may not pertain
+     * this function occurs before any sanity checks in the verifier codebase, so these block heights may or may not pertain
      * to the registered verifier account in the VerifierClientConfig.
      *
-     * @param block The [BlockData] encountered by the stream processor.  Contains raw Provenance Blockchain
-     * information.
+     * @param blockHeight The [Long] most recent block height encountered by the stream processor.
      */
     object NewBlockReceived : VerifierEventType<VerifierEvent.NewBlockReceived>
 

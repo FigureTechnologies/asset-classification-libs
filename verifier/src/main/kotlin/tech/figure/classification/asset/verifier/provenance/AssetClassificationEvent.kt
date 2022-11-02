@@ -2,11 +2,8 @@ package tech.figure.classification.asset.verifier.provenance
 
 import cosmos.tx.v1beta1.ServiceOuterClass.GetTxResponse
 import io.provenance.eventstream.extensions.decodeBase64
-import io.provenance.eventstream.stream.clients.BlockData
 import io.provenance.eventstream.stream.models.Event
 import io.provenance.eventstream.stream.models.TxEvent
-import io.provenance.eventstream.stream.models.extensions.dateTime
-import io.provenance.eventstream.stream.models.extensions.txData
 import io.provenance.eventstream.stream.models.extensions.txEvents
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.util.models.ProvenanceTxEvents
@@ -43,18 +40,6 @@ class AssetClassificationEvent(
     val additionalMetadata: String? by lazy { this.getEventStringValue(ACContractKey.ADDITIONAL_METADATA) }
 
     companion object {
-        private const val WASM_EVENT_TYPE = "wasm"
-
-        fun fromBlockData(data: BlockData): List<AssetClassificationEvent> =
-            data.blockResult
-                // Use the event stream library's excellent extension functions to grab the needed TxEvent from
-                // the block result, using the same strategy that their EventStream object does
-                .txEvents(data.block.header?.dateTime()) { index -> data.block.txData(index) }
-                // Only keep events of type WASM. All other event types are guaranteed to be unrelated to the
-                // Asset Classification smart contract. This check can happen prior to any other parsing of data inside
-                // the TxEvent, which will be a minor speed increase to downstream processing
-                .filter { it.eventType == WASM_EVENT_TYPE }
-                .map { event -> AssetClassificationEvent(event, inputValuesEncoded = true) }
 
         fun fromVerifierTxEvents(
             sourceTx: GetTxResponse,
