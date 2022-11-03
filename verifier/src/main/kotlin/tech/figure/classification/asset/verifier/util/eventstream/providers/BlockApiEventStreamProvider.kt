@@ -3,7 +3,6 @@ package tech.figure.classification.asset.verifier.util.eventstream.providers
 import io.provenance.client.protobuf.extensions.time.toOffsetDateTimeOrNull
 import io.provenance.eventstream.stream.models.Event
 import io.provenance.eventstream.stream.models.TxEvent
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -12,6 +11,7 @@ import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import kotlin.time.Duration.Companion.milliseconds
 
 class BlockApiEventStreamProvider(
     private val blockApiClient: BlockAPIClient,
