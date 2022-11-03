@@ -3,7 +3,9 @@ package tech.figure.classification.asset.verifier.util.eventstream.providers
 import io.provenance.client.protobuf.extensions.time.toOffsetDateTimeOrNull
 import io.provenance.eventstream.stream.models.Event
 import io.provenance.eventstream.stream.models.TxEvent
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import tech.figure.block.api.client.BlockAPIClient
 import tech.figure.block.api.proto.BlockServiceOuterClass
@@ -15,6 +17,10 @@ class BlockApiEventStreamProvider(
     private val blockApiClient: BlockAPIClient,
     private val coroutineScope: CoroutineScope
 ) : EventStreamProvider {
+
+    companion object {
+        const val DEFAULT_BLOCK_DELAY_MS: Double = 4000.0
+    }
 
     override suspend fun currentHeight(): Long =
         blockApiClient.status().currentHeight
@@ -57,6 +63,7 @@ class BlockApiEventStreamProvider(
                         }
                 }
 
+                delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
                 from = current
                 current = currentHeight()
             }
