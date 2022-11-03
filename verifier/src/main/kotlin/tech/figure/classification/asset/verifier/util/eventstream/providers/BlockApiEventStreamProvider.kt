@@ -13,8 +13,7 @@ import tech.figure.classification.asset.verifier.provenance.AssetClassificationE
 
 class BlockApiEventStreamProvider(
     private val blockApiClient: BlockAPIClient,
-    private val coroutineScope: CoroutineScope,
-    private val batchSize: Long = 100L,
+    private val coroutineScope: CoroutineScope
 ) : EventStreamProvider {
 
     override suspend fun currentHeight(): Long =
@@ -28,36 +27,38 @@ class BlockApiEventStreamProvider(
         onCompletion: suspend (throwable: Throwable?) -> Unit
     ): RecoveryStatus {
 
-        val currentHeight = currentHeight()
-        var startingHeight = height?.let {
-            if (it > currentHeight) currentHeight else it
-        } ?: getStartingBlockHeight(currentHeight)
+        var current = currentHeight()
+        var from = height ?: 1
+
+        if (from > current) throw IllegalArgumentException("Cannot fetch block greater than the current height! Requested: $height, current: $current")
 
         try {
             while (coroutineScope.isActive) {
+                if (from < current) {
+                    (from..current)
+                        .forEach { blockHeight ->
+                            runCatching {
+                                blockApiClient.getBlockByHeight(
+                                    blockHeight,
+                                    BlockServiceOuterClass.PREFER.TX
+                                ).also {
+                                    onBlock(it.block.height)
 
-                (startingHeight..(startingHeight + batchSize))
-                    .forEach { blockHeight ->
-                        runCatching {
-                            blockApiClient.getBlockByHeight(
-                                blockHeight,
-                                BlockServiceOuterClass.PREFER.TX
-                            ).also {
-                                onBlock(it.block.height)
-
-                                toAssetClassificationEvent(it).forEach { classificationEvent ->
-                                    onEvent(classificationEvent)
+                                    toAssetClassificationEvent(it).forEach { classificationEvent ->
+                                        onEvent(classificationEvent)
+                                    }
                                 }
+                            }.onFailure { error ->
+                                onError(error)
                             }
-                        }.onFailure { error ->
-                            onError(error)
+                                .onSuccess {
+                                    onCompletion(null)
+                                }
                         }
-                            .onSuccess {
-                                onCompletion(null)
-                            }
-                    }
+                }
 
-                startingHeight += batchSize
+                from = current
+                current = currentHeight()
             }
         } catch (ex: Exception) {
             onError(ex)
@@ -65,12 +66,6 @@ class BlockApiEventStreamProvider(
         }
 
         return RecoveryStatus.RECOVERABLE
-    }
-
-    private fun getStartingBlockHeight(currentHeight: Long?): Long {
-        return currentHeight?.let {
-            it + 1
-        } ?: 1
     }
 
     private fun toAssetClassificationEvent(data: BlockServiceOuterClass.BlockResult): List<AssetClassificationEvent> =
