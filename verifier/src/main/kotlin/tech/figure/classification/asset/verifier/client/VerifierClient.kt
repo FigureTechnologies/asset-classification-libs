@@ -128,6 +128,8 @@ class VerifierClient(private val config: VerifierClientConfig) {
                             block = latestBlock,
                         ),
                     )
+                } else {
+                    StreamExited(latestBlock).send()
                 }
             }
             is StreamRestartMode.Off -> {
