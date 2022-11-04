@@ -10,12 +10,15 @@ import tech.figure.block.api.client.BlockAPIClient
 import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.config.RecoveryStatus
+import tech.figure.classification.asset.verifier.config.RetryPolicy
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.milliseconds
 
 class BlockApiEventStreamProvider(
     private val blockApiClient: BlockAPIClient,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
+    private val retry: RetryPolicy? = null
 ) : EventStreamProvider {
 
     companion object {
@@ -33,6 +36,7 @@ class BlockApiEventStreamProvider(
         onCompletion: suspend (throwable: Throwable?) -> Unit
     ): RecoveryStatus {
 
+        val lastProcessed = AtomicLong(0)
         var current = currentHeight()
         var from = height ?: 1
 
@@ -40,31 +44,15 @@ class BlockApiEventStreamProvider(
 
         try {
             while (coroutineScope.isActive) {
-                if (from < current) {
-                    (from..current)
-                        .forEach { blockHeight ->
-                            runCatching {
-                                blockApiClient.getBlockByHeight(
-                                    blockHeight,
-                                    BlockServiceOuterClass.PREFER.TX
-                                ).also {
-                                    onBlock(it.block.height)
-
-                                    toAssetClassificationEvent(it).forEach { classificationEvent ->
-                                        onEvent(classificationEvent)
-                                    }
-                                }
-                            }.onFailure { error ->
-                                onError(error)
-                            }
-                                .onSuccess {
-                                    onCompletion(null)
-                                }
-                        }
+                (from..current).forEach { blockHeight ->
+                    if (from > current) return@forEach
+                    process(blockHeight, onBlock, onEvent, onError, onCompletion)
+                    lastProcessed.set(blockHeight)
                 }
 
+                // Once we've met the current block, no need to keep spinning. Wait here for 4 seconds and process again.
                 delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
-                from = current
+                from = lastProcessed.incrementAndGet()
                 current = currentHeight()
             }
         } catch (ex: Exception) {
@@ -73,6 +61,40 @@ class BlockApiEventStreamProvider(
         }
 
         return RecoveryStatus.RECOVERABLE
+    }
+
+    private suspend fun process(
+        height: Long,
+        onBlock: suspend (blockHeight: Long) -> Unit,
+        onEvent: suspend (event: AssetClassificationEvent) -> Unit,
+        onError: suspend (throwable: Throwable) -> Unit,
+        onCompletion: suspend (throwable: Throwable?) -> Unit
+    ) {
+        runCatching {
+            retry?.tryAction {
+                getBlock(height, onBlock, onEvent)
+            } ?: getBlock(height, onBlock, onEvent)
+        }.onFailure { error ->
+            onError(error)
+        }
+            .onSuccess {
+                onCompletion(null)
+            }
+    }
+
+    private suspend fun getBlock(
+        height: Long,
+        onBlock: suspend (blockHeight: Long) -> Unit,
+        onEvent: suspend (event: AssetClassificationEvent) -> Unit,
+    ) {
+        blockApiClient.getBlockByHeight(height, BlockServiceOuterClass.PREFER.TX).also {
+
+            onBlock(it.block.height)
+
+            toAssetClassificationEvent(it).forEach { classificationEvent ->
+                onEvent(classificationEvent)
+            }
+        }
     }
 
     private fun toAssetClassificationEvent(data: BlockServiceOuterClass.BlockResult): List<AssetClassificationEvent> =
