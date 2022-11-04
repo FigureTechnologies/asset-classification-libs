@@ -10,8 +10,8 @@ import tech.figure.block.api.client.BlockAPIClient
 import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.config.RecoveryStatus
-import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import tech.figure.classification.asset.verifier.config.RetryPolicy
+import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.milliseconds
 
