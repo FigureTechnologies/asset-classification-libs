@@ -11,15 +11,14 @@ import tech.figure.block.api.proto.BlockServiceOuterClass
 import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
-import kotlin.time.Duration.Companion.milliseconds
 import tech.figure.classification.asset.verifier.config.RetryPolicy
+import kotlin.time.Duration.Companion.milliseconds
 
 class BlockApiEventStreamProvider(
     private val blockApiClient: BlockAPIClient,
     private val coroutineScope: CoroutineScope,
     private val retry: RetryPolicy? = null
 ) : EventStreamProvider {
-
 
     companion object {
         const val DEFAULT_BLOCK_DELAY_MS: Double = 4000.0
