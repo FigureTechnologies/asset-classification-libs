@@ -12,13 +12,14 @@ import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import kotlin.time.Duration.Companion.milliseconds
-import tech.figure.classification.asset.verifier.config.FailedBlockRetry
+import tech.figure.classification.asset.verifier.config.RetryPolicy
 
 class BlockApiEventStreamProvider(
     private val blockApiClient: BlockAPIClient,
     private val coroutineScope: CoroutineScope,
-    private val retry: FailedBlockRetry? = null
+    private val retry: RetryPolicy? = null
 ) : EventStreamProvider {
+
 
     companion object {
         const val DEFAULT_BLOCK_DELAY_MS: Double = 4000.0
@@ -44,7 +45,7 @@ class BlockApiEventStreamProvider(
             while (coroutineScope.isActive) {
                 (from..current).forEach { blockHeight ->
                     if (from >= current) return@forEach
-                    process(blockHeight, onBlock, onEvent, onError, onCompletion)
+                    process(from, onBlock, onEvent, onError, onCompletion)
                 }
 
                 // Once we've met the current block, no need to keep spinning. Wait here for 4 seconds and process again.

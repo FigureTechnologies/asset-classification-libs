@@ -1,9 +1,11 @@
 package tech.figure.classification.asset.verifier.config
 
-interface FailedBlockRetry {
+import java.time.Duration
+
+interface RetryPolicy {
     val times: Int
-    val initialDelay: Long
+    val initialDelay: kotlin.time.Duration
     val factor: Double
-    val maxDelay: Long
+    val maxDelay: kotlin.time.Duration
     suspend fun tryAction(action: (suspend () -> Unit))
 }
