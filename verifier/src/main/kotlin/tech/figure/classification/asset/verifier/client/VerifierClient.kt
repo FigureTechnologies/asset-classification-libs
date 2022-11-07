@@ -8,6 +8,8 @@ import io.provenance.client.protobuf.extensions.getTx
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
@@ -39,8 +41,6 @@ import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import java.util.concurrent.atomic.AtomicLong
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.job
 
 class VerifierClient(private val config: VerifierClientConfig) {
     // Cast the provided processor to T of Any to make creation and usage easier on the consumer of this library
