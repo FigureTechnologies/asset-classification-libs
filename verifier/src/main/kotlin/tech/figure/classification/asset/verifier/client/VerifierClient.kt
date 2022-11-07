@@ -8,8 +8,6 @@ import io.provenance.client.protobuf.extensions.getTx
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
@@ -68,12 +66,13 @@ class VerifierClient(private val config: VerifierClientConfig) {
 
     fun startVerifying(startingBlockHeight: Long): Job = config
         .coroutineScope
-        .takeUnless { it.isActive }
+        .takeUnless { jobs.jobsAreActive() }
         ?.launch { verifyLoop(startingBlockHeight) }
         ?.also { jobs.processorJob = it }
         ?.also { startEventChannelReceiver() }
         ?.also { startVerificationReceiver() }
-        ?: config.coroutineScope.coroutineContext.job
+        ?: jobs.processorJob
+        ?: throw IllegalStateException("Expected processor job to be running but it was not. Please try again.")
 
     fun stopVerifying() {
         jobs.cancelAndClearJobs()
@@ -299,6 +298,8 @@ private data class VerifierJobs(
         verificationSendJob = null
         eventHandlerJob = null
     }
+
+    fun jobsAreActive(): Boolean = processorJob != null || verificationSendJob != null || eventHandlerJob != null
 }
 
 private data class AccountTrackingDetail(
