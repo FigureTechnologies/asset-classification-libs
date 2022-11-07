@@ -13,22 +13,20 @@ class ExponentialBackoffRetryPolicy(
     override val factor: Double = 2.0,
     override val maxDelay: Duration = 20.seconds
 ) : RetryPolicy {
-    override suspend fun tryAction(action: suspend () -> Unit) {
+    override suspend fun <T> tryAction(action: suspend () -> T): T {
         var amount = initialDelay
 
-        run retry@{
-            repeat(times - 1) { times ->
-                runCatching {
-                    action()
-                }
-                    .onFailure {
-                        delay(amount)
-                        amount = factor.pow(times).toLong().coerceAtMost(maxDelay.toLong(DurationUnit.SECONDS)).seconds
-                    }
-                    .onSuccess {
-                        return@retry
-                    }
+        repeat(times - 1) { times ->
+            runCatching {
+                return action()
             }
+                .onFailure {
+                    delay(amount)
+                    amount = factor.pow(times).toLong().coerceAtMost(maxDelay.toLong(DurationUnit.SECONDS)).seconds
+                }
         }
+
+        // Doing this propagates any repeating error upwards to allow for handling
+        return action()
     }
 }

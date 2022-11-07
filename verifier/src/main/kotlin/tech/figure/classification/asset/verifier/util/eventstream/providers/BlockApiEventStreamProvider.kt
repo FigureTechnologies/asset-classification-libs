@@ -26,7 +26,7 @@ class BlockApiEventStreamProvider(
     }
 
     override suspend fun currentHeight(): Long =
-        blockApiClient.status().currentHeight
+        currentHeightInternal()
 
     override suspend fun startProcessingFromHeight(
         height: Long?,
@@ -37,7 +37,7 @@ class BlockApiEventStreamProvider(
     ): RecoveryStatus {
 
         val lastProcessed = AtomicLong(0)
-        var current = currentHeight()
+        var current = currentHeightInternal { e -> onError(e) }
         var from = height ?: 1
 
         if (from > current) throw IllegalArgumentException("Cannot fetch block greater than the current height! Requested: $height, current: $current")
@@ -53,17 +53,7 @@ class BlockApiEventStreamProvider(
                 // Once we've met the current block, no need to keep spinning. Wait here for 4 seconds and process again.
                 delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
                 from = lastProcessed.incrementAndGet()
-
-                runCatching {
-                    retry?.tryAction {
-                        current = currentHeight()
-                    } ?: run {
-                        current = currentHeight()
-                    }
-                }
-                    .onFailure { error ->
-                        onError(error)
-                    }
+                current = currentHeightInternal { e -> onError(e) }
 
                 onCompletion(null)
             }
@@ -74,6 +64,18 @@ class BlockApiEventStreamProvider(
 
         return RecoveryStatus.RECOVERABLE
     }
+
+    private suspend fun currentHeightInternal(failureAction: (suspend (e: Throwable) -> Unit)? = null): Long =
+        try {
+            retry?.tryAction {
+                blockApiClient.status().currentHeight
+            } ?: run {
+                blockApiClient.status().currentHeight
+            }
+        } catch (ex: Exception) {
+            failureAction?.invoke(ex)
+            throw IllegalArgumentException("Unable to get current height from block api!", ex)
+        }
 
     private suspend fun process(
         height: Long,
