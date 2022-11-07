@@ -26,7 +26,7 @@ class BlockApiEventStreamProvider(
     }
 
     override suspend fun currentHeight(): Long =
-        blockApiClient.status().currentHeight
+        currentHeightInternal()
 
     override suspend fun startProcessingFromHeight(
         height: Long?,
@@ -37,7 +37,7 @@ class BlockApiEventStreamProvider(
     ): RecoveryStatus {
 
         val lastProcessed = AtomicLong(0)
-        var current = currentHeight()
+        var current = currentHeightInternal { e -> onError(e) }
         var from = height ?: 1
 
         if (from > current) throw IllegalArgumentException("Cannot fetch block greater than the current height! Requested: $height, current: $current")
@@ -46,29 +46,46 @@ class BlockApiEventStreamProvider(
             while (coroutineScope.isActive) {
                 (from..current).forEach { blockHeight ->
                     if (from > current) return@forEach
-                    process(blockHeight, onBlock, onEvent, onError, onCompletion)
+                    process(blockHeight, onBlock, onEvent, onError)
                     lastProcessed.set(blockHeight)
                 }
+
+                // We've reached the current block, so fire the completion event
+                onCompletion(null)
 
                 // Once we've met the current block, no need to keep spinning. Wait here for 4 seconds and process again.
                 delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
                 from = lastProcessed.incrementAndGet()
-                current = currentHeight()
+                current = currentHeightInternal { e -> onError(e) }
             }
         } catch (ex: Exception) {
             onError(ex)
-            return RecoveryStatus.IRRECOVERABLE
         }
 
-        return RecoveryStatus.RECOVERABLE
+        return if (coroutineScope.isActive) {
+            RecoveryStatus.RECOVERABLE
+        } else {
+            RecoveryStatus.IRRECOVERABLE
+        }
     }
+
+    private suspend fun currentHeightInternal(failureAction: (suspend (e: Throwable) -> Unit)? = null): Long =
+        try {
+            retry?.tryAction {
+                blockApiClient.status().currentHeight
+            } ?: run {
+                blockApiClient.status().currentHeight
+            }
+        } catch (ex: Exception) {
+            failureAction?.invoke(ex)
+            throw IllegalArgumentException("Unable to get current height from block api!", ex)
+        }
 
     private suspend fun process(
         height: Long,
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
         onError: suspend (throwable: Throwable) -> Unit,
-        onCompletion: suspend (throwable: Throwable?) -> Unit
     ) {
         runCatching {
             retry?.tryAction {
@@ -77,9 +94,6 @@ class BlockApiEventStreamProvider(
         }.onFailure { error ->
             onError(error)
         }
-            .onSuccess {
-                onCompletion(null)
-            }
     }
 
     private suspend fun getBlock(
