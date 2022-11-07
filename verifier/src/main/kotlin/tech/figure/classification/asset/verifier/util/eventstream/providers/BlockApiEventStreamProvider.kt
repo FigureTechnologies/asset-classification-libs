@@ -46,7 +46,7 @@ class BlockApiEventStreamProvider(
             while (coroutineScope.isActive) {
                 (from..current).forEach { blockHeight ->
                     if (from > current) return@forEach
-                    process(blockHeight, onBlock, onEvent, onError, onCompletion)
+                    process(blockHeight, onBlock, onEvent, onError)
                     lastProcessed.set(blockHeight)
                 }
 
@@ -54,11 +54,18 @@ class BlockApiEventStreamProvider(
                 delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
                 from = lastProcessed.incrementAndGet()
 
-                retry?.tryAction {
-                    current = currentHeight()
-                } ?: run {
-                    current = currentHeight()
+                runCatching {
+                    retry?.tryAction {
+                        current = currentHeight()
+                    } ?: run {
+                        current = currentHeight()
+                    }
                 }
+                    .onFailure { error ->
+                        onError(error)
+                    }
+
+                onCompletion(null)
             }
         } catch (ex: Exception) {
             onError(ex)
@@ -73,7 +80,6 @@ class BlockApiEventStreamProvider(
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
         onError: suspend (throwable: Throwable) -> Unit,
-        onCompletion: suspend (throwable: Throwable?) -> Unit
     ) {
         runCatching {
             retry?.tryAction {
@@ -82,9 +88,6 @@ class BlockApiEventStreamProvider(
         }.onFailure { error ->
             onError(error)
         }
-            .onSuccess {
-                onCompletion(null)
-            }
     }
 
     private suspend fun getBlock(
