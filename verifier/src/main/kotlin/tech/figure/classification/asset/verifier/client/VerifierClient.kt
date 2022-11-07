@@ -39,6 +39,8 @@ import tech.figure.classification.asset.verifier.config.VerifierEventType
 import tech.figure.classification.asset.verifier.event.EventHandlerParameters
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import java.util.concurrent.atomic.AtomicLong
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.job
 
 class VerifierClient(private val config: VerifierClientConfig) {
     // Cast the provided processor to T of Any to make creation and usage easier on the consumer of this library
@@ -66,10 +68,12 @@ class VerifierClient(private val config: VerifierClientConfig) {
 
     fun startVerifying(startingBlockHeight: Long): Job = config
         .coroutineScope
-        .launch { verifyLoop(startingBlockHeight) }
-        .also { jobs.processorJob = it }
-        .also { startEventChannelReceiver() }
-        .also { startVerificationReceiver() }
+        .takeUnless { it.isActive }
+        ?.launch { verifyLoop(startingBlockHeight) }
+        ?.also { jobs.processorJob = it }
+        ?.also { startEventChannelReceiver() }
+        ?.also { startVerificationReceiver() }
+        ?: config.coroutineScope.coroutineContext.job
 
     fun stopVerifying() {
         jobs.cancelAndClearJobs()
