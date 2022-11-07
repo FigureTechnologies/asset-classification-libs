@@ -50,24 +50,23 @@ class BlockApiEventStreamProvider(
                     lastProcessed.set(blockHeight)
                 }
 
+                // We've reached the current block, so fire the completion event
+                onCompletion(null)
+
                 // Once we've met the current block, no need to keep spinning. Wait here for 4 seconds and process again.
                 delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
                 from = lastProcessed.incrementAndGet()
                 current = currentHeightInternal { e -> onError(e) }
-
-                onCompletion(null)
             }
         } catch (ex: Exception) {
             onError(ex)
-
-            return if (coroutineScope.isActive) {
-                RecoveryStatus.RECOVERABLE
-            } else {
-                RecoveryStatus.IRRECOVERABLE
-            }
         }
 
-        return RecoveryStatus.RECOVERABLE
+        return if (coroutineScope.isActive) {
+            RecoveryStatus.RECOVERABLE
+        } else {
+            RecoveryStatus.IRRECOVERABLE
+        }
     }
 
     private suspend fun currentHeightInternal(failureAction: (suspend (e: Throwable) -> Unit)? = null): Long =
