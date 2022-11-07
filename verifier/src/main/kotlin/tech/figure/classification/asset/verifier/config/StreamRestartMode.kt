@@ -28,7 +28,7 @@ sealed interface StreamRestartMode {
         companion object {
             const val DEFAULT_RESTART_DELAY_MS: Double = 2000.0
             const val MIN_RESTART_DELAY_MS: Double = 1000.0
-            const val MAX_RESTART_DELAY_MS: Double = 60000.0
+            const val MAX_RESTART_DELAY_MS: Double = 3600000.0
             const val RESTART_IMMEDIATELY: Double = 0.0
         }
 

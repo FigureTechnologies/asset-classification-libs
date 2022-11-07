@@ -66,10 +66,13 @@ class VerifierClient(private val config: VerifierClientConfig) {
 
     fun startVerifying(startingBlockHeight: Long): Job = config
         .coroutineScope
-        .launch { verifyLoop(startingBlockHeight) }
-        .also { jobs.processorJob = it }
-        .also { startEventChannelReceiver() }
-        .also { startVerificationReceiver() }
+        .takeUnless { jobs.jobsAreActive() }
+        ?.launch { verifyLoop(startingBlockHeight) }
+        ?.also { jobs.processorJob = it }
+        ?.also { startEventChannelReceiver() }
+        ?.also { startVerificationReceiver() }
+        ?: jobs.processorJob
+        ?: throw IllegalStateException("Expected processor job to be running but it was not. Please try again.")
 
     fun stopVerifying() {
         jobs.cancelAndClearJobs()
@@ -295,6 +298,8 @@ private data class VerifierJobs(
         verificationSendJob = null
         eventHandlerJob = null
     }
+
+    fun jobsAreActive(): Boolean = processorJob != null || verificationSendJob != null || eventHandlerJob != null
 }
 
 private data class AccountTrackingDetail(
