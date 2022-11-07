@@ -53,7 +53,12 @@ class BlockApiEventStreamProvider(
                 // Once we've met the current block, no need to keep spinning. Wait here for 4 seconds and process again.
                 delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
                 from = lastProcessed.incrementAndGet()
-                current = currentHeight()
+
+                retry?.tryAction {
+                    current = currentHeight()
+                } ?: run {
+                    current = currentHeight()
+                }
             }
         } catch (ex: Exception) {
             onError(ex)
