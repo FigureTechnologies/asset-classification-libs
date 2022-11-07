@@ -59,7 +59,12 @@ class BlockApiEventStreamProvider(
             }
         } catch (ex: Exception) {
             onError(ex)
-            return RecoveryStatus.IRRECOVERABLE
+
+            return if (coroutineScope.isActive) {
+                RecoveryStatus.RECOVERABLE
+            } else {
+                RecoveryStatus.IRRECOVERABLE
+            }
         }
 
         return RecoveryStatus.RECOVERABLE
