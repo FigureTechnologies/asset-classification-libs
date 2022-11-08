@@ -45,9 +45,8 @@ class BlockApiEventStreamProvider(
         try {
             while (coroutineScope.isActive) {
                 (from..current).forEach { blockHeight ->
-                    if (from > current) return@forEach
                     process(blockHeight, onBlock, onEvent, onError)
-                    lastProcessed.set(blockHeight)
+                    lastProcessed.set(blockHeight + 1)
                 }
 
                 // We've reached the current block, so fire the completion event
@@ -55,7 +54,7 @@ class BlockApiEventStreamProvider(
 
                 // Once we've met the current block, no need to keep spinning. Wait here for 4 seconds and process again.
                 delay(DEFAULT_BLOCK_DELAY_MS.milliseconds)
-                from = lastProcessed.incrementAndGet()
+                from = lastProcessed.get()
                 current = currentHeightInternal { e -> onError(e) }
             }
         } catch (ex: Exception) {
