@@ -100,7 +100,7 @@ class BlockApiEventStreamProvider(
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
     ) {
-        blockApiClient.getBlockByHeight(height, BlockServiceOuterClass.PREFER.TX).also {
+        blockApiClient.getBlockByHeight(height, BlockServiceOuterClass.PREFER.TX_EVENTS).also {
 
             onBlock(it.block.height)
 
@@ -111,7 +111,7 @@ class BlockApiEventStreamProvider(
     }
 
     private fun toAssetClassificationEvent(data: BlockServiceOuterClass.BlockResult): List<AssetClassificationEvent> =
-        data.transactions.transactions.transactionList.flatMap { tx ->
+        data.block.transactionsList.flatMap { tx ->
             tx.eventsList.map { event ->
                 AssetClassificationEvent(
                     TxEvent(
