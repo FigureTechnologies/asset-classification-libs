@@ -1,12 +1,5 @@
 package tech.figure.classification.asset.verifier.util.eventstream.providers
 
-import io.provenance.eventstream.decoder.moshiDecoderAdapter
-import io.provenance.eventstream.net.defaultOkHttpClient
-import io.provenance.eventstream.net.okHttpNetAdapter
-import io.provenance.eventstream.stream.clients.BlockData
-import io.provenance.eventstream.stream.models.extensions.dateTime
-import io.provenance.eventstream.stream.models.extensions.txData
-import io.provenance.eventstream.stream.models.extensions.txEvents
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
@@ -17,6 +10,13 @@ import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
 import tech.figure.classification.asset.verifier.provenance.WASM_EVENT_TYPE
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
+import tech.figure.eventstream.decoder.moshiDecoderAdapter
+import tech.figure.eventstream.net.defaultOkHttpClient
+import tech.figure.eventstream.net.okHttpNetAdapter
+import tech.figure.eventstream.stream.clients.BlockData
+import tech.figure.eventstream.stream.models.dateTime
+import tech.figure.eventstream.stream.models.txData
+import tech.figure.eventstream.stream.models.txEvents
 import java.net.URI
 
 class DefaultEventStreamProvider(

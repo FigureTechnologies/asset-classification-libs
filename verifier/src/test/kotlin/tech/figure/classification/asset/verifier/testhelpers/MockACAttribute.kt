@@ -1,9 +1,9 @@
 package tech.figure.classification.asset.verifier.testhelpers
 
-import io.provenance.eventstream.stream.models.Event
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.verifier.provenance.ACContractEvent
 import tech.figure.classification.asset.verifier.provenance.ACContractKey
+import tech.figure.eventstream.stream.models.Event
 
 sealed interface MockACAttribute {
     val key: String
