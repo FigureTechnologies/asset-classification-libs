@@ -1,6 +1,6 @@
 package tech.figure.classification.asset.verifier.config
 
-import io.provenance.eventstream.utils.backoff
+import tech.figure.eventstream.utils.backoff
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 

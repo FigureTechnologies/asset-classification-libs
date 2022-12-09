@@ -1,10 +1,10 @@
 package tech.figure.classification.asset.client.client.base
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder
+import io.grpc.netty.NettyChannelBuilder
 import io.provenance.client.grpc.ChannelOpts
+import io.provenance.client.grpc.GasEstimator
 import io.provenance.client.grpc.PbClient
-import io.provenance.client.grpc.PbGasEstimator
 import tech.figure.classification.asset.client.client.impl.DefaultACClient
 import tech.figure.classification.asset.client.client.impl.DefaultACExecutor
 import tech.figure.classification.asset.client.client.impl.DefaultACQuerier
@@ -61,7 +61,7 @@ interface ACClient : ACExecutor, ACQuerier {
             contractIdentifier: ContractIdentifier,
             chainId: String,
             channelUri: URI,
-            gasEstimator: PbGasEstimator,
+            gasEstimator: GasEstimator,
             opts: ChannelOpts = ChannelOpts(),
             objectMapper: ObjectMapper = DEFAULT_OBJECT_MAPPER,
             channelConfigLambda: (NettyChannelBuilder) -> Unit = { }

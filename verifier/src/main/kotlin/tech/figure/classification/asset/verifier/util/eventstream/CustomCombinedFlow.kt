@@ -1,10 +1,5 @@
 package tech.figure.classification.asset.verifier.util.eventstream
 
-import io.provenance.eventstream.decoder.DecoderAdapter
-import io.provenance.eventstream.net.NetAdapter
-import io.provenance.eventstream.stream.clients.BlockData
-import io.provenance.eventstream.stream.flows.historicalBlockDataFlow
-import io.provenance.eventstream.stream.flows.wsBlockDataFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -14,6 +9,11 @@ import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import tech.figure.eventstream.decoder.DecoderAdapter
+import tech.figure.eventstream.net.NetAdapter
+import tech.figure.eventstream.stream.clients.BlockData
+import tech.figure.eventstream.stream.flows.historicalBlockDataFlow
+import tech.figure.eventstream.stream.flows.wsBlockDataFlow
 import java.util.concurrent.atomic.AtomicLong
 
 /**

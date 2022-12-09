@@ -1,8 +1,6 @@
 package tech.figure.classification.asset.verifier.util.eventstream.providers
 
 import io.provenance.client.protobuf.extensions.time.toOffsetDateTimeOrNull
-import io.provenance.eventstream.stream.models.Event
-import io.provenance.eventstream.stream.models.TxEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -12,6 +10,8 @@ import tech.figure.classification.asset.verifier.config.EventStreamProvider
 import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.config.RetryPolicy
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import tech.figure.eventstream.stream.models.Event
+import tech.figure.eventstream.stream.models.TxEvent
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.milliseconds
 

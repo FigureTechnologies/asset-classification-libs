@@ -1,12 +1,11 @@
 package tech.figure.classification.asset.verifier.provenance
 
 import cosmos.tx.v1beta1.ServiceOuterClass.GetTxResponse
-import io.provenance.eventstream.extensions.decodeBase64
-import io.provenance.eventstream.stream.models.Event
-import io.provenance.eventstream.stream.models.TxEvent
-import io.provenance.eventstream.stream.models.extensions.txEvents
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
 import tech.figure.classification.asset.util.models.ProvenanceTxEvents
+import tech.figure.eventstream.decodeBase64
+import tech.figure.eventstream.stream.models.Event
+import tech.figure.eventstream.stream.models.TxEvent
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 

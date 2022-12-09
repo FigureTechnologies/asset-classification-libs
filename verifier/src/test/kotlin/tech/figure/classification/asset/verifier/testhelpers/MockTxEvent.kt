@@ -1,10 +1,10 @@
 package tech.figure.classification.asset.verifier.testhelpers
 
-import io.provenance.eventstream.stream.models.Event
-import io.provenance.eventstream.stream.models.TxEvent
-import io.provenance.eventstream.stream.models.extensions.toHexString
 import tech.figure.classification.asset.verifier.provenance.ACContractEvent
 import tech.figure.classification.asset.verifier.provenance.AssetClassificationEvent
+import tech.figure.eventstream.stream.models.Event
+import tech.figure.eventstream.stream.models.TxEvent
+import tech.figure.eventstream.stream.models.toHexString
 import java.time.OffsetDateTime
 import java.util.UUID
 
