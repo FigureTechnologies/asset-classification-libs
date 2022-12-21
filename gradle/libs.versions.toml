@@ -21,7 +21,7 @@ provenance-hdwallet = "0.1.15"
 provenance-proto = "1.13.0"
 provenance-scope = "0.6.2"
 scarlet = "0.1.12"
-testcontainers = "1.17.2"
+testcontainers = "1.17.6"
 
 [libraries]
 asset-model = { module = "io.provenance.model:metadata-asset-model", version.ref = "asset-model" }
