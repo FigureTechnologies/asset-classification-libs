@@ -1,5 +1,5 @@
 # Asset Classification Libs
-This project contains libraries for communicating with the [Asset Classification Smart Contract](https://github.com/provenance-io/asset-classification-smart-contract)
+This project contains libraries for communicating with the [Asset Classification Smart Contract](https://github.com/FigureTechnologies/asset-classification-smart-contract)
 
 ## Status
 [![Latest Release][release-badge]][release-latest]
@@ -7,14 +7,14 @@ This project contains libraries for communicating with the [Asset Classification
 [![Apache 2.0 License][license-badge]][license-url]
 [![LOC][loc-badge]][loc-report]
 
-[license-badge]: https://img.shields.io/github/license/provenance-io/asset-classification-libs.svg
-[license-url]: https://github.com/provenance-io/asset-classification-libs/blob/main/LICENSE
-[maven-badge]: https://maven-badges.herokuapp.com/maven-central/io.provenance.classification.asset/ac-client/badge.svg
-[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.provenance.classification.asset/ac-client
-[release-badge]: https://img.shields.io/github/tag/provenance-io/asset-classification-libs.svg
-[release-latest]: https://github.com/provenance-io/asset-classification-libs/releases/latest
-[loc-badge]: https://tokei.rs/b1/github/provenance-io/asset-classification-libs
-[loc-report]: https://github.com/provenance-io/asset-classification-libs
+[license-badge]: https://img.shields.io/github/license/FigureTechnologies/asset-classification-libs.svg
+[license-url]: https://github.com/FigureTechnologies/asset-classification-libs/blob/main/LICENSE
+[maven-badge]: https://maven-badges.herokuapp.com/maven-central/tech.figure.classification.asset/ac-client/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/tech.figure.classification.asset/ac-client
+[release-badge]: https://img.shields.io/github/tag/FigureTechnologies/asset-classification-libs.svg
+[release-latest]: https://github.com/FigureTechnologies/asset-classification-libs/releases/latest
+[loc-badge]: https://tokei.rs/b1/github/FigureTechnologies/asset-classification-libs
+[loc-report]: https://github.com/FigureTechnologies/asset-classification-libs
 
 ## Compatibility
 
@@ -22,12 +22,16 @@ The following client/verifier versions should be used with the asset classificat
 
 | Client / Verifier | AC Smart Contract |
 |-------------------|-------------------|
-| v1.1.3+           | v1.0.3+           |
+| v3.2.0+           | v3.2.0+           |
+| v3.1.0+           | v3.1.0+           |
+| v3.0.0+           | v3.0.0+           |
+| v2.0.0 - v2.0.2   | v2.0.0 - v2.0.1   |
+| v1.1.3 - v1.3.0   | v1.0.3 - v1.0.8   |
 | v1.1.2 and below  | v1.0.2 and below  |
 
 ## Importing the Client and/or Verifier
-- The [client](client) library can be downloaded via: `io.provenance.classification.asset:ac-client:<latest-release-version>`
-- The [verifier](verifier) library can be downloaded via: `io.provenance.classification.asset:ac-verifier:<latest-release-version>`
+- The [client](client) library can be downloaded via: `tech.figure.classification.asset:ac-client:<latest-release-version>`
+- The [verifier](verifier) library can be downloaded via: `tech.figure.classification.asset:ac-verifier:<latest-release-version>`
 
 *IMPORTANT:* The client and verifier both bundle their dependencies as API dependencies, and will overwrite or be 
 overwritten by an implementing project.  This was done purposefully, because the versioning on the various Provenance
@@ -41,7 +45,7 @@ Links:
 
 ## Using the ACClient
 ### Creating an ACClient instance
-To establish an [ACClient](client/src/main/kotlin/io/provenance/classification/asset/client/client/base/ACClient.kt), first,
+To establish an [ACClient](client/src/main/kotlin/tech/figure/classification/asset/client/client/base/ACClient.kt), first,
 create a [PbClient](https://github.com/provenance-io/pb-grpc-client-kotlin/blob/main/src/main/kotlin/io/provenance/client/grpc/PbClient.kt). 
 The `PbClient` comes pre-bundled with the client artifact, when imported.  The `PbClient` controls which provenance 
 instance the application is communicating with, and, importantly, the provenance instance to which the Asset 
@@ -50,11 +54,11 @@ Classification smart contract is deployed.  Then, with the `PbClient` instance, 
 #### Example:
 
 ```kotlin
-import io.provenance.classification.asset.client.client.base.ACClient
-import io.provenance.classification.asset.client.client.base.ContractIdentifier
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import java.net.URI
+import tech.figure.classification.asset.client.client.base.ACClient
+import tech.figure.classification.asset.client.client.base.ContractIdentifier
 
 class SampleConfiguration {
   fun buildClients() {
@@ -83,6 +87,6 @@ class SampleConfiguration {
 ```
 
 ## Using the VerifierClient
-The [VerifierClient](verifier/src/main/kotlin/io/provenance/classification/asset/verifier/client/VerifierClient.kt) is still
+The [VerifierClient](verifier/src/main/kotlin/tech/figure/classification/asset/verifier/client/VerifierClient.kt) is still
 in active development and is not considered ready for use.  This will be updated once that process is completed.  Use at 
 your own risk!
