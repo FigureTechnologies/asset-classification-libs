@@ -2,11 +2,6 @@ package testconfiguration.containers.instances
 
 import cosmos.bank.v1beta1.Tx
 import cosmos.base.v1beta1.CoinOuterClass
-import io.provenance.classification.asset.localtools.extensions.broadcastTxAc
-import io.provenance.classification.asset.localtools.tool.ContractWasmLocation
-import io.provenance.classification.asset.localtools.tool.SetupACTool
-import io.provenance.classification.asset.localtools.tool.SetupACToolConfig
-import io.provenance.classification.asset.localtools.tool.SetupACToolLogging
 import io.provenance.client.grpc.GasEstimationMethod
 import io.provenance.client.grpc.PbClient
 import io.provenance.client.protobuf.extensions.getBaseAccount
@@ -19,6 +14,11 @@ import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.AbstractWaitStrategy
+import tech.figure.classification.asset.localtools.extensions.broadcastTxAc
+import tech.figure.classification.asset.localtools.tool.ContractWasmLocation
+import tech.figure.classification.asset.localtools.tool.SetupACTool
+import tech.figure.classification.asset.localtools.tool.SetupACToolConfig
+import tech.figure.classification.asset.localtools.tool.SetupACToolLogging
 import testconfiguration.containers.ManagedContainerType
 import testconfiguration.containers.ManagedTestContainer
 import testconfiguration.util.AppResources
@@ -58,6 +58,12 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
                     contractAdminAccount = AppResources.contractAdminAccount,
                     verifierBech32Address = AppResources.verifierAccount.bech32Address,
                     contractAliasNames = listOf("assetclassificationalias.pb", "testassets.pb"),
+                    // To test the smart contract before it has been released, do the following:
+                    // - Run 'make optimize' from the smart contract directory
+                    // - Copy asset_classification_smart_contract.wasm from the artifacts directory that is created from that command
+                    // - Paste the wasm into localtools/integrationTest/resources
+                    // - Uncomment the following line, and comment out the other wasmLocation line:
+                    // wasmLocation = ContractWasmLocation.LocalFile.ProjectResource("asset_classification_smart_contract.wasm"),
                     wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
                     logger = SetupACToolLogging.Custom(log = logger::info),
                 )
@@ -92,11 +98,11 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
     }
 }
 
-class ProvenanceTestContainer : GenericContainer<ProvenanceTestContainer>("provenanceio/provenance:v1.11.1") {
+class ProvenanceTestContainer : GenericContainer<ProvenanceTestContainer>("provenanceio/provenance:v1.12.0") {
     private companion object : KLogging()
 
     init {
-        logger.info("Starting Provenance Blockchain container version v1.11.1")
+        logger.info("Starting Provenance Blockchain container version v1.12.0")
     }
 }
 

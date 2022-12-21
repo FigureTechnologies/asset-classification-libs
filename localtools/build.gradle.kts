@@ -31,28 +31,28 @@ tasks.withType<Test> {
 dependencies {
     listOf(
         project(":client"),
-        libs.assetSpecs,
-        libs.feignJackson,
-        libs.okHttp3,
+        libs.asset.specs,
+        libs.feign.jackson,
+        libs.okhttp3,
     ).forEach(::api)
 
     testImplementation(libs.bundles.test)
 
     listOf(
         // Libraries
-        libs.assetModel,
-        libs.kotlinLogging,
-        libs.logbackClassic,
-        libs.provenanceEventStreamApi,
-        libs.provenanceEventStreamApiModel,
-        libs.provenanceEventStreamCli,
-        libs.provenanceEventStreamCore,
-        libs.provenanceGatewayClient,
-        libs.provenanceScopeOsClient,
+        libs.asset.model,
+        libs.figure.eventstream.api,
+        libs.figure.eventstream.api.model,
+        libs.figure.eventstream.cli,
+        libs.figure.eventstream.core,
+        libs.kotlin.logging,
+        libs.logback.classic,
+        libs.objectstore.gateway.client,
+        libs.provenance.scope.objectstore.client,
 
         // Bundles
         libs.bundles.coroutines,
         libs.bundles.test,
-        libs.bundles.testContainers,
+        libs.bundles.testcontainers,
     ).forEach { configurations["integrationTestImplementation"].invoke(it) }
 }
