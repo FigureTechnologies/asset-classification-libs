@@ -1,85 +1,90 @@
 [versions]
-assetModel = "0.1.2"
-assetSpec = "1.0.0"
-bouncyCastle = "1.70"
-feign = "11.8"
-grpc = "1.47.0"
+asset-model = "0.1.16"
+asset-specs = "1.0.0"
+blockapi = "0.1.9"
+bouncycastle = "1.70"
+feign = "11.9.1"
+figure-eventstream = "0.7.1"
+grpc = "1.48.1"
 jackson = "2.13.3"
-jacksonProtobuf = "0.9.12"
-kotlin = "1.6.21"
-kotlinCoroutines = "1.6.2"
-kotlinLogging = "2.1.21"
+jackson-protobuf = "0.9.13"
+kotlin = "1.7.10"
+kotlin-coroutines = "1.6.4"
+kotlin-logging = "2.1.23"
 logback = "1.2.6"
 mockk = "1.12.4"
-okHttp = "4.9.3"
-protobuf = "3.21.1"
-provenanceClient = "1.1.1"
-provenanceEventStream = "0.6.3"
-provenanceGateway = "2.0.2"
-provenanceHdWallet = "0.1.15"
-provenanceProto = "1.10.0"
-provenanceScope = "0.6.2"
+objectstore-gateway = "3.1.2"
+okhttp = "4.9.3"
+protobuf = "3.21.5"
+provenance-client = "1.3.0"
+provenance-hdwallet = "0.1.15"
+provenance-proto = "1.13.0"
+provenance-scope = "0.6.2"
 scarlet = "0.1.12"
-testContainers = "1.17.2"
+testcontainers = "1.17.2"
 
 [libraries]
-assetModel = { module = "io.provenance.model:metadata-asset-model", version.ref = "assetModel" }
-assetSpecs = { module = "io.provenance.spec:asset-specs", version.ref = "assetSpec" }
-bouncyCastleBcProv = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bouncyCastle" }
-coroutinesCore = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
-coroutinesCoreJvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlinCoroutines" }
-coroutinesJdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinCoroutines" }
-coroutinesReactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinCoroutines" }
-coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinCoroutines" }
-feignJackson = { module = "io.github.openfeign:feign-jackson", version.ref = "feign" }
-grpcNettyShaded = { module = "io.grpc:grpc-netty-shaded", version.ref = "grpc" }
-grpcProtobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
-grpcStub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
-jacksonDataTypeJdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8", version.ref = "jackson" }
-jacksonDataTypeJsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
-jacksonKotlinModule = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
-jacksonProtobufModule = { module = "com.hubspot.jackson:jackson-datatype-protobuf", version.ref = "jacksonProtobuf" }
-kotlinAllOpen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
-kotlinLogging = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlinLogging" }
-kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlinStdLibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+asset-model = { module = "io.provenance.model:metadata-asset-model", version.ref = "asset-model" }
+asset-specs = { module = "tech.figure.spec:asset-specs", version.ref = "asset-specs" }
+blockapi-client = { module = "tech.figure.block:api-client", version.ref = "blockapi" }
+blockapi-proto = { module = "tech.figure.block:api-proto", version.ref = "blockapi" }
+bouncycastle = { module = "org.bouncycastle:bcprov-jdk15on", version.ref = "bouncycastle" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlin-coroutines" }
+coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlin-coroutines" }
+coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlin-coroutines" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
+feign-jackson = { module = "io.github.openfeign:feign-jackson", version.ref = "feign" }
+figure-eventstream-api = { module = "tech.figure.eventstream:es-api", version.ref = "figure-eventstream" }
+figure-eventstream-api-model = { module = "tech.figure.eventstream:es-api-model", version.ref = "figure-eventstream" }
+figure-eventstream-cli = { module = "tech.figure.eventstream:es-cli", version.ref = "figure-eventstream" }
+figure-eventstream-core = { module = "tech.figure.eventstream:es-core", version.ref = "figure-eventstream" }
+grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
+grpc-netty-shaded = { module = "io.grpc:grpc-netty-shaded", version.ref = "grpc" }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
+grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
+jackson-datatype-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8", version.ref = "jackson" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-module-protobuf = { module = "com.hubspot.jackson:jackson-datatype-protobuf", version.ref = "jackson-protobuf" }
+kotlin-allopen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
+kotlin-logging = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlin-logging" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-okHttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okHttp" }
-protobufJava = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
-protobufJavaUtil = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
-provenanceEventStreamApi = { module = "io.provenance.eventstream:es-api", version.ref = "provenanceEventStream" }
-provenanceEventStreamApiModel = { module = "io.provenance.eventstream:es-api-model", version.ref = "provenanceEventStream" }
-provenanceEventStreamCli = { module = "io.provenance.eventstream:es-cli", version.ref = "provenanceEventStream" }
-provenanceEventStreamCore = { module = "io.provenance.eventstream:es-core", version.ref = "provenanceEventStream" }
-provenanceGatewayClient = { module = "io.provenance.objectstore.gateway:client", version.ref = "provenanceGateway" }
-provenanceGrpcClient = { module = "io.provenance.client:pb-grpc-client-kotlin", version.ref = "provenanceClient" }
-provenanceHdWallet = { module = "io.provenance.hdwallet:hdwallet", version.ref = "provenanceHdWallet" }
-provenanceProto = { module = "io.provenance:proto-kotlin", version.ref = "provenanceProto" }
-provenanceScopeEncryption = { module = "io.provenance.scope:encryption", version.ref = "provenanceScope" }
-provenanceScopeOsClient = { module = "io.provenance.scope:os-client", version.ref = "provenanceScope" }
-provenanceScopeUtil = { module = "io.provenance.scope:util", version.ref = "provenanceScope" }
+objectstore-gateway-client = { module = "tech.figure.objectstore.gateway:client", version.ref = "objectstore-gateway" }
+okhttp3 = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
+provenance-client = { module = "io.provenance.client:pb-grpc-client-kotlin", version.ref = "provenance-client" }
+provenance-hdwallet = { module = "io.provenance.hdwallet:hdwallet", version.ref = "provenance-hdwallet" }
+provenance-proto = { module = "io.provenance:proto-kotlin", version.ref = "provenance-proto" }
+provenance-scope-encryption = { module = "io.provenance.scope:encryption", version.ref = "provenance-scope" }
+provenance-scope-objectstore-client = { module = "io.provenance.scope:os-client", version.ref = "provenance-scope" }
+provenance-scope-util = { module = "io.provenance.scope:util", version.ref = "provenance-scope" }
 scarlet = { module = "com.tinder.scarlet:scarlet", version.ref = "scarlet" }
-scarletMessageAdapterMoshi = { module = "com.tinder.scarlet:message-adapter-moshi", version.ref = "scarlet" }
-scarletStreamAdapterCoroutines = { module = "com.tinder.scarlet:stream-adapter-coroutines", version.ref = "scarlet" }
-scarletWebSocketOkHttp = { module = "com.tinder.scarlet:websocket-okhttp", version.ref = "scarlet" }
-testContainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
-testContainersJUnit = { module = "org.testcontainers:junit-jupiter", version.ref = "testContainers" }
-testContainersPostgres = { module = "org.testcontainers:postgresql", version.ref = "testContainers" }
+scarlet-message-adapter-moshi = { module = "com.tinder.scarlet:message-adapter-moshi", version.ref = "scarlet" }
+scarlet-stream-adapter-coroutines = { module = "com.tinder.scarlet:stream-adapter-coroutines", version.ref = "scarlet" }
+scarlet-websocket-okhttp = { module = "com.tinder.scarlet:websocket-okhttp", version.ref = "scarlet" }
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-postgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
 
 # This doesn't current work in a way that's useful.  Keeping this here for a magical future where it's relevant
 [plugins]
 idea = { id = "idea" }
 
 [bundles]
-coroutines = ["coroutinesCore", "coroutinesCoreJvm", "coroutinesReactor", "coroutinesJdk8"]
-eventStream = ["provenanceEventStreamApi", "provenanceEventStreamApiModel", "provenanceEventStreamCore"]
-grpc = ["grpcNettyShaded", "grpcProtobuf", "grpcStub"]
-jackson = ["jacksonDataTypeJdk8", "jacksonDataTypeJsr310", "jacksonKotlinModule", "jacksonProtobufModule"]
-kotlin = ["kotlinAllOpen", "kotlinReflect", "kotlinStdLibJdk8"]
-protobuf = ["protobufJava", "protobufJavaUtil"]
-provenance = ["provenanceGrpcClient", "provenanceHdWallet", "provenanceProto", "provenanceScopeEncryption", "provenanceScopeUtil"]
-scarlet = ["scarletMessageAdapterMoshi", "scarlet", "scarletStreamAdapterCoroutines", "scarletWebSocketOkHttp"]
-test = ["kotlinTest", "mockk"]
-testContainers = ["testContainers", "testContainersJUnit", "testContainersPostgres"]
+blockapi = ["blockapi-client", "blockapi-proto"]
+coroutines = ["coroutines-core", "coroutines-core-jvm", "coroutines-reactor", "coroutines-jdk8"]
+eventstream = ["figure-eventstream-api", "figure-eventstream-api-model", "figure-eventstream-core"]
+grpc = ["grpc-netty", "grpc-netty-shaded", "grpc-protobuf", "grpc-stub"]
+jackson = ["jackson-datatype-jdk8", "jackson-datatype-jsr310", "jackson-module-kotlin", "jackson-module-protobuf"]
+kotlin = ["kotlin-allopen", "kotlin-reflect", "kotlin-stdlib-jdk8"]
+protobuf = ["protobuf-java", "protobuf-java-util"]
+provenance = ["provenance-client", "provenance-hdwallet", "provenance-proto", "provenance-scope-encryption", "provenance-scope-util"]
+scarlet = ["scarlet-message-adapter-moshi", "scarlet", "scarlet-stream-adapter-coroutines", "scarlet-websocket-okhttp"]
+test = ["kotlin-test", "mockk"]
+testcontainers = ["testcontainers", "testcontainers-junit", "testcontainers-postgres"]
