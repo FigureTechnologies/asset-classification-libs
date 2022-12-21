@@ -10,7 +10,7 @@ dependencies {
         libs.bundles.provenance,
 
         // Libraries
-        libs.bouncyCastleBcProv,
+        libs.bouncycastle,
     ).forEach(::api)
 
     // Don't mandate a specific kotlin version.  Older versions should work fine with this lib, and

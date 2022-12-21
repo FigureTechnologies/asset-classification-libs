@@ -3,12 +3,13 @@ dependencies {
 
     listOf(
         // Bundles
+        libs.bundles.blockapi,
         libs.bundles.coroutines,
-        libs.bundles.eventStream,
+        libs.bundles.eventstream,
         libs.bundles.scarlet,
 
         // Libraries
-        libs.okHttp3,
+        libs.okhttp3,
     ).forEach(::api)
 
     listOf(
@@ -16,6 +17,6 @@ dependencies {
         libs.bundles.test,
 
         // Libraries
-        libs.coroutinesTest,
+        libs.coroutines.test,
     ).forEach(::testImplementation)
 }
