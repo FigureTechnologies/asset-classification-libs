@@ -12,9 +12,6 @@ plugins {
 val projectGroup = rootProject.group
 val projectVersion = project.property("version")?.takeIf { it != "unspecified" }?.toString() ?: "1.0-SNAPSHOT"
 
-val nexusUser = findProperty("nexusUser")?.toString() ?: System.getenv("NEXUS_USER")
-val nexusPass = findProperty("nexusPass")?.toString() ?: System.getenv("NEXUS_PASS")
-
 configure<io.github.gradlenexus.publishplugin.NexusPublishExtension> {
     repositories {
         sonatype {
@@ -22,7 +19,7 @@ configure<io.github.gradlenexus.publishplugin.NexusPublishExtension> {
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
             username.set(findProject("ossrhUsername")?.toString() ?: System.getenv("OSSRH_USERNAME"))
             password.set(findProject("ossrhPassword")?.toString() ?: System.getenv("OSSRH_PASSWORD"))
-            stagingProfileId.set("3180ca260b82a7") // prevents querying for the staging profile id, performance optimization
+            stagingProfileId.set("858b6e4de4734a") // tech.figure staging profile id
         }
     }
 }
@@ -56,9 +53,9 @@ subprojects {
                 from(components["java"])
 
                 pom {
-                    name.set("Provenance Asset Classification Kotlin Libraries")
+                    name.set("Figure Asset Classification Kotlin Libraries")
                     description.set("Various tools for interacting with the Asset Classification smart contract")
-                    url.set("https://provenance.io")
+                    url.set("https://figure.tech")
                     licenses {
                         license {
                             name.set("The Apache License, Version 2.0")
@@ -72,19 +69,26 @@ subprojects {
                             name.set("Jacob Schwartz")
                             email.set("jschwartz@figure.com")
                         }
+                        developer {
+                            id.set("piercetrey-figure")
+                            name.set("Pierce Trey")
+                            email.set("ptrey@figure.com")
+                        }
                     }
 
                     scm {
-                        developerConnection.set("git@github.com:provenance.io/asset-classification-libs.git")
-                        connection.set("https://github.com/provenance-io/asset-classification-libs.git")
-                        url.set("https://github.com/provenance-io/asset-classification-libs")
+                        developerConnection.set("git@github.com:FigureTechnologies/asset-classification-libs.git")
+                        connection.set("https://github.com/FigureTechnologies/asset-classification-libs.git")
+                        url.set("https://github.com/FigureTechnologies/asset-classification-libs")
                     }
                 }
             }
         }
 
-        configure<SigningExtension> {
-            sign(publications["maven"])
+        if (!System.getenv("DISABLE_SIGNING").toBoolean()) {
+            configure<SigningExtension> {
+                sign(publications["maven"])
+            }
         }
     }
 }
