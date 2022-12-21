@@ -30,3 +30,5 @@ interface RetryPolicy {
      */
     suspend fun <T> tryAction(action: (suspend () -> T)): T
 }
+
+fun testForNewCommit(): String = "Test"
