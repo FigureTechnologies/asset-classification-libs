@@ -13,6 +13,7 @@ import io.provenance.client.protobuf.extensions.toTxBody
 import tech.figure.classification.asset.client.client.base.ACExecutor
 import tech.figure.classification.asset.client.client.base.ACQuerier
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
+import tech.figure.classification.asset.client.client.extension.buildLogMessage
 import tech.figure.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import tech.figure.classification.asset.client.domain.execute.AddAssetVerifierExecute
 import tech.figure.classification.asset.client.domain.execute.DeleteAssetDefinitionExecute
@@ -167,8 +168,15 @@ class DefaultACExecutor(
             ).let(::listOf),
             mode = options.broadcastMode,
         ).also { response ->
-            if (response.txResponse.code != 0) {
-                throw IllegalStateException("Asset classification contract execution failed with message:${System.lineSeparator()}${response.txResponse.rawLog}")
+            check(response.txResponse.code == 0) {
+                buildLogMessage(
+                    "Asset classification contract execution failed",
+                    "raw log" to response.txResponse.rawLog,
+                    "hash" to response.txResponse.txhash,
+                    "status code" to response.txResponse.code,
+                    "height" to response.txResponse.height,
+                    "signing address" to signerAddress,
+                )
             }
         }
     }
