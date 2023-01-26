@@ -24,7 +24,6 @@ import tech.figure.classification.asset.client.domain.execute.UpdateAssetDefinit
 import tech.figure.classification.asset.client.domain.execute.UpdateAssetVerifierExecute
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.execute.base.ContractExecute
-import java.util.Base64
 
 /**
  * The default implementation of an [ACExecutor].  Provides all the standard functionality to use an [ACClient][tech.figure.classification.asset.client.client.base.ACClient] if an
@@ -169,17 +168,14 @@ class DefaultACExecutor(
             ).let(::listOf),
             mode = options.broadcastMode,
         ).also { response ->
-            if (response.txResponse.code != 0) {
-                throw IllegalStateException(
-                    buildLogMessage(
-                        "Asset classification contract execution failed",
-                        "raw log" to response.txResponse.rawLog,
-                        "hash" to response.txResponse.txhash,
-                        "status code" to response.txResponse.code,
-                        "height" to response.txResponse.height,
-                        "message" to Base64.getDecoder().decode(msg.msg.toByteArray()),
-                        "signing address" to signerAddress,
-                    )
+            check(response.txResponse.code == 0) {
+                buildLogMessage(
+                    "Asset classification contract execution failed",
+                    "raw log" to response.txResponse.rawLog,
+                    "hash" to response.txResponse.txhash,
+                    "status code" to response.txResponse.code,
+                    "height" to response.txResponse.height,
+                    "signing address" to signerAddress,
                 )
             }
         }
