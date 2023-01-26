@@ -10,9 +10,11 @@ import io.provenance.client.grpc.Signer
 import io.provenance.client.protobuf.extensions.getBaseAccount
 import io.provenance.client.protobuf.extensions.toAny
 import io.provenance.client.protobuf.extensions.toTxBody
+import java.util.Base64
 import tech.figure.classification.asset.client.client.base.ACExecutor
 import tech.figure.classification.asset.client.client.base.ACQuerier
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
+import tech.figure.classification.asset.client.client.extension.buildLogMessage
 import tech.figure.classification.asset.client.domain.execute.AddAssetDefinitionExecute
 import tech.figure.classification.asset.client.domain.execute.AddAssetVerifierExecute
 import tech.figure.classification.asset.client.domain.execute.DeleteAssetDefinitionExecute
@@ -168,7 +170,17 @@ class DefaultACExecutor(
             mode = options.broadcastMode,
         ).also { response ->
             if (response.txResponse.code != 0) {
-                throw IllegalStateException("Asset classification contract execution failed with message:${System.lineSeparator()}${response.txResponse.rawLog}")
+                throw IllegalStateException(
+                    buildLogMessage(
+                        "Asset classification contract execution failed",
+                        "raw log" to response.txResponse.rawLog,
+                        "hash" to response.txResponse.txhash,
+                        "status code" to response.txResponse.code,
+                        "height" to response.txResponse.height,
+                        "message" to Base64.getDecoder().decode(msg.msg.toByteArray()),
+                        "signing address" to signerAddress,
+                    )
+                )
             }
         }
     }
