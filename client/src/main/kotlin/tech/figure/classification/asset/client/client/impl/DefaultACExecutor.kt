@@ -10,7 +10,6 @@ import io.provenance.client.grpc.Signer
 import io.provenance.client.protobuf.extensions.getBaseAccount
 import io.provenance.client.protobuf.extensions.toAny
 import io.provenance.client.protobuf.extensions.toTxBody
-import java.util.Base64
 import tech.figure.classification.asset.client.client.base.ACExecutor
 import tech.figure.classification.asset.client.client.base.ACQuerier
 import tech.figure.classification.asset.client.client.base.BroadcastOptions
@@ -25,6 +24,7 @@ import tech.figure.classification.asset.client.domain.execute.UpdateAssetDefinit
 import tech.figure.classification.asset.client.domain.execute.UpdateAssetVerifierExecute
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.execute.base.ContractExecute
+import java.util.Base64
 
 /**
  * The default implementation of an [ACExecutor].  Provides all the standard functionality to use an [ACClient][tech.figure.classification.asset.client.client.base.ACClient] if an
