@@ -63,7 +63,7 @@ class AssetClassificationEvent(
                                     value = attribute.value,
                                 )
                             },
-                            fee = sourceTx.tx.authInfo.fee.amountList.firstOrNull()?.amount?.toLongOrNull(),
+                            fee = sourceTx.tx.authInfo.fee.amountList.firstOrNull()?.amount?.toBigIntegerOrNull(),
                             denom = sourceTx.tx.authInfo.fee.amountList.firstOrNull()?.denom,
                             note = null,
                         ),
