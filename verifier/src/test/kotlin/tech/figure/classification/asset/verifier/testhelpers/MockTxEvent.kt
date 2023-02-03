@@ -5,6 +5,7 @@ import tech.figure.classification.asset.verifier.provenance.AssetClassificationE
 import tech.figure.eventstream.stream.models.Event
 import tech.figure.eventstream.stream.models.TxEvent
 import tech.figure.eventstream.stream.models.toHexString
+import java.math.BigInteger
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -15,7 +16,7 @@ object MockTxEvent {
         private companion object {
             private const val DEFAULT_BLOCK_HEIGHT: Long = 1L
             private const val DEFAULT_EVENT_TYPE: String = "wasm"
-            private const val DEFAULT_FEE_AMOUNT: Long = 0L
+            private val DEFAULT_FEE_AMOUNT: BigInteger = BigInteger.ZERO
             private const val DEFAULT_DENOM: String = "nhash"
             private const val DEFAULT_NOTE: String = "MOCKED TX"
         }
@@ -25,7 +26,7 @@ object MockTxEvent {
         private var txHash: String? = null
         private var eventType: String? = null
         private var attributes: MutableList<Event> = mutableListOf()
-        private var fee: Long? = null
+        private var fee: BigInteger? = null
         private var denom: String? = null
         private var note: String? = null
 
@@ -36,7 +37,7 @@ object MockTxEvent {
         fun setACEventType(eventType: ACContractEvent) = apply { this.eventType = eventType.contractName }
         fun addAttribute(attribute: Event) = apply { this.attributes.add(attribute) }
         fun addACAttribute(attribute: MockACAttribute) = apply { this.attributes.add(attribute.toAttribute()) }
-        fun setFee(fee: Long) = apply { this.fee = fee }
+        fun setFee(fee: BigInteger) = apply { this.fee = fee }
         fun setDenom(denom: String) = apply { this.denom = denom }
         fun setNote(note: String) = apply { this.note = note }
 

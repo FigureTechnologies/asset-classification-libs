@@ -11,7 +11,7 @@ import tech.figure.classification.asset.verifier.provenance.AssetClassificationE
 import tech.figure.classification.asset.verifier.provenance.WASM_EVENT_TYPE
 import tech.figure.classification.asset.verifier.util.eventstream.verifierBlockDataFlow
 import tech.figure.eventstream.decoder.moshiDecoderAdapter
-import tech.figure.eventstream.net.defaultOkHttpClient
+import tech.figure.eventstream.net.defaultOkHttpClientBuilderFn
 import tech.figure.eventstream.net.okHttpNetAdapter
 import tech.figure.eventstream.stream.clients.BlockData
 import tech.figure.eventstream.stream.models.dateTime
@@ -21,7 +21,7 @@ import java.net.URI
 
 class DefaultEventStreamProvider(
     eventStreamNode: URI = URI("ws://localhost:26657"),
-    httpClient: OkHttpClient = defaultOkHttpClient()
+    httpClient: OkHttpClient = defaultOkHttpClientBuilderFn().run { OkHttpClient.Builder().this() }.build(),
 ) : EventStreamProvider {
 
     private val netAdapter = okHttpNetAdapter(
