@@ -51,10 +51,10 @@ fun assertFeePaymentDetailValidity(
     val expectedOnboardingCost = verifierDetail.retryCost?.cost?.takeIf { isRetry }
         ?: verifierDetail.subsequentClassificationDetail?.cost?.cost?.takeIf { isSubsequentClassification }
         ?: verifierDetail.onboardingCost
-    val expectedVerifierFee = expectedOnboardingCost.divide("2".toBigInteger()).minus(nonVerifierFeesPaid)
+    val expectedVerifierFee = expectedOnboardingCost - nonVerifierFeesPaid
     assertTrue(
         actual = expectedVerifierFee >= BigInteger.ZERO,
-        message = "Non verifier-targeted fees should always sum to a value less or equal to half the verifier detail's onboarding cost [${verifierDetail.onboardingCost}] divided by two, but was [$nonVerifierFeesPaid]",
+        message = "Non verifier-targeted fees should always sum to a value less or equal to the verifier detail's onboarding cost [${verifierDetail.onboardingCost}], but was [$nonVerifierFeesPaid]",
     )
     if (expectedVerifierFee > BigInteger.ZERO) {
         val verifierFee = feePayments.payments.singleOrNull { it.recipient == verifierDetail.address }

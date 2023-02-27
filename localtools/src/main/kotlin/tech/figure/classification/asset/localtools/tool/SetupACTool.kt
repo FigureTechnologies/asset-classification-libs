@@ -174,7 +174,7 @@ object SetupACTool {
                 ).toBase64Msg(OBJECT_MAPPER)
             }.build().wrapListAc(),
             account = config.contractAdminAccount,
-            gasAdjustment = 1.1,
+            gasAdjustment = 1.2,
         ).getContractAddressAc()
         config.logger("Successfully instantiated the asset classification smart contract with address [$contractAddress]")
         ACClient.getDefault(
