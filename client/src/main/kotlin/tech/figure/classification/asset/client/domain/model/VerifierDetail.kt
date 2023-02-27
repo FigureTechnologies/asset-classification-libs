@@ -19,7 +19,7 @@ import java.math.BigInteger
  * onboarding cost to determine a coin required.
  * @param feeDestinations A collection of addresses and fee distribution amounts that dictates how the fee amount is
  * distributed to other addresses than the verifier.  The amounts of all destinations should never sum to a value
- * greater than half the onboarding cost (to account for the 50% MsgFees module community split).
+ * greater than the onboarding cost.
  * @param entityDetail An optional set of fields defining the validator in a human-readable way.
  * @param retryCost Defines the cost to use in place of the root onboarding cost and fee destination when retrying
  * classification for a failed verification.  If not present, the original values used for the first verification will

@@ -15,7 +15,7 @@ import java.math.BigInteger
  * execution route.
  * @param feeDestinations A collection of addresses and fee distribution amounts that dictates how the fee amount is
  * distributed to other addresses than the verifier.  The amounts of all destinations should never sum to a value
- * greater than half the onboarding cost (to account for the 50% MsgFees module community split).
+ * greater than the onboarding cost.
  */
 @JsonNaming(SnakeCaseStrategy::class)
 data class OnboardingCost(
