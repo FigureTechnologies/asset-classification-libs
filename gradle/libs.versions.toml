@@ -1,5 +1,5 @@
 [versions]
-asset-model = "0.1.16"
+asset-model = "1.1.0"
 asset-specs = "1.0.0"
 blockapi = "0.1.9"
 bouncycastle = "1.70"
