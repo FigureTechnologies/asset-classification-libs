@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 data class AccessDefinition(
     val ownerAddress: String,
     val accessRoutes: List<AccessRoute>,
-    val definitionType: AccessDefinitionType,
+    val definitionType: AccessDefinitionType
 )
 
 /**
@@ -25,7 +25,8 @@ enum class AccessDefinitionType {
     // The REQUESTOR is the address that onboarded a specific scope
     @JsonProperty("requestor")
     REQUESTOR,
+
     // The VERIFIER is the address that the requestor specified for asset verification
     @JsonProperty("verifier")
-    VERIFIER,
+    VERIFIER
 }

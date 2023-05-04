@@ -14,5 +14,5 @@ class DefaultACClient(
     override val pbClient: PbClient,
     override val objectMapper: ObjectMapper,
     private val executor: ACExecutor,
-    private val querier: ACQuerier,
+    private val querier: ACQuerier
 ) : ACClient, ACExecutor by executor, ACQuerier by querier

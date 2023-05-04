@@ -49,9 +49,9 @@ class CustomEventHandlerTest {
             // The client tries to derive the signer immediately, so a "real" account detail must be provided
             verifierAccount = ProvenanceAccountDetail.fromMnemonic(
                 mnemonic = MnemonicWords.generate().toString(),
-                networkType = ProvenanceNetworkType.TESTNET,
+                networkType = ProvenanceNetworkType.TESTNET
             ),
-            verificationProcessor = mockk(),
+            verificationProcessor = mockk()
         ).withEventDelegator(
             AssetClassificationEventDelegator.defaultBuilder()
                 .registerEventHandler(InstantiateContractEventHandler)
@@ -77,7 +77,7 @@ class CustomEventHandlerTest {
         assertEquals(
             expected = "expected value",
             actual = capturedMetadata.singleOrNull(),
-            message = "Expected the verifier client to properly delegate the event of type instantiate contract and use the event processor to extract the additional metadata. Metadata: $capturedMetadata",
+            message = "Expected the verifier client to properly delegate the event of type instantiate contract and use the event processor to extract the additional metadata. Metadata: $capturedMetadata"
         )
     }
 

@@ -17,7 +17,7 @@ import tech.figure.classification.asset.client.domain.query.base.ContractQuery
 @JsonTypeName("query_asset_scope_attribute_for_asset_type")
 data class QueryAssetScopeAttributeForAssetType<T>(
     val identifier: AssetIdentifier<T>,
-    val assetType: String,
+    val assetType: String
 ) : ContractQuery {
     @JsonIgnore
     override val queryFailureMessage: String = "Query asset scope attribute by id $identifier and asset type $assetType"

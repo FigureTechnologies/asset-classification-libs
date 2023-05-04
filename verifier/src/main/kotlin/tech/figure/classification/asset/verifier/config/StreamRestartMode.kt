@@ -23,7 +23,7 @@ sealed interface StreamRestartMode {
      */
     class On(
         val restartDelayMs: Double = DEFAULT_RESTART_DELAY_MS,
-        val useExponentialBackoff: Boolean = true,
+        val useExponentialBackoff: Boolean = true
     ) : StreamRestartMode {
         companion object {
             const val DEFAULT_RESTART_DELAY_MS: Double = 2000.0
@@ -43,7 +43,7 @@ sealed interface StreamRestartMode {
                 backoff(
                     attempt = restartCount,
                     base = restartDelayMs,
-                    jitter = false,
+                    jitter = false
                 )
             } else {
                 // Without exponential backoff, just parse the delay ms into a Kotlin Duration as milliseconds

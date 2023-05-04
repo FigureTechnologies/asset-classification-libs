@@ -32,105 +32,105 @@ import tech.figure.classification.asset.client.domain.execute.base.ContractExecu
 class DefaultACExecutor(
     private val objectMapper: ObjectMapper,
     private val pbClient: PbClient,
-    private val querier: ACQuerier,
+    private val querier: ACQuerier
 ) : ACExecutor {
     override fun <T> generateOnboardAssetMsg(
         execute: OnboardAssetExecute<T>,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun <T> onboardAsset(
         execute: OnboardAssetExecute<T>,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateOnboardAssetMsg(execute, signer.address()), signer, options)
 
     override fun <T> generateVerifyAssetMsg(
         execute: VerifyAssetExecute<T>,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun <T> verifyAsset(
         execute: VerifyAssetExecute<T>,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateVerifyAssetMsg(execute, signer.address()), signer, options)
 
     override fun generateAddAssetDefinitionMsg(
         execute: AddAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun addAssetDefinition(
         execute: AddAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateAddAssetDefinitionMsg(execute, signer.address()), signer, options)
 
     override fun generateUpdateAssetDefinitionMsg(
         execute: UpdateAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun updateAssetDefinition(
         execute: UpdateAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateUpdateAssetDefinitionMsg(execute, signer.address()), signer, options)
 
     override fun generateToggleAssetDefinitionMsg(
         execute: ToggleAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun toggleAssetDefinition(
         execute: ToggleAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateToggleAssetDefinitionMsg(execute, signer.address()), signer, options)
 
     override fun generateAddAssetVerifierMsg(
         execute: AddAssetVerifierExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun addAssetVerifier(
         execute: AddAssetVerifierExecute,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateAddAssetVerifierMsg(execute, signer.address()), signer, options)
 
     override fun generateUpdateAssetVerifierMsg(
         execute: UpdateAssetVerifierExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun updateAssetVerifier(
         execute: UpdateAssetVerifierExecute,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateUpdateAssetVerifierMsg(execute, signer.address()), signer, options)
 
     override fun <T> generateUpdateAccessRoutesMsg(
         execute: UpdateAccessRoutesExecute<T>,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun <T> updateAccessRoutes(
         execute: UpdateAccessRoutesExecute<T>,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateUpdateAccessRoutesMsg(execute, signer.address()), signer, options)
 
     override fun generateDeleteAssetDefinitionMsg(
         execute: DeleteAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract = generateMsg(execute, signerAddress)
 
     override fun deleteAssetDefinition(
         execute: DeleteAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse = doExecute(generateDeleteAssetDefinitionMsg(execute, signer.address()), signer, options)
 
     /**
@@ -140,7 +140,7 @@ class DefaultACExecutor(
     private fun <T : ContractExecute> generateMsg(
         executeMsg: T,
         signerAddress: String,
-        funds: Coin? = null,
+        funds: Coin? = null
     ): MsgExecuteContract = MsgExecuteContract.newBuilder().also { executeContract ->
         executeContract.msg = executeMsg.toBase64Msg(objectMapper)
         executeContract.contract = querier.queryContractAddress()
@@ -155,7 +155,7 @@ class DefaultACExecutor(
     private fun doExecute(
         msg: MsgExecuteContract,
         signer: Signer,
-        options: BroadcastOptions,
+        options: BroadcastOptions
     ): BroadcastTxResponse {
         val signerAddress = signer.address()
         val account = options.baseAccount ?: pbClient.authClient.getBaseAccount(signerAddress)
@@ -164,9 +164,9 @@ class DefaultACExecutor(
             signers = BaseReqSigner(
                 signer = signer,
                 sequenceOffset = options.sequenceOffset,
-                account = account,
+                account = account
             ).let(::listOf),
-            mode = options.broadcastMode,
+            mode = options.broadcastMode
         ).also { response ->
             check(response.txResponse.code == 0) {
                 buildLogMessage(
@@ -175,7 +175,7 @@ class DefaultACExecutor(
                     "hash" to response.txResponse.txhash,
                     "status code" to response.txResponse.code,
                     "height" to response.txResponse.height,
-                    "signing address" to signerAddress,
+                    "signing address" to signerAddress
                 )
             }
         }

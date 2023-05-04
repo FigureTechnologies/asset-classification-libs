@@ -13,5 +13,5 @@ import tech.figure.classification.asset.client.domain.model.AccessRoute
 data class AssetVerification(
     val message: String,
     val success: Boolean,
-    val accessRoutes: List<AccessRoute>? = null,
+    val accessRoutes: List<AccessRoute>? = null
 )

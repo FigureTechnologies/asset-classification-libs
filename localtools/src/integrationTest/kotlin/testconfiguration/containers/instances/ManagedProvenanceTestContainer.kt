@@ -65,7 +65,7 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
                     // - Uncomment the following line, and comment out the other wasmLocation line:
                     // wasmLocation = ContractWasmLocation.LocalFile.ProjectResource("asset_classification_smart_contract.wasm"),
                     wasmLocation = ContractWasmLocation.GitHub(contractReleaseTag = "v${AppResources.CONTRACT_VERSION}"),
-                    logger = SetupACToolLogging.Custom(log = logger::info),
+                    logger = SetupACToolLogging.Custom(log = logger::info)
                 )
             )
         }
@@ -92,7 +92,7 @@ class ManagedProvenanceTestContainer : ManagedTestContainer<ProvenanceTestContai
         pbClient.broadcastTxAc(
             messages = messages,
             account = AppResources.assetAdminAccount,
-            gasAdjustment = 1.3,
+            gasAdjustment = 1.3
         )
         logger.info("Successfully funded all test accounts")
     }
@@ -125,7 +125,7 @@ class ProvenanceWaitStrategy(private val expectedGenesisAccountBech32: String) :
                         initialDelay = 1000L,
                         maxDelay = 20000L,
                         showStackTraceInFailures = false,
-                        block = { pbClient.authClient.getBaseAccount(expectedGenesisAccountBech32) },
+                        block = { pbClient.authClient.getBaseAccount(expectedGenesisAccountBech32) }
                     )
                     logger.info("Successfully fetched genesis account [${account.address}] with account number [${account.accountNumber}]")
                 }.join()
@@ -141,5 +141,5 @@ class ProvenanceWaitStrategy(private val expectedGenesisAccountBech32: String) :
 private fun getPbClient(host: String, mappedPort: Int): PbClient = PbClient(
     chainId = "chain-local",
     channelUri = URI.create("http://$host:$mappedPort"),
-    gasEstimationMethod = GasEstimationMethod.MSG_FEE_CALCULATION,
+    gasEstimationMethod = GasEstimationMethod.MSG_FEE_CALCULATION
 )

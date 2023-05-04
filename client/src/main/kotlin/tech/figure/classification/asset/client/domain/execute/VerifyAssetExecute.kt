@@ -35,5 +35,5 @@ class VerifyAssetExecute<T>(
     val assetType: String,
     val success: Boolean,
     val message: String? = null,
-    val accessRoutes: List<AccessRoute>? = null,
+    val accessRoutes: List<AccessRoute>? = null
 ) : ContractExecute

@@ -15,7 +15,7 @@ object AppResources {
     val verifierAccount: ProvenanceAccountDetail by lazy {
         ProvenanceAccountDetail.fromMnemonic(
             mnemonic = "noble transfer wedding artwork blue upon phone source effort hungry target casino orange hole roof regular seminar round upgrade stem basic random public engage",
-            networkType = ProvenanceNetworkType.TESTNET,
+            networkType = ProvenanceNetworkType.TESTNET
         )
     }
 
@@ -23,7 +23,7 @@ object AppResources {
     val assetManagerAccount: ProvenanceAccountDetail by lazy {
         ProvenanceAccountDetail.fromMnemonic(
             mnemonic = "trophy clock reject miracle hurdle prefer march display orchard supreme mad flag basket furnace gain stone machine orphan bench undo alter sun donor when",
-            networkType = ProvenanceNetworkType.TESTNET,
+            networkType = ProvenanceNetworkType.TESTNET
         )
     }
 
@@ -31,7 +31,7 @@ object AppResources {
     val assetOnboardingAccount: ProvenanceAccountDetail by lazy {
         ProvenanceAccountDetail.fromMnemonic(
             mnemonic = "alone buyer giant vacuum awesome bread pony require stumble head trumpet energy tribe lunch wish brain era return couple cereal skull help ritual zero",
-            networkType = ProvenanceNetworkType.TESTNET,
+            networkType = ProvenanceNetworkType.TESTNET
         )
     }
 
@@ -39,7 +39,7 @@ object AppResources {
     val assetAdminAccount: ProvenanceAccountDetail by lazy {
         ProvenanceAccountDetail.fromMnemonic(
             mnemonic = "stable payment cliff fault abuse clinic bus belt film then forward world goose bring picnic rich special brush basic lamp window coral worry change",
-            networkType = ProvenanceNetworkType.COSMOS_TESTNET,
+            networkType = ProvenanceNetworkType.COSMOS_TESTNET
         )
     }
 
@@ -47,7 +47,7 @@ object AppResources {
     val contractAdminAccount: ProvenanceAccountDetail by lazy {
         ProvenanceAccountDetail.fromMnemonic(
             mnemonic = "language kitchen front mistake like mansion require item option pencil install grass symbol reflect height arrest tank young record motor father emotion onion pledge",
-            networkType = ProvenanceNetworkType.TESTNET,
+            networkType = ProvenanceNetworkType.TESTNET
         )
     }
 
@@ -57,7 +57,7 @@ object AppResources {
             assetManagerAccount named "Asset Manager",
             assetOnboardingAccount named "Asset Onboarding Account",
             assetAdminAccount named "Asset Name Owner",
-            contractAdminAccount named "Smart Contract Admin",
+            contractAdminAccount named "Smart Contract Admin"
         )
     }
 }
@@ -66,5 +66,5 @@ data class ProvenanceAccountQualifier(val name: String, val account: ProvenanceA
 
 private infix fun ProvenanceAccountDetail.named(name: String): ProvenanceAccountQualifier = ProvenanceAccountQualifier(
     name = name,
-    account = this,
+    account = this
 )

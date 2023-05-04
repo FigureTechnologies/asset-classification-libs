@@ -27,7 +27,7 @@ data class AssetScopeAttribute(
     val verifierAddress: String,
     val onboardingStatus: AssetOnboardingStatus,
     val latestVerificationResult: AssetVerificationResult?,
-    val accessDefinitions: List<AccessDefinition>,
+    val accessDefinitions: List<AccessDefinition>
 )
 
 /**
@@ -37,9 +37,11 @@ enum class AssetOnboardingStatus(val contractName: String) {
     // Denotes that the asset has been onboarded, but not yet verified
     @JsonProperty("pending")
     PENDING("pending"),
+
     // Denotes that the asset has been rejected by its chosen verifier and must be run through onboarding again to be classified
     @JsonProperty("denied")
     DENIED("denied"),
+
     // Denotes that the asset is fully verified and should be classified as the chosen type
     @JsonProperty("approved")
     APPROVED("approved");

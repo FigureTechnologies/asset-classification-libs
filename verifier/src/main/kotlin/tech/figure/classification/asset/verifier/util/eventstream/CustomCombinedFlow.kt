@@ -26,14 +26,14 @@ fun verifierBlockDataFlow(
     netAdapter: NetAdapter,
     decoderAdapter: DecoderAdapter,
     from: Long? = null,
-    to: Long? = null,
+    to: Long? = null
 ): Flow<BlockData> = verifierCombinedFlow(
     getCurrentHeight = { netAdapter.rpcAdapter.getCurrentHeight() },
     from = from,
     to = to,
     getHeight = { it.height },
     historicalFlow = { f, t -> historicalBlockDataFlow(netAdapter, f, t) },
-    liveFlow = { wsBlockDataFlow(netAdapter, decoderAdapter) },
+    liveFlow = { wsBlockDataFlow(netAdapter, decoderAdapter) }
 )
 
 /**
@@ -46,7 +46,7 @@ internal fun <T> verifierCombinedFlow(
     to: Long? = null,
     getHeight: (T) -> Long,
     historicalFlow: (from: Long, to: Long) -> Flow<T>,
-    liveFlow: () -> Flow<T>,
+    liveFlow: () -> Flow<T>
 ): Flow<T> = channelFlow {
     val channel = Channel<T>(capacity = 10_000) // buffer for: 10_000 * 6s block time / 60s/m / 60m/h == 16 2/3 hrs buffer time.
     val liveJob = async(coroutineContext) {
@@ -87,7 +87,6 @@ internal fun <T> verifierCombinedFlow(
 
     // Live flow. Skip any dupe blocks.
     if (needLive) {
-
         // Continue receiving everything else live.
         // Drop anything between current head and the last fetched history record.
         val lastSeen = AtomicLong(0)

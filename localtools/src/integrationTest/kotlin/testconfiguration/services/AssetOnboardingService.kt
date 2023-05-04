@@ -36,7 +36,7 @@ import kotlin.test.assertEquals
 
 class AssetOnboardingService(
     private val acClient: ACClient,
-    private val osClient: OsClient,
+    private val osClient: OsClient
 ) {
     private companion object : KLogging()
 
@@ -44,32 +44,32 @@ class AssetOnboardingService(
         assetUuid: UUID = UUID.randomUUID(),
         assetType: String = "payable",
         assetMessage: String = "TEST ASSET: $assetUuid",
-        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
+        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount
     ): TestAsset = TestAsset(
         assetUuid = assetUuid,
         assetType = assetType,
         message = assetMessage,
-        ownerAddress = ownerAccount.bech32Address,
+        ownerAddress = ownerAccount.bech32Address
     )
 
     fun storeAndOnboardNewAsset(
         assetUuid: UUID = UUID.randomUUID(),
         assetType: String = "payable",
         assetMessage: String = "TEST ASSET: $assetUuid",
-        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
+        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount
     ): TestAsset = storeAndOnboardTestAsset(
         asset = this.createAsset(
             assetUuid = assetUuid,
             assetType = assetType,
             assetMessage = assetMessage,
-            ownerAccount = ownerAccount,
+            ownerAccount = ownerAccount
         ),
-        ownerAccount = ownerAccount,
+        ownerAccount = ownerAccount
     )
 
     fun storeAndOnboardTestAsset(
         asset: TestAsset,
-        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount,
+        ownerAccount: ProvenanceAccountDetail = AppResources.assetOnboardingAccount
     ): TestAsset = asset.also {
         logger.info("Storing TestAsset [${asset.assetUuid}] as an Asset in Object Store")
         val assetProto = asset.toProto()
@@ -77,7 +77,7 @@ class AssetOnboardingService(
             message = assetProto,
             encryptionPublicKey = ownerAccount.publicKey,
             signer = Pen(ProvenanceKeyGenerator.generateKeyPair(ownerAccount.publicKey)),
-            additionalAudiences = setOf(AppResources.assetManagerAccount.publicKey),
+            additionalAudiences = setOf(AppResources.assetManagerAccount.publicKey)
         ).get(20, TimeUnit.SECONDS).hash.toByteArray().toBase64StringAc()
         logger.info("Successfully added asset [${asset.assetUuid}] to Object Store and got hash")
         logger.info("Writing scope for asset [${asset.assetUuid}]")
@@ -106,7 +106,7 @@ class AssetOnboardingService(
             req.scopeBuilder.addAllDataAccess(
                 listOf(
                     // Ensure the asset manager is permissioned to access the scope to ensure that object store gateway can process the event
-                    AppResources.assetManagerAccount.bech32Address,
+                    AppResources.assetManagerAccount.bech32Address
                 )
             )
         }.build().toAny()
@@ -158,7 +158,7 @@ class AssetOnboardingService(
             txBody = listOf(writeScopeRequest, writeSessionRequest, writeRecordRequest, onboardRequest).toTxBody(),
             signers = BaseReqSigner(signer = ownerAccount.toAccountSigner()).wrapListAc(),
             gasAdjustment = 1.2,
-            mode = BroadcastMode.BROADCAST_MODE_BLOCK,
+            mode = BroadcastMode.BROADCAST_MODE_BLOCK
         ).also { response ->
             if (response.txResponse.code != 0) {
                 error("Failed to create scope and onboard it: ${response.txResponse.rawLog}")
@@ -183,23 +183,23 @@ class AssetOnboardingService(
     fun onboardTestAsset(
         asset: TestAsset,
         assetType: String = asset.assetType,
-        ownerAccount: ProvenanceAccountDetail,
+        ownerAccount: ProvenanceAccountDetail
     ): TestAsset = asset.also {
         assertEquals(
             expected = asset.ownerAddress,
             actual = ownerAccount.bech32Address,
-            message = "Provided owner account address is expected to be equal to the TestAsset's owner address",
+            message = "Provided owner account address is expected to be equal to the TestAsset's owner address"
         )
         acClient.pbClient.estimateAndBroadcastTx(
             txBody = generateOnboardTestAssetMsg(asset = asset, assetType = assetType).toTxBody(),
             signers = BaseReqSigner(signer = ownerAccount.toAccountSigner()).wrapListAc(),
             gasAdjustment = 1.2,
-            mode = BroadcastMode.BROADCAST_MODE_BLOCK,
+            mode = BroadcastMode.BROADCAST_MODE_BLOCK
         ).also { response ->
             assertEquals(
                 expected = 0,
                 actual = response.txResponse.code,
-                message = "Expected the transaction response code to be zero, indicating a successful asset onboarding",
+                message = "Expected the transaction response code to be zero, indicating a successful asset onboarding"
             )
         }
     }
@@ -213,7 +213,7 @@ class AssetOnboardingService(
      */
     private fun generateOnboardTestAssetMsg(
         asset: TestAsset,
-        assetType: String = asset.assetType,
+        assetType: String = asset.assetType
     ): com.google.protobuf.Any = acClient.generateOnboardAssetMsg(
         execute = OnboardAssetExecute(
             identifier = AssetIdentifier.AssetUuid(asset.assetUuid),
@@ -221,9 +221,9 @@ class AssetOnboardingService(
             verifierAddress = AppResources.verifierAccount.bech32Address,
             accessRoutes = AccessRoute(
                 route = "grpc://localhost:16549",
-                name = "gateway",
-            ).wrapListAc(),
+                name = "gateway"
+            ).wrapListAc()
         ),
-        signerAddress = asset.ownerAddress,
+        signerAddress = asset.ownerAddress
     ).toAny()
 }

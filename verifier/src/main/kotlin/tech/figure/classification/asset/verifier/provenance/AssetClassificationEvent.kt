@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
  */
 class AssetClassificationEvent(
     val sourceEvent: TxEvent,
-    private val inputValuesEncoded: Boolean,
+    private val inputValuesEncoded: Boolean
 ) {
     val contractAddress: String? by lazy { this.getEventStringValue(ACContractKey.CONTRACT_ADDRESS) }
     val eventType: ACContractEvent? by lazy {
@@ -60,14 +60,14 @@ class AssetClassificationEvent(
                             attributes = event.attributes.map { attribute ->
                                 Event(
                                     key = attribute.key,
-                                    value = attribute.value,
+                                    value = attribute.value
                                 )
                             },
                             fee = sourceTx.tx.authInfo.fee.amountList.firstOrNull()?.amount?.toBigIntegerOrNull(),
                             denom = sourceTx.tx.authInfo.fee.amountList.firstOrNull()?.denom,
-                            note = null,
+                            note = null
                         ),
-                        inputValuesEncoded = false,
+                        inputValuesEncoded = false
                     )
                 }
     }

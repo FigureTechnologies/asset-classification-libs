@@ -17,5 +17,5 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 @JsonNaming(SnakeCaseStrategy::class)
 data class SubsequentClassificationDetail(
     val cost: OnboardingCost? = null,
-    val applicableAssetTypes: List<String>? = null,
+    val applicableAssetTypes: List<String>? = null
 )

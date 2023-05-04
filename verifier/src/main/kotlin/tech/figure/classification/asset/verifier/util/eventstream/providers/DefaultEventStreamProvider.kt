@@ -21,12 +21,12 @@ import java.net.URI
 
 class DefaultEventStreamProvider(
     eventStreamNode: URI = URI("ws://localhost:26657"),
-    httpClient: OkHttpClient = defaultOkHttpClientBuilderFn().run { OkHttpClient.Builder().this() }.build(),
+    httpClient: OkHttpClient = defaultOkHttpClientBuilderFn().run { OkHttpClient.Builder().this() }.build()
 ) : EventStreamProvider {
 
     private val netAdapter = okHttpNetAdapter(
         node = eventStreamNode.toString(),
-        okHttpClient = httpClient,
+        okHttpClient = httpClient
     )
 
     private val decoderAdapter = moshiDecoderAdapter()

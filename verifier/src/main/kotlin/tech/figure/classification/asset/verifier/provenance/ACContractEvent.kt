@@ -16,7 +16,7 @@ enum class ACContractEvent(val contractName: String) {
     UPDATE_ACCESS_ROUTES("update_access_routes"),
     UPDATE_ASSET_DEFINITION("update_asset_definition"),
     UPDATE_ASSET_VERIFIER("update_asset_verifier"),
-    VERIFY_ASSET("verify_asset"),
+    VERIFY_ASSET("verify_asset")
     ;
 
     companion object {

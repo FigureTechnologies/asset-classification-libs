@@ -22,5 +22,5 @@ data class GitHubAuthor(
     val eventsUrl: String,
     val receivedEventsUrl: String,
     val type: String,
-    val siteAdmin: Boolean,
+    val siteAdmin: Boolean
 )

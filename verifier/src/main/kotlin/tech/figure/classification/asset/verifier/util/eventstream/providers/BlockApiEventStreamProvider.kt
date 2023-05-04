@@ -35,7 +35,6 @@ class BlockApiEventStreamProvider(
         onError: suspend (throwable: Throwable) -> Unit,
         onCompletion: suspend (throwable: Throwable?) -> Unit
     ): RecoveryStatus {
-
         val lastProcessed = AtomicLong(0)
         var current = currentHeightInternal { e -> onError(e) }
         var from = height ?: 1
@@ -84,7 +83,7 @@ class BlockApiEventStreamProvider(
         height: Long,
         onBlock: suspend (blockHeight: Long) -> Unit,
         onEvent: suspend (event: AssetClassificationEvent) -> Unit,
-        onError: suspend (throwable: Throwable) -> Unit,
+        onError: suspend (throwable: Throwable) -> Unit
     ) {
         runCatching {
             retry?.tryAction {
@@ -98,10 +97,9 @@ class BlockApiEventStreamProvider(
     private suspend fun getBlock(
         height: Long,
         onBlock: suspend (blockHeight: Long) -> Unit,
-        onEvent: suspend (event: AssetClassificationEvent) -> Unit,
+        onEvent: suspend (event: AssetClassificationEvent) -> Unit
     ) {
         blockApiClient.getBlockByHeight(height, BlockServiceOuterClass.PREFER.TX_EVENTS).also {
-
             onBlock(it.block.height)
 
             toAssetClassificationEvent(it).forEach { classificationEvent ->

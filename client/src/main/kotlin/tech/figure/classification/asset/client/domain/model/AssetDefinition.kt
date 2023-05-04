@@ -16,5 +16,5 @@ data class AssetDefinition(
     val assetType: String,
     val displayName: String?,
     val verifiers: List<VerifierDetail>,
-    val enabled: Boolean,
+    val enabled: Boolean
 )

@@ -10,11 +10,11 @@ import kotlin.test.fail
 @ExperimentalCoroutinesApi
 suspend inline fun <reified T : VerifierEvent> assertNextEvent(
     parameters: EventHandlerParameters,
-    assertions: (T) -> Unit = {},
+    assertions: (T) -> Unit = {}
 ) {
     assertFalse(
         actual = parameters.eventChannel.isEmpty,
-        message = "An event should be present in the channel",
+        message = "An event should be present in the channel"
     )
     when (val event = parameters.eventChannel.receive()) {
         is T -> assertions(event)
@@ -25,11 +25,11 @@ suspend inline fun <reified T : VerifierEvent> assertNextEvent(
 @ExperimentalCoroutinesApi
 suspend inline fun <reified T : VerifierEvent> assertLastEvent(
     parameters: EventHandlerParameters,
-    assertions: (T) -> Unit = {},
+    assertions: (T) -> Unit = {}
 ) {
     assertNextEvent(parameters, assertions)
     assertTrue(
         actual = parameters.eventChannel.isEmpty,
-        message = "Expected no more events to have been emitted",
+        message = "Expected no more events to have been emitted"
     )
 }

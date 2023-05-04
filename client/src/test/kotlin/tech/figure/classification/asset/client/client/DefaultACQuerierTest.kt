@@ -59,7 +59,7 @@ class DefaultACQuerierTest {
         assertEquals(
             expected = assetDefinition,
             actual = assetDefinitionFromQuery,
-            message = "Expected the output to match the asset definition initial value",
+            message = "Expected the output to match the asset definition initial value"
         )
     }
 
@@ -82,7 +82,7 @@ class DefaultACQuerierTest {
         assertEquals(
             expected = assetDefinition,
             actual = assetDefinitionFromQuery,
-            message = "Expected the output to match the asset definition initial value",
+            message = "Expected the output to match the asset definition initial value"
         )
     }
 
@@ -92,7 +92,7 @@ class DefaultACQuerierTest {
         val definitions = listOf(
             suite.mockAssetDefinition("heloc"),
             suite.mockAssetDefinition("pl"),
-            suite.mockAssetDefinition("mortgage"),
+            suite.mockAssetDefinition("mortgage")
         )
         suite.mockQueryReturns(definitions)
         val queryResponse = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
@@ -101,7 +101,7 @@ class DefaultACQuerierTest {
         assertEquals(
             expected = definitions,
             actual = queryResponse,
-            message = "Expected the output to match the definitions input value",
+            message = "Expected the output to match the definitions input value"
         )
     }
 
@@ -113,14 +113,14 @@ class DefaultACQuerierTest {
             suite.querier.queryAssetScopeAttributeByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
                 assetType = "type",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }
         assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
             suite.querier.queryAssetScopeAttributeByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
                 assetType = "type",
-                throwExceptions = false,
+                throwExceptions = false
             )
         }.assertNull("Expected the response value to be null on a successful no-exceptions run")
         suite.mockQueryNullResponse()
@@ -128,7 +128,7 @@ class DefaultACQuerierTest {
             suite.querier.queryAssetScopeAttributeByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
                 assetType = "type",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNull("Expected the response value to be null when the contract returns a null response")
         val attribute = suite.mockScopeAttribute()
@@ -136,13 +136,13 @@ class DefaultACQuerierTest {
         val attributeFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributeByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
-                assetType = "type",
+                assetType = "type"
             )
         }.assertNotNull("Expected the response to be non-null when a value is returned")
         assertEquals(
             expected = attribute,
             actual = attributeFromQuery,
-            message = "Expected the output to match the scope attribute's initial value",
+            message = "Expected the output to match the scope attribute's initial value"
         )
     }
 
@@ -153,14 +153,14 @@ class DefaultACQuerierTest {
         assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
             suite.querier.queryAssetScopeAttributeByAssetUuid(
                 assetUuid = UUID.randomUUID(),
-                assetType = "type",
+                assetType = "type"
             )
         }
         suite.mockQueryNullResponse()
         assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
             suite.querier.queryAssetScopeAttributeByAssetUuid(
                 assetUuid = UUID.randomUUID(),
-                assetType = "type",
+                assetType = "type"
             )
         }
         val attribute = suite.mockScopeAttribute()
@@ -168,13 +168,13 @@ class DefaultACQuerierTest {
         val attributeFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributeByAssetUuid(
                 assetUuid = UUID.randomUUID(),
-                assetType = "type",
+                assetType = "type"
             )
         }
         assertEquals(
             expected = attribute,
             actual = attributeFromQuery,
-            message = "Expected the output to match the scope attribute's initial value",
+            message = "Expected the output to match the scope attribute's initial value"
         )
     }
 
@@ -186,14 +186,14 @@ class DefaultACQuerierTest {
             suite.querier.queryAssetScopeAttributeByScopeAddressOrNull(
                 scopeAddress = "address",
                 assetType = "type",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }
         assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
             suite.querier.queryAssetScopeAttributeByScopeAddressOrNull(
                 scopeAddress = "address",
                 assetType = "type",
-                throwExceptions = false,
+                throwExceptions = false
             )
         }.assertNull("Expected the response value to be null on a successful no-exceptions run")
         suite.mockQueryNullResponse()
@@ -201,7 +201,7 @@ class DefaultACQuerierTest {
             suite.querier.queryAssetScopeAttributeByScopeAddressOrNull(
                 scopeAddress = "address",
                 assetType = "type",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNull("Expected the response value to be null when the contract returns a null response")
         val attribute = suite.mockScopeAttribute()
@@ -209,13 +209,13 @@ class DefaultACQuerierTest {
         val attributeFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributeByScopeAddressOrNull(
                 scopeAddress = "randomscopeaddress",
-                assetType = "type",
+                assetType = "type"
             )
         }.assertNotNull("Expected the response to be non-null when a value is returned")
         assertEquals(
             expected = attribute,
             actual = attributeFromQuery,
-            message = "Expected the output to match the scope attribute's initial value",
+            message = "Expected the output to match the scope attribute's initial value"
         )
     }
 
@@ -226,14 +226,14 @@ class DefaultACQuerierTest {
         assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
             suite.querier.queryAssetScopeAttributeByScopeAddress(
                 scopeAddress = "address",
-                assetType = "type",
+                assetType = "type"
             )
         }
         suite.mockQueryNullResponse()
         assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
             suite.querier.queryAssetScopeAttributeByScopeAddress(
                 scopeAddress = "address",
-                assetType = "type",
+                assetType = "type"
             )
         }
         val attribute = suite.mockScopeAttribute()
@@ -241,13 +241,13 @@ class DefaultACQuerierTest {
         val attributeFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributeByScopeAddress(
                 scopeAddress = "randomscopeaddress",
-                assetType = "type",
+                assetType = "type"
             )
         }
         assertEquals(
             expected = attribute,
             actual = attributeFromQuery,
-            message = "Expected the output to match the scope attribute's initial value",
+            message = "Expected the output to match the scope attribute's initial value"
         )
     }
 
@@ -258,33 +258,33 @@ class DefaultACQuerierTest {
         assertThrows<IllegalStateException>("Expected an exception to be rethrown when requested") {
             suite.querier.queryAssetScopeAttributesByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
-                throwExceptions = true,
+                throwExceptions = true
             )
         }
         assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
             suite.querier.queryAssetScopeAttributesByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
-                throwExceptions = false,
+                throwExceptions = false
             )
         }.assertNull("Expected the response value to be null on a successful no-exceptions run")
         suite.mockQueryNullResponse()
         assertSucceeds("Expected no exception to be thrown when the contract returns a null response") {
             suite.querier.queryAssetScopeAttributesByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNull("Expected the response value to be null when the contract returns a null response")
         val attribute = suite.mockScopeAttribute()
         suite.mockQueryReturns(listOf(attribute))
         val attributesFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributesByAssetUuidOrNull(
-                assetUuid = UUID.randomUUID(),
+                assetUuid = UUID.randomUUID()
             )
         }.assertNotNull("Expected the response to be non-null when a value is returned")
         assertEquals(
             expected = 1,
             actual = attributesFromQuery.size,
-            message = "Expected a single attribute to be returned via the query",
+            message = "Expected a single attribute to be returned via the query"
         )
         assertEquals(
             expected = attribute,
@@ -299,31 +299,31 @@ class DefaultACQuerierTest {
         suite.mockQueryThrows(IllegalStateException("Failed to do scope attribute things"))
         assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
             suite.querier.queryAssetScopeAttributesByAssetUuid(
-                assetUuid = UUID.randomUUID(),
+                assetUuid = UUID.randomUUID()
             )
         }
         suite.mockQueryNullResponse()
         assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
             suite.querier.queryAssetScopeAttributesByAssetUuid(
-                assetUuid = UUID.randomUUID(),
+                assetUuid = UUID.randomUUID()
             )
         }
         val attribute = suite.mockScopeAttribute()
         suite.mockQueryReturns(listOf(attribute))
         val attributesFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributesByAssetUuid(
-                assetUuid = UUID.randomUUID(),
+                assetUuid = UUID.randomUUID()
             )
         }
         assertEquals(
             expected = 1,
             actual = attributesFromQuery.size,
-            message = "Expected a single attribute to be returned via the query",
+            message = "Expected a single attribute to be returned via the query"
         )
         assertEquals(
             expected = attribute,
             actual = attributesFromQuery.single(),
-            message = "Expected the output to match the scope attribute's initial value",
+            message = "Expected the output to match the scope attribute's initial value"
         )
     }
 
@@ -334,33 +334,33 @@ class DefaultACQuerierTest {
         assertThrows<IllegalStateException>("Expected an exception to be rethrown when requested") {
             suite.querier.queryAssetScopeAttributesByScopeAddressOrNull(
                 scopeAddress = "address",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }
         assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
             suite.querier.queryAssetScopeAttributesByScopeAddressOrNull(
                 scopeAddress = "address",
-                throwExceptions = false,
+                throwExceptions = false
             )
         }.assertNull("Expected the response value to be null on a successful no-exceptions run")
         suite.mockQueryNullResponse()
         assertSucceeds("Expected no exception to be thrown when the contract returns a null response") {
             suite.querier.queryAssetScopeAttributesByScopeAddressOrNull(
                 scopeAddress = "address",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNull("Expected the response value to be null when the contract returns a null response")
         val attribute = suite.mockScopeAttribute()
         suite.mockQueryReturns(listOf(attribute))
         val attributesFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributesByScopeAddressOrNull(
-                scopeAddress = "address",
+                scopeAddress = "address"
             )
         }.assertNotNull("Expected the response to be non-null when a value is returned")
         assertEquals(
             expected = 1,
             actual = attributesFromQuery.size,
-            message = "Expected a single attribute to be returned via the query",
+            message = "Expected a single attribute to be returned via the query"
         )
         assertEquals(
             expected = attribute,
@@ -375,31 +375,31 @@ class DefaultACQuerierTest {
         suite.mockQueryThrows(IllegalStateException("Failed to do scope attribute things"))
         assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
             suite.querier.queryAssetScopeAttributesByScopeAddress(
-                scopeAddress = "address",
+                scopeAddress = "address"
             )
         }
         suite.mockQueryNullResponse()
         assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
             suite.querier.queryAssetScopeAttributesByScopeAddress(
-                scopeAddress = "address",
+                scopeAddress = "address"
             )
         }
         val attribute = suite.mockScopeAttribute()
         suite.mockQueryReturns(listOf(attribute))
         val attributesFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryAssetScopeAttributesByScopeAddress(
-                scopeAddress = "address",
+                scopeAddress = "address"
             )
         }
         assertEquals(
             expected = 1,
             actual = attributesFromQuery.size,
-            message = "Expected a single attribute to be returned via the query",
+            message = "Expected a single attribute to be returned via the query"
         )
         assertEquals(
             expected = attribute,
             actual = attributesFromQuery.single(),
-            message = "Expected the output to match the scope attribute's initial value",
+            message = "Expected the output to match the scope attribute's initial value"
         )
     }
 
@@ -411,14 +411,14 @@ class DefaultACQuerierTest {
             suite.querier.queryFeePaymentsByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
                 assetType = "heloc",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }
         assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
             suite.querier.queryFeePaymentsByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
                 assetType = "heloc",
-                throwExceptions = false,
+                throwExceptions = false
             )
         }.assertNull("Expected the response value to be null on a successful no-exceptions run")
         suite.mockQueryNullResponse()
@@ -426,7 +426,7 @@ class DefaultACQuerierTest {
             suite.querier.queryFeePaymentsByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
                 assetType = "heloc",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNull("Expected the response value to be null when the contract returns a null response")
         val feePayments = suite.mockFeePaymentDetail()
@@ -435,13 +435,13 @@ class DefaultACQuerierTest {
             suite.querier.queryFeePaymentsByAssetUuidOrNull(
                 assetUuid = UUID.randomUUID(),
                 assetType = "heloc",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNotNull("Expected the response to be non-null when a value is returned")
         assertEquals(
             expected = feePayments,
             actual = feePaymentsFromQuery,
-            message = "Expected the output to match the fee payments initial value",
+            message = "Expected the output to match the fee payments initial value"
         )
     }
 
@@ -452,14 +452,14 @@ class DefaultACQuerierTest {
         assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
             suite.querier.queryFeePaymentsByAssetUuid(
                 assetUuid = UUID.randomUUID(),
-                assetType = "heloc",
+                assetType = "heloc"
             )
         }
         suite.mockQueryNullResponse()
         assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
             suite.querier.queryFeePaymentsByAssetUuid(
                 assetUuid = UUID.randomUUID(),
-                assetType = "heloc",
+                assetType = "heloc"
             )
         }
         val feePayments = suite.mockFeePaymentDetail()
@@ -467,13 +467,13 @@ class DefaultACQuerierTest {
         val feePaymentsFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryFeePaymentsByAssetUuid(
                 assetUuid = UUID.randomUUID(),
-                assetType = "heloc",
+                assetType = "heloc"
             )
         }
         assertEquals(
             expected = feePayments,
             actual = feePaymentsFromQuery,
-            message = "Expected the output to match the fee payments initial value",
+            message = "Expected the output to match the fee payments initial value"
         )
     }
 
@@ -485,14 +485,14 @@ class DefaultACQuerierTest {
             suite.querier.queryFeePaymentsByScopeAddressOrNull(
                 scopeAddress = "address",
                 assetType = "heloc",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }
         assertSucceeds("Expected no exception to be thrown when throwExceptions is disabled") {
             suite.querier.queryFeePaymentsByScopeAddressOrNull(
                 scopeAddress = "address",
                 assetType = "heloc",
-                throwExceptions = false,
+                throwExceptions = false
             )
         }.assertNull("Expected the response value to be null on a successful no-exceptions run")
         suite.mockQueryNullResponse()
@@ -500,7 +500,7 @@ class DefaultACQuerierTest {
             suite.querier.queryFeePaymentsByScopeAddressOrNull(
                 scopeAddress = "address",
                 assetType = "heloc",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNull("Expected the response value to be null when the contract returns a null response")
         val feePayments = suite.mockFeePaymentDetail()
@@ -509,13 +509,13 @@ class DefaultACQuerierTest {
             suite.querier.queryFeePaymentsByScopeAddressOrNull(
                 scopeAddress = "address",
                 assetType = "heloc",
-                throwExceptions = true,
+                throwExceptions = true
             )
         }.assertNotNull("Expected the response to be non-null when a value is returned")
         assertEquals(
             expected = feePayments,
             actual = feePaymentsFromQuery,
-            message = "Expected the output to match the fee payments initial value",
+            message = "Expected the output to match the fee payments initial value"
         )
     }
 
@@ -526,14 +526,14 @@ class DefaultACQuerierTest {
         assertThrows<IllegalStateException>("Expected an exception to be thrown when encountered") {
             suite.querier.queryFeePaymentsByScopeAddress(
                 scopeAddress = "address",
-                assetType = "heloc",
+                assetType = "heloc"
             )
         }
         suite.mockQueryNullResponse()
         assertThrows<NullContractResponseException>("Expected a null contract response exception when the contract responds with null") {
             suite.querier.queryFeePaymentsByScopeAddress(
                 scopeAddress = "address",
-                assetType = "heloc",
+                assetType = "heloc"
             )
         }
         val feePayments = suite.mockFeePaymentDetail()
@@ -541,13 +541,13 @@ class DefaultACQuerierTest {
         val feePaymentsFromQuery = assertSucceeds("Expected the query to execute successfully when the proper response is returned") {
             suite.querier.queryFeePaymentsByScopeAddress(
                 scopeAddress = "address",
-                assetType = "heloc",
+                assetType = "heloc"
             )
         }
         assertEquals(
             expected = feePayments,
             actual = feePaymentsFromQuery,
-            message = "Expected the output to match the fee payments initial value",
+            message = "Expected the output to match the fee payments initial value"
         )
     }
 
@@ -562,7 +562,7 @@ class DefaultACQuerierTest {
         assertEquals(
             expected = state,
             actual = stateFromQuery,
-            message = "Expected the output to match the input state",
+            message = "Expected the output to match the input state"
         )
     }
 
@@ -577,13 +577,13 @@ class DefaultACQuerierTest {
         assertEquals(
             expected = version,
             actual = versionFromQuery,
-            message = "Expected the output to match the input version",
+            message = "Expected the output to match the input version"
         )
     }
 
     private data class MockSuite(
         val querier: ACQuerier,
-        val pbClient: PbClient,
+        val pbClient: PbClient
     ) {
         companion object {
             const val DEFAULT_CONTRACT_NAME = "testassets.pb"
@@ -598,9 +598,9 @@ class DefaultACQuerierTest {
                     querier = DefaultACQuerier(
                         contractIdentifier = ContractIdentifier.Name(contractName),
                         objectMapper = OBJECT_MAPPER,
-                        pbClient = pbClient,
+                        pbClient = pbClient
                     ),
-                    pbClient = pbClient,
+                    pbClient = pbClient
                 )
             }
         }
@@ -627,11 +627,11 @@ class DefaultACQuerierTest {
                     feeDestinations = listOf(
                         FeeDestination(
                             address = "fee1",
-                            feeAmount = "20".toBigInteger(),
+                            feeAmount = "20".toBigInteger()
                         ),
                         FeeDestination(
                             address = "fee2",
-                            feeAmount = "30".toBigInteger(),
+                            feeAmount = "30".toBigInteger()
                         )
                     ),
                     entityDetail = EntityDetail(
@@ -639,11 +639,11 @@ class DefaultACQuerierTest {
                         description = "Does the things with the stuff",
                         homeUrl = "www.github.com",
                         sourceUrl = "https://github.com/duffn/dumb-password-rules"
-                    ),
+                    )
                 )
             ),
             enabled = true,
-            displayName = assetType.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+            displayName = assetType.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         )
 
         fun mockScopeAttribute(): AssetScopeAttribute = AssetScopeAttribute(
@@ -655,9 +655,9 @@ class DefaultACQuerierTest {
             onboardingStatus = AssetOnboardingStatus.APPROVED,
             latestVerificationResult = AssetVerificationResult(
                 message = "Validation was pretty good on this here scope",
-                success = true,
+                success = true
             ),
-            accessDefinitions = emptyList(),
+            accessDefinitions = emptyList()
         )
 
         fun mockFeePaymentDetail(): FeePaymentDetail = FeePaymentDetail(
@@ -666,12 +666,12 @@ class DefaultACQuerierTest {
                 FeePayment(
                     amount = Coin.newBuilder().setAmount("100").setDenom("nhash").build(),
                     name = "Verifier payment",
-                    recipient = "verifieraddress",
+                    recipient = "verifieraddress"
                 ),
                 FeePayment(
                     amount = Coin.newBuilder().setAmount("10").setDenom("nhash").build(),
                     name = "Admin fee",
-                    recipient = "adminaddress",
+                    recipient = "adminaddress"
                 )
             )
         )

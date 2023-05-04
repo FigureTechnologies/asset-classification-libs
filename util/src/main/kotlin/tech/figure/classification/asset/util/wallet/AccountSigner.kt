@@ -20,7 +20,7 @@ import tech.figure.classification.asset.util.enums.ProvenanceNetworkType
 class AccountSigner(
     private val address: String,
     private val publicKey: PublicKey,
-    private val privateKey: PrivateKey,
+    private val privateKey: PrivateKey
 ) : Signer {
     override fun address(): String = address
 
@@ -31,34 +31,34 @@ class AccountSigner(
 
     companion object {
         fun fromAccountDetail(
-            accountDetail: ProvenanceAccountDetail,
+            accountDetail: ProvenanceAccountDetail
         ): AccountSigner = accountDetail.privateKey.toECPrivateKey().toECKeyPair().let { keyPair ->
             AccountSigner(
                 address = accountDetail.bech32Address,
                 publicKey = keyPair.publicKey,
-                privateKey = keyPair.privateKey,
+                privateKey = keyPair.privateKey
             )
         }
 
         fun fromJavaPrivateKey(
             privateKey: java.security.PrivateKey,
-            mainNet: Boolean,
+            mainNet: Boolean
         ): AccountSigner = fromECPrivateKey(privateKey.toECPrivateKey(), mainNet)
 
         fun fromECPrivateKey(
             privateKey: PrivateKey,
-            mainNet: Boolean,
+            mainNet: Boolean
         ): AccountSigner = privateKey.toJavaECPrivateKey().toKeyPair().let { keyPair ->
             AccountSigner(
                 address = keyPair.public.getAddress(mainNet),
                 publicKey = privateKey.toPublicKey(),
-                privateKey = privateKey,
+                privateKey = privateKey
             )
         }
 
         fun fromMnemonic(
             mnemonic: String,
-            networkType: ProvenanceNetworkType,
+            networkType: ProvenanceNetworkType
         ): AccountSigner = fromAccountDetail(
             accountDetail = ProvenanceAccountDetail.fromMnemonic(mnemonic, networkType)
         )

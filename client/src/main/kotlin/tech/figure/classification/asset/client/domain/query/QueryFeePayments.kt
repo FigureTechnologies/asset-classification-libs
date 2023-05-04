@@ -17,7 +17,7 @@ import tech.figure.classification.asset.client.domain.query.base.ContractQuery
 @JsonTypeName("query_fee_payments")
 data class QueryFeePayments<T>(
     val identifier: AssetIdentifier<T>,
-    val assetType: String,
+    val assetType: String
 ) : ContractQuery {
     @JsonIgnore
     override val queryFailureMessage: String = "Query fee payments by id $identifier and asset type $assetType"

@@ -16,5 +16,5 @@ data class EntityDetail(
     val name: String?,
     val description: String?,
     val homeUrl: String?,
-    val sourceUrl: String?,
+    val sourceUrl: String?
 )

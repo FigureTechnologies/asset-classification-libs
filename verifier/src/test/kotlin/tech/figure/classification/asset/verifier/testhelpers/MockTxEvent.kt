@@ -49,12 +49,12 @@ object MockTxEvent {
             attributes = attributes,
             fee = fee ?: DEFAULT_FEE_AMOUNT,
             denom = denom ?: DEFAULT_DENOM,
-            note = note ?: DEFAULT_NOTE,
+            note = note ?: DEFAULT_NOTE
         )
 
         fun buildACEvent(): AssetClassificationEvent = AssetClassificationEvent(
             sourceEvent = build(),
-            inputValuesEncoded = false,
+            inputValuesEncoded = false
         )
     }
 }

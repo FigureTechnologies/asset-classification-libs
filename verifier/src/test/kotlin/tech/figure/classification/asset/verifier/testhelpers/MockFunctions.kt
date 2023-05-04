@@ -15,7 +15,7 @@ import java.util.UUID
 
 fun getMockScopeAttribute(
     assetUuid: UUID = UUID.randomUUID(),
-    onboardingStatus: AssetOnboardingStatus = AssetOnboardingStatus.PENDING,
+    onboardingStatus: AssetOnboardingStatus = AssetOnboardingStatus.PENDING
 ): AssetScopeAttribute = AssetScopeAttribute(
     assetUuid = assetUuid,
     scopeAddress = MetadataAddress.forScope(assetUuid).toString(),
@@ -26,22 +26,22 @@ fun getMockScopeAttribute(
     latestVerificationResult = onboardingStatus.takeIf { it != AssetOnboardingStatus.PENDING }?.let { status ->
         AssetVerificationResult(
             message = if (status == AssetOnboardingStatus.APPROVED) "MOCK: Approved" else "MOCK: Denied",
-            success = status == AssetOnboardingStatus.APPROVED,
+            success = status == AssetOnboardingStatus.APPROVED
         )
     },
     accessDefinitions = AccessDefinition(
         ownerAddress = "requestor",
         accessRoutes = AccessRoute(
             route = "http://mocks.mock",
-            name = "gateway",
+            name = "gateway"
         ).wrapListAc(),
-        definitionType = AccessDefinitionType.REQUESTOR,
-    ).wrapListAc(),
+        definitionType = AccessDefinitionType.REQUESTOR
+    ).wrapListAc()
 )
 
 fun getMockAccountDetail(
-    mnemonic: String = MnemonicWords.generate().toString(),
+    mnemonic: String = MnemonicWords.generate().toString()
 ): ProvenanceAccountDetail = ProvenanceAccountDetail.fromMnemonic(
     mnemonic = mnemonic,
-    networkType = ProvenanceNetworkType.TESTNET,
+    networkType = ProvenanceNetworkType.TESTNET
 )

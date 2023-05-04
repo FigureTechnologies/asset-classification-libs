@@ -4,7 +4,7 @@ fun buildLogMessage(msg: String, args: List<Pair<String, Any?>>): String {
     val argString = args.joinToString(
         separator = ", ",
         prefix = "[",
-        postfix = "]",
+        postfix = "]"
     ) { "${it.first}=${it.second}" }
 
     return "$msg $argString".trim()

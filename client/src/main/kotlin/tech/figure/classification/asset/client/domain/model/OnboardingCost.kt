@@ -22,5 +22,5 @@ data class OnboardingCost(
     @JsonSerialize(using = CosmWasmBigIntegerToUintSerializer::class)
     @JsonDeserialize(using = CosmWasmUintToBigIntegerDeserializer::class)
     val cost: BigInteger,
-    val feeDestinations: List<FeeDestination> = emptyList(),
+    val feeDestinations: List<FeeDestination> = emptyList()
 )

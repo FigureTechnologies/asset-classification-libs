@@ -101,7 +101,7 @@ sealed interface VerifierEvent {
      */
     data class EventIgnoredUnknownWasmEvent internal constructor(
         val event: AssetClassificationEvent,
-        val message: String = "Unknown wasm event encountered",
+        val message: String = "Unknown wasm event encountered"
     ) : VerifierEvent
 
     /**
@@ -115,7 +115,7 @@ sealed interface VerifierEvent {
      */
     data class EventIgnoredContractMismatch internal constructor(
         val event: AssetClassificationEvent,
-        val message: String,
+        val message: String
     ) : VerifierEvent
 
     /**
@@ -129,7 +129,7 @@ sealed interface VerifierEvent {
      */
     data class EventIgnoredUnhandledEventType internal constructor(
         val event: AssetClassificationEvent,
-        val message: String = "Event type is not handled by the verifier",
+        val message: String = "Event type is not handled by the verifier"
     ) : VerifierEvent
 
     /**
@@ -144,7 +144,7 @@ sealed interface VerifierEvent {
      */
     data class EventIgnoredUnknownEvent internal constructor(
         val event: AssetClassificationEvent,
-        val message: String = "After all event checks, an unexpected event was attempted for processing. Tx hash: [${event.sourceEvent.txHash}], event type: [${event.eventType}]",
+        val message: String = "After all event checks, an unexpected event was attempted for processing. Tx hash: [${event.sourceEvent.txHash}], event type: [${event.eventType}]"
     ) : VerifierEvent
 
     /**
@@ -161,7 +161,7 @@ sealed interface VerifierEvent {
     data class OnboardEventIgnoredPreviouslyProcessed internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val message: String,
+        val message: String
     ) : VerifierEvent
 
     /**
@@ -177,7 +177,7 @@ sealed interface VerifierEvent {
     data class OnboardEventFailedToRetrieveAsset internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val t: Throwable,
+        val t: Throwable
     ) : VerifierEvent
 
     /**
@@ -193,7 +193,7 @@ sealed interface VerifierEvent {
     data class OnboardEventFailedToVerifyAsset internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val t: Throwable,
+        val t: Throwable
     ) : VerifierEvent
 
     /**
@@ -210,7 +210,7 @@ sealed interface VerifierEvent {
     data class OnboardEventPreVerifySend internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val verification: AssetVerification,
+        val verification: AssetVerification
     ) : VerifierEvent
 
     /**
@@ -226,7 +226,7 @@ sealed interface VerifierEvent {
      */
     data class VerifyEventUnexpectedOnboardingStatus internal constructor(
         val event: AssetClassificationEvent,
-        val message: String,
+        val message: String
     ) : VerifierEvent
 
     /**
@@ -240,7 +240,7 @@ sealed interface VerifierEvent {
      */
     data class VerifyEventSuccessful internal constructor(
         val event: AssetClassificationEvent,
-        val newOnboardingStatus: AssetOnboardingStatus,
+        val newOnboardingStatus: AssetOnboardingStatus
     ) : VerifierEvent
 
     /**
@@ -261,7 +261,7 @@ sealed interface VerifierEvent {
         val scopeAttribute: AssetScopeAttribute,
         val verification: AssetVerification,
         val message: String,
-        val t: Throwable,
+        val t: Throwable
     ) : VerifierEvent
 
     /**
@@ -283,7 +283,7 @@ sealed interface VerifierEvent {
         val scopeAttribute: AssetScopeAttribute,
         val verification: AssetVerification,
         val message: String,
-        val t: Throwable,
+        val t: Throwable
     ) : VerifierEvent
 
     /**
@@ -302,7 +302,7 @@ sealed interface VerifierEvent {
     data class VerifyAssetSendSucceeded internal constructor(
         val event: AssetClassificationEvent,
         val scopeAttribute: AssetScopeAttribute,
-        val verification: AssetVerification,
+        val verification: AssetVerification
     ) : VerifierEvent
 
     /**
@@ -325,7 +325,7 @@ sealed interface VerifierEvent {
         val scopeAttribute: AssetScopeAttribute,
         val verification: AssetVerification,
         val responseCode: Int,
-        val rawLog: String,
+        val rawLog: String
     ) : VerifierEvent
 
     /**
@@ -349,7 +349,7 @@ sealed interface VerifierEvent {
     data class EventIgnoredNoVerifierAddress internal constructor(
         val event: AssetClassificationEvent,
         val eventType: ACContractEvent,
-        val message: String = "Event does not contain a verifier address",
+        val message: String = "Event does not contain a verifier address"
     ) : VerifierEvent
 
     /**
@@ -368,7 +368,7 @@ sealed interface VerifierEvent {
         val event: AssetClassificationEvent,
         val eventType: ACContractEvent,
         val registeredVerifierAddress: String,
-        val message: String = "Event is for a different verifier [${event.verifierAddress}] than the registered verifier account [$registeredVerifierAddress]",
+        val message: String = "Event is for a different verifier [${event.verifierAddress}] than the registered verifier account [$registeredVerifierAddress]"
     ) : VerifierEvent
 
     /**
@@ -383,7 +383,7 @@ sealed interface VerifierEvent {
     data class EventIgnoredMissingScopeAddress(
         val event: AssetClassificationEvent,
         val eventType: ACContractEvent,
-        val message: String,
+        val message: String
     ) : VerifierEvent
 
     /**
@@ -398,7 +398,7 @@ sealed interface VerifierEvent {
     data class EventIgnoredMissingAssetType(
         val event: AssetClassificationEvent,
         val eventType: ACContractEvent,
-        val message: String,
+        val message: String
     ) : VerifierEvent
 
     /**
@@ -417,7 +417,7 @@ sealed interface VerifierEvent {
         val event: AssetClassificationEvent,
         val eventType: ACContractEvent,
         val message: String,
-        val t: Throwable,
+        val t: Throwable
     ) : VerifierEvent
 
     /**
@@ -432,7 +432,7 @@ sealed interface VerifierEvent {
      */
     data class EventProcessorFailed internal constructor(
         val failedEventName: String,
-        val t: Throwable,
+        val t: Throwable
     ) : VerifierEvent
 
     /**

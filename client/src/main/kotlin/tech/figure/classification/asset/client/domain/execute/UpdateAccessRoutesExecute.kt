@@ -37,5 +37,5 @@ data class UpdateAccessRoutesExecute<T>(
     val identifier: AssetIdentifier<T>,
     val assetType: String,
     val ownerAddress: String,
-    val accessRoutes: List<AccessRoute>,
+    val accessRoutes: List<AccessRoute>
 ) : ContractExecute

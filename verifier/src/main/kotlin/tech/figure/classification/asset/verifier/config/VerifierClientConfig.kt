@@ -63,7 +63,7 @@ class VerifierClientConfig private constructor(
         fun builder(
             acClient: ACClient,
             verifierAccount: ProvenanceAccountDetail,
-            verificationProcessor: VerificationProcessor<*>,
+            verificationProcessor: VerificationProcessor<*>
         ): Builder = Builder(acClient, verifierAccount, verificationProcessor)
     }
 
@@ -75,7 +75,7 @@ class VerifierClientConfig private constructor(
     class Builder internal constructor(
         private val acClient: ACClient,
         private val verifierAccount: ProvenanceAccountDetail,
-        private val verificationProcessor: VerificationProcessor<*>,
+        private val verificationProcessor: VerificationProcessor<*>
     ) {
         private var streamRestartMode: StreamRestartMode? = null
         private var verificationChannel: Channel<VerificationMessage>? = null
@@ -172,7 +172,7 @@ sealed interface VerifierCoroutineScopeConfig {
      */
     class ScopeDefinition(
         private val scopeName: String = "verifier-scope",
-        private val threadCount: Int = 10,
+        private val threadCount: Int = 10
     ) : VerifierCoroutineScopeConfig {
         override fun toCoroutineScope(): CoroutineScope = Executors.newFixedThreadPool(threadCount, NamedThreadFactory(scopeName))
             .asCoroutineDispatcher()

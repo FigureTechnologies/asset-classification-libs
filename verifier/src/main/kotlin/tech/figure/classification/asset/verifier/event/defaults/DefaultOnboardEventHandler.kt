@@ -44,7 +44,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
                 EventIgnoredMissingScopeAddress(
                     event = event,
                     eventType = this.eventType,
-                    message = "$messagePrefix Expected the onboard asset event to include a scope address, but it was missing",
+                    message = "$messagePrefix Expected the onboard asset event to include a scope address, but it was missing"
                 )
             )
             return
@@ -54,7 +54,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
                 EventIgnoredMissingAssetType(
                     event = event,
                     eventType = this.eventType,
-                    message = "$messagePrefix Expected the onboard asset event to include an asset type, but it was missing",
+                    message = "$messagePrefix Expected the onboard asset event to include an asset type, but it was missing"
                 )
             )
             return
@@ -67,7 +67,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
                     event = event,
                     eventType = this.eventType,
                     message = "$messagePrefix Intercepted onboard asset did not point to a scope with a scope attribute",
-                    t = t,
+                    t = t
                 )
             )
             return
@@ -77,7 +77,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
                 OnboardEventIgnoredPreviouslyProcessed(
                     event = event,
                     scopeAttribute = scopeAttribute,
-                    message = "$messagePrefix Scope attribute indicates an onboarding status of [${scopeAttribute.onboardingStatus}], which is not actionable. Has verification: [Verified = ${scopeAttribute.latestVerificationResult?.success} | Message = ${scopeAttribute.latestVerificationResult?.message}]",
+                    message = "$messagePrefix Scope attribute indicates an onboarding status of [${scopeAttribute.onboardingStatus}], which is not actionable. Has verification: [Verified = ${scopeAttribute.latestVerificationResult?.success} | Message = ${scopeAttribute.latestVerificationResult?.message}]"
                 )
             )
             return
@@ -93,7 +93,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
                 OnboardEventFailedToRetrieveAsset(
                     event = event,
                     scopeAttribute = scopeAttribute,
-                    t = t,
+                    t = t
                 )
             )
             null
@@ -105,7 +105,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
                 OnboardEventFailedToVerifyAsset(
                     event = event,
                     scopeAttribute = scopeAttribute,
-                    t = t,
+                    t = t
                 )
             )
             null
@@ -116,7 +116,7 @@ object DefaultOnboardEventHandler : AssetClassificationEventHandler {
                 failureMessagePrefix = messagePrefix,
                 event = event,
                 scopeAttribute = scopeAttribute,
-                verification = verification,
+                verification = verification
             )
         )
     }

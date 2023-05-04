@@ -46,5 +46,5 @@ data class OnboardAssetExecute<T>(
     val assetType: String,
     val verifierAddress: String,
     val accessRoutes: List<AccessRoute>? = null,
-    val addOsGatewayPermission: Boolean? = null,
+    val addOsGatewayPermission: Boolean? = null
 ) : ContractExecute

@@ -34,12 +34,12 @@ class DefaultVerifyAssetEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.VERIFY_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be a verify asset event",
+                message = "Expected the event type to be a verify asset event"
             )
         }
     }
@@ -54,17 +54,17 @@ class DefaultVerifyAssetEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.VERIFY_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be a verify asset event",
+                message = "Expected the event type to be a verify asset event"
             )
             assertEquals(
                 expected = parameters.verifierAccount.bech32Address,
                 actual = registeredVerifierAddress,
-                message = "Expected the verifier address to be properly emitted in the event",
+                message = "Expected the verifier address to be properly emitted in the event"
             )
         }
     }
@@ -77,16 +77,16 @@ class DefaultVerifyAssetEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.VERIFY_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be a verify asset event",
+                message = "Expected the event type to be a verify asset event"
             )
             assertTrue(
                 actual = "Expected the verify asset event to include a scope address, but it was missing" in message,
-                message = "Expected the correct event message to be included in the output",
+                message = "Expected the correct event message to be included in the output"
             )
         }
     }
@@ -101,16 +101,16 @@ class DefaultVerifyAssetEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.VERIFY_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be a verify asset event",
+                message = "Expected the event type to be a verify asset event"
             )
             assertTrue(
                 actual = "Expected the verify asset event to include an asset type, but it was missing" in message,
-                message = "Expected the correct event message to be included in the output",
+                message = "Expected the correct event message to be included in the output"
             )
         }
     }
@@ -127,15 +127,15 @@ class DefaultVerifyAssetEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertNull(
                 actual = event.assetOnboardingStatus,
-                message = "Expected the event to be missing an onboarding status",
+                message = "Expected the event to be missing an onboarding status"
             )
             assertTrue(
                 actual = "Verification produced an unexpected onboarding status of [null]" in message,
-                message = "Expected the correct event message to be included in the output",
+                message = "Expected the correct event message to be included in the output"
             )
         }
     }
@@ -153,16 +153,16 @@ class DefaultVerifyAssetEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = event.assetOnboardingStatus,
                 actual = AssetOnboardingStatus.PENDING,
-                message = "Expected the event to contain the onboarding status that caused the issue",
+                message = "Expected the event to contain the onboarding status that caused the issue"
             )
             assertTrue(
                 actual = "Verification produced an unexpected onboarding status of [${AssetOnboardingStatus.PENDING.contractName}]" in message,
-                message = "Expected the correct event message to be included in the output",
+                message = "Expected the correct event message to be included in the output"
             )
         }
     }
@@ -180,12 +180,12 @@ class DefaultVerifyAssetEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = AssetOnboardingStatus.APPROVED,
                 actual = onboardingStatus,
-                message = "Expected the event to contain the scope proper onboarding status",
+                message = "Expected the event to contain the scope proper onboarding status"
             )
         }
     }
@@ -193,7 +193,7 @@ class DefaultVerifyAssetEventHandlerTest {
     private fun getMockParameters(
         verifierAccount: ProvenanceAccountDetail = getMockAccountDetail(),
         includeVerifierAddress: Boolean = true,
-        builderFn: (MockTxEventBuilder) -> MockTxEventBuilder = { it },
+        builderFn: (MockTxEventBuilder) -> MockTxEventBuilder = { it }
     ): EventHandlerParameters = MockTxEvent
         .builder()
         .addACAttribute(MockACAttribute.EventType(ACContractEvent.VERIFY_ASSET))
@@ -211,7 +211,7 @@ class DefaultVerifyAssetEventHandlerTest {
                 verifierAccount = verifierAccount,
                 processor = mockk(),
                 verificationChannel = Channel(capacity = Channel.BUFFERED),
-                eventChannel = Channel(capacity = Channel.BUFFERED),
+                eventChannel = Channel(capacity = Channel.BUFFERED)
             )
         }
 
@@ -219,7 +219,7 @@ class DefaultVerifyAssetEventHandlerTest {
         DefaultVerifyAssetEventHandler.handleEvent(this)
         assertTrue(
             actual = this.verificationChannel.isEmpty,
-            message = "The verification channel should never receive input from this event type",
+            message = "The verification channel should never receive input from this event type"
         )
     }
 }

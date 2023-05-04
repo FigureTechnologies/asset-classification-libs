@@ -10,7 +10,7 @@ data class TestAsset(
     val assetUuid: UUID,
     val assetType: String,
     val message: String,
-    val ownerAddress: String,
+    val ownerAddress: String
 ) {
     companion object {
         private val OBJECT_MAPPER = ACObjectMapperUtil.getObjectMapper()

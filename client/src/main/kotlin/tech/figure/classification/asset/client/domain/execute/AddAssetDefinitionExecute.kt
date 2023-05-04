@@ -27,5 +27,5 @@ data class AddAssetDefinitionExecute(
     val displayName: String? = null,
     val verifiers: List<VerifierDetail>,
     val enabled: Boolean? = null,
-    val bindName: Boolean? = null,
+    val bindName: Boolean? = null
 ) : ContractExecute

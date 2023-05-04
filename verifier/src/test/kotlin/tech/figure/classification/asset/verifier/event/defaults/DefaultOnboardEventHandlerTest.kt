@@ -35,18 +35,18 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<VerifierEvent.EventIgnoredNoVerifierAddress>(parameters) { (event, eventType) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.ONBOARD_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be a verify asset event",
+                message = "Expected the event type to be a verify asset event"
             )
         }
     }
@@ -59,23 +59,23 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<VerifierEvent.EventIgnoredDifferentVerifierAddress>(parameters) { (event, eventType, registeredVerifierAddress) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.ONBOARD_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be a verify asset event",
+                message = "Expected the event type to be a verify asset event"
             )
             assertEquals(
                 expected = parameters.verifierAccount.bech32Address,
                 actual = registeredVerifierAddress,
-                message = "Expected the verifier address to be properly emitted in the event",
+                message = "Expected the verifier address to be properly emitted in the event"
             )
         }
     }
@@ -86,22 +86,22 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<EventIgnoredMissingScopeAddress>(parameters) { (event, eventType, message) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.ONBOARD_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be an onboard asset event",
+                message = "Expected the event type to be an onboard asset event"
             )
             assertTrue(
                 actual = "Expected the onboard asset event to include a scope address, but it was missing" in message,
-                message = "Expected the correct event message to be included in the output",
+                message = "Expected the correct event message to be included in the output"
             )
         }
     }
@@ -114,22 +114,22 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<EventIgnoredMissingAssetType>(parameters) { (event, eventType, message) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to contain the asset classification event",
+                message = "Expected the event to contain the asset classification event"
             )
             assertEquals(
                 expected = ACContractEvent.ONBOARD_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be an onboard asset event",
+                message = "Expected the event type to be an onboard asset event"
             )
             assertTrue(
                 actual = "Expected the onboard asset event to include an asset type, but it was missing" in message,
-                message = "Expected the correct event message to be included in the output",
+                message = "Expected the correct event message to be included in the output"
             )
         }
     }
@@ -145,31 +145,31 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<EventIgnoredMissingScopeAttribute>(parameters) { (event, eventType, message, t) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to be included in the error",
+                message = "Expected the event to be included in the error"
             )
             assertEquals(
                 expected = ACContractEvent.ONBOARD_ASSET,
                 actual = eventType,
-                message = "Expected the event type to be an onboard asset event",
+                message = "Expected the event type to be an onboard asset event"
             )
             assertTrue(
                 actual = "Intercepted onboard asset did not point to a scope with a scope attribute" in message,
-                message = "Expected the event message to be formatted correctly",
+                message = "Expected the event message to be formatted correctly"
             )
             assertTrue(
                 actual = t is IllegalStateException,
-                message = "Expected the throwable to be formatted correctly",
+                message = "Expected the throwable to be formatted correctly"
             )
             assertEquals(
                 expected = "Failed to query for scope",
                 actual = t.message,
-                message = "Expected the error message to be populated correctly",
+                message = "Expected the error message to be populated correctly"
             )
         }
     }
@@ -186,22 +186,22 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<VerifierEvent.OnboardEventIgnoredPreviouslyProcessed>(parameters) { (event, scopeAttribute, message) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the classification event to be included in the event",
+                message = "Expected the classification event to be included in the event"
             )
             assertEquals(
                 expected = scopeAttribute,
                 actual = mockScopeAttribute,
-                message = "Expected the scope attribute to be included in the event",
+                message = "Expected the scope attribute to be included in the event"
             )
             assertTrue(
                 actual = "Scope attribute indicates an onboarding status of [DENIED], which is not actionable. Has verification: [Verified = false | Message = MOCK: Denied]" in message,
-                message = "Expected the proper message to be included in the event, but got message: $message",
+                message = "Expected the proper message to be included in the event, but got message: $message"
             )
         }
     }
@@ -219,27 +219,27 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<VerifierEvent.OnboardEventFailedToRetrieveAsset>(parameters) { (event, scopeAttribute, t) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to include the classification event from the parameters",
+                message = "Expected the event to include the classification event from the parameters"
             )
             assertEquals(
                 expected = mockScopeAttribute,
                 actual = scopeAttribute,
-                message = "Expected the event to include the retrieved scope attribute",
+                message = "Expected the event to include the retrieved scope attribute"
             )
             assertTrue(
                 actual = t is IllegalStateException,
-                message = "Expected the exception to be an IllegalStateException, but was ${t::class.simpleName}",
+                message = "Expected the exception to be an IllegalStateException, but was ${t::class.simpleName}"
             )
             assertEquals(
                 expected = "MOCK: Failed to retrieve asset",
                 actual = t.message,
-                message = "Expected the exception to include the correct message",
+                message = "Expected the exception to include the correct message"
             )
         }
     }
@@ -258,27 +258,27 @@ class DefaultOnboardEventHandlerTest {
         DefaultOnboardEventHandler.handleEvent(parameters)
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "The verification channel should not receive any input",
+            message = "The verification channel should not receive any input"
         )
         assertLastEvent<VerifierEvent.OnboardEventFailedToVerifyAsset>(parameters) { (event, scopeAttribute, t) ->
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to include the classification event from the parameters",
+                message = "Expected the event to include the classification event from the parameters"
             )
             assertEquals(
                 expected = mockScopeAttribute,
                 actual = scopeAttribute,
-                message = "Expected the event to include the retrieved scope attribute",
+                message = "Expected the event to include the retrieved scope attribute"
             )
             assertTrue(
                 actual = t is IllegalStateException,
-                message = "Expected the exception to be an IllegalStateException, but was ${t::class.simpleName}",
+                message = "Expected the exception to be an IllegalStateException, but was ${t::class.simpleName}"
             )
             assertEquals(
                 expected = "MOCK: Failed to verify asset",
                 actual = t.message,
-                message = "Expected the exception to include the correct message",
+                message = "Expected the exception to include the correct message"
             )
         }
     }
@@ -293,7 +293,7 @@ class DefaultOnboardEventHandlerTest {
         val mockScopeAttribute = getMockScopeAttribute()
         val mockVerification = AssetVerification(
             message = "MOCK: Successful verification",
-            success = true,
+            success = true
         )
         every { parameters.acClient.queryAssetScopeAttributeByScopeAddress(any(), any()) } returns mockScopeAttribute
         coEvery { parameters.processor.retrieveAsset(any(), any(), any()) } returns "MOCK ASSET"
@@ -303,49 +303,49 @@ class DefaultOnboardEventHandlerTest {
             assertEquals(
                 expected = parameters.event,
                 actual = event,
-                message = "Expected the event to include the classification event from the parameters",
+                message = "Expected the event to include the classification event from the parameters"
             )
             assertEquals(
                 expected = mockScopeAttribute,
                 actual = scopeAttribute,
-                message = "Expected the event to include the retrieved scope attribute",
+                message = "Expected the event to include the retrieved scope attribute"
             )
             assertEquals(
                 expected = mockVerification,
                 actual = verification,
-                message = "Expected the verification derived from the processor to be included in the event",
+                message = "Expected the verification derived from the processor to be included in the event"
             )
         }
         assertFalse(
             actual = parameters.verificationChannel.isEmpty,
-            message = "A verification channel event should be sent",
+            message = "A verification channel event should be sent"
         )
         val message = parameters.verificationChannel.receive()
         assertEquals(
             expected = parameters.event,
             actual = message.event,
-            message = "The classification event should be included in the verification message",
+            message = "The classification event should be included in the verification message"
         )
         assertEquals(
             expected = mockScopeAttribute,
             actual = message.scopeAttribute,
-            message = "The scope attribute should be included in the verification message",
+            message = "The scope attribute should be included in the verification message"
         )
         assertEquals(
             expected = mockVerification,
             actual = message.verification,
-            message = "The verification should be included in the verification message",
+            message = "The verification should be included in the verification message"
         )
         assertTrue(
             actual = parameters.verificationChannel.isEmpty,
-            message = "There should be no more verification channel messages",
+            message = "There should be no more verification channel messages"
         )
     }
 
     private fun getMockParameters(
         verifierAccount: ProvenanceAccountDetail = getMockAccountDetail(),
         includeVerifierAddress: Boolean = true,
-        builderFn: (MockTxEventBuilder) -> MockTxEventBuilder = { it },
+        builderFn: (MockTxEventBuilder) -> MockTxEventBuilder = { it }
     ): EventHandlerParameters = MockTxEvent
         .builder()
         .addACAttribute(MockACAttribute.EventType(ACContractEvent.ONBOARD_ASSET))
@@ -363,7 +363,7 @@ class DefaultOnboardEventHandlerTest {
                 verifierAccount = verifierAccount,
                 processor = mockk(),
                 verificationChannel = Channel(capacity = Channel.BUFFERED),
-                eventChannel = Channel(capacity = Channel.BUFFERED),
+                eventChannel = Channel(capacity = Channel.BUFFERED)
             )
         }
 }

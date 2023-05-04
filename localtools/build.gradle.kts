@@ -33,7 +33,7 @@ dependencies {
         project(":client"),
         libs.asset.specs,
         libs.feign.jackson,
-        libs.okhttp3,
+        libs.okhttp3
     ).forEach(::api)
 
     testImplementation(libs.bundles.test)
@@ -53,6 +53,6 @@ dependencies {
         // Bundles
         libs.bundles.coroutines,
         libs.bundles.test,
-        libs.bundles.testcontainers,
+        libs.bundles.testcontainers
     ).forEach { configurations["integrationTestImplementation"].invoke(it) }
 }

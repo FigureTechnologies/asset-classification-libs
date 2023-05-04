@@ -37,5 +37,5 @@ data class VerifierDetail(
     val feeDestinations: List<FeeDestination> = emptyList(),
     val entityDetail: EntityDetail? = null,
     val retryCost: OnboardingCost? = null,
-    val subsequentClassificationDetail: SubsequentClassificationDetail? = null,
+    val subsequentClassificationDetail: SubsequentClassificationDetail? = null
 )

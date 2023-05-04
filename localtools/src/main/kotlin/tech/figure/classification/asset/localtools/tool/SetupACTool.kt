@@ -44,12 +44,12 @@ object SetupACTool {
     }
 
     fun generateAssetDefinitionExecutes(
-        config: SetupACToolConfig,
+        config: SetupACToolConfig
     ): List<AddAssetDefinitionExecute> = generateAssetDefinitionExecutes(
         verifierBech32Address = config.verifierBech32Address,
         onboardingCostOverrides = config.assetDefinitionOnboardingCostOverrides,
         retryCostOverrides = config.retryCostOverrides,
-        subsequentClassificationOverrides = config.subsequentClassificationOverrides,
+        subsequentClassificationOverrides = config.subsequentClassificationOverrides
     )
 
     fun generateAssetDefinitionExecutes(
@@ -62,7 +62,7 @@ object SetupACTool {
         onboardingCostOverrides: Map<String, BigInteger> = emptyMap(),
         retryCostOverrides: Map<String, OnboardingCost> = emptyMap(),
         subsequentClassificationOverrides: Map<String, SubsequentClassificationDetail> = emptyMap(),
-        bindNameOverrides: Map<String, Boolean> = emptyMap(),
+        bindNameOverrides: Map<String, Boolean> = emptyMap()
     ): List<AddAssetDefinitionExecute> = assetTypeOverrides
         .takeIf { it.isNotEmpty() }
         .or {
@@ -84,13 +84,13 @@ object SetupACTool {
                         name = "Figure Tech Verifier: $assetType",
                         description = "The standard asset classification verifier provided by Figure Technologies",
                         homeUrl = "https://figure.tech",
-                        sourceUrl = "https://github.com/FigureTechnologies/asset-classification-libs",
+                        sourceUrl = "https://github.com/FigureTechnologies/asset-classification-libs"
                     ),
                     retryCost = retryCostOverrides[assetType] ?: OnboardingCost(BigInteger.ZERO),
-                    subsequentClassificationDetail = subsequentClassificationOverrides[assetType],
+                    subsequentClassificationDetail = subsequentClassificationOverrides[assetType]
                 ).wrapListAc(),
                 enabled = true,
-                bindName = bindNameOverrides[assetType] ?: false,
+                bindName = bindNameOverrides[assetType] ?: false
             )
         }
 
@@ -105,11 +105,11 @@ object SetupACTool {
                         client.getReleaseByTag(
                             organization = "provenance-io",
                             repository = "asset-classification-smart-contract",
-                            tag = tag,
+                            tag = tag
                         )
                     } ?: client.getLatestRelease(
                         organization = "provenance-io",
-                        repository = "asset-classification-smart-contract",
+                        repository = "asset-classification-smart-contract"
                     )
                 }.assets
                     .singleOrNull { it.name == "asset_classification_smart_contract.wasm" }
@@ -156,7 +156,7 @@ object SetupACTool {
                 storeCode.wasmByteCode = wasmBytes.toByteString()
             }.build().wrapListAc(),
             account = config.contractAdminAccount,
-            gasAdjustment = 1.1,
+            gasAdjustment = 1.1
         ).getCodeIdAc()
         config.logger("Successfully stored WASM and got code id [$codeId]")
         config.logger("Instantiating asset classification smart contract at code id [$codeId]")
@@ -170,16 +170,16 @@ object SetupACTool {
                     baseContractName = "asset",
                     bindBaseName = false,
                     assetDefinitions = emptyList(),
-                    isTest = true,
+                    isTest = true
                 ).toBase64Msg(OBJECT_MAPPER)
             }.build().wrapListAc(),
             account = config.contractAdminAccount,
-            gasAdjustment = 1.2,
+            gasAdjustment = 1.2
         ).getContractAddressAc()
         config.logger("Successfully instantiated the asset classification smart contract with address [$contractAddress]")
         ACClient.getDefault(
             contractIdentifier = ContractIdentifier.Address(contractAddress),
-            pbClient = config.pbClient,
+            pbClient = config.pbClient
         ).also { acClient ->
             config.contractAliasNames.map { alias ->
                 config.logger("Generating restricted contract lookup alias [$alias] using contract admin address [${config.contractAdminAccount.bech32Address}]")
@@ -216,10 +216,10 @@ object SetupACTool {
                     config.logger("Generating add asset definition message to asset classification contract for asset type [${execute.assetType}]")
                     val addAssetMsg = ACClient.getDefault(
                         contractIdentifier = ContractIdentifier.Address(contractAddress),
-                        pbClient = config.pbClient,
+                        pbClient = config.pbClient
                     ).generateAddAssetDefinitionMsg(
                         execute = execute,
-                        signerAddress = config.contractAdminAccount.bech32Address,
+                        signerAddress = config.contractAdminAccount.bech32Address
                     )
                     config.logger("Generating bind name message of type [${execute.assetType}.asset] to contract address [$contractAddress] for future attribute writes")
                     val bindNameMsg = MsgBindNameRequest.newBuilder().also { bindName ->
@@ -241,10 +241,10 @@ object SetupACTool {
             txBody = messages.map { it.toAny() }.toTxBody(),
             signers = listOf(
                 BaseReqSigner(config.contractAdminAccount.toAccountSigner()),
-                BaseReqSigner(config.assetNameAdminAccount.toAccountSigner()),
+                BaseReqSigner(config.assetNameAdminAccount.toAccountSigner())
             ),
             mode = BroadcastMode.BROADCAST_MODE_BLOCK,
-            gasAdjustment = 1.2,
+            gasAdjustment = 1.2
         ).also { response ->
             if (response.isErrorAc()) {
                 throw IllegalStateException("FAILED to fully create all scope specifications, add asset definitions, and bind asset names to the smart contract. Got raw log: ${response.txResponse.rawLog}")
@@ -290,7 +290,7 @@ data class SetupACToolConfig(
     val logger: SetupACToolLogging = SetupACToolLogging.Disabled,
     val assetDefinitionOnboardingCostOverrides: Map<String, BigInteger> = emptyMap(),
     val retryCostOverrides: Map<String, OnboardingCost> = emptyMap(),
-    val subsequentClassificationOverrides: Map<String, SubsequentClassificationDetail> = emptyMap(),
+    val subsequentClassificationOverrides: Map<String, SubsequentClassificationDetail> = emptyMap()
 )
 
 /**

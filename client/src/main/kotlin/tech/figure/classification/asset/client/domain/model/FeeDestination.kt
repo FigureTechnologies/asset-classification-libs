@@ -23,5 +23,5 @@ data class FeeDestination(
     @JsonSerialize(using = CosmWasmBigIntegerToUintSerializer::class)
     @JsonDeserialize(using = CosmWasmUintToBigIntegerDeserializer::class)
     val feeAmount: BigInteger,
-    val entityDetail: EntityDetail? = null,
+    val entityDetail: EntityDetail? = null
 )

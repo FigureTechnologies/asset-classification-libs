@@ -54,7 +54,7 @@ abstract class IntTestBase {
                 PbClient(
                     chainId = "chain-local",
                     channelUri = URI.create("http://${provenanceContainer.host}:${provenanceContainer.getMappedPort(9090)}"),
-                    gasEstimationMethod = GasEstimationMethod.MSG_FEE_CALCULATION,
+                    gasEstimationMethod = GasEstimationMethod.MSG_FEE_CALCULATION
                 )
             }
         }
@@ -62,7 +62,7 @@ abstract class IntTestBase {
         val acClient: ACClient by lazy {
             ACClient.getDefault(
                 contractIdentifier = ContractIdentifier.Name("assetclassificationalias.pb"),
-                pbClient = pbClient,
+                pbClient = pbClient
             )
         }
 
@@ -70,7 +70,7 @@ abstract class IntTestBase {
             registry.getContainer(ManagedContainerType.OBJECT_STORE).let { osContainer ->
                 OsClient(
                     uri = URI.create("grpc://localhost:${osContainer.getMappedPort(5000)}"),
-                    deadlineMs = 20000L, // 20 seconds til DESTRUCTION
+                    deadlineMs = 20000L // 20 seconds til DESTRUCTION
                 )
             }
         }
@@ -95,7 +95,7 @@ abstract class IntTestBase {
             .map { assetDefinition ->
                 acClient.generateDeleteAssetDefinitionMsg(
                     execute = DeleteAssetDefinitionExecute(assetDefinition.assetType),
-                    signerAddress = AppResources.contractAdminAccount.bech32Address,
+                    signerAddress = AppResources.contractAdminAccount.bech32Address
                 )
             }
             .plus(
@@ -112,7 +112,7 @@ abstract class IntTestBase {
         pbClient.estimateAndBroadcastTx(
             txBody = messages.toTxBody(),
             signers = BaseReqSigner(AppResources.contractAdminAccount.toAccountSigner()).let(::listOf),
-            mode = BroadcastMode.BROADCAST_MODE_BLOCK,
+            mode = BroadcastMode.BROADCAST_MODE_BLOCK
         )
         logger.info("Successfully reset default asset definitions")
     }
@@ -124,9 +124,9 @@ abstract class IntTestBase {
                 assetType = assetDefinition.assetType,
                 displayName = assetDefinition.displayName,
                 verifiers = assetDefinition.verifiers,
-                enabled = assetDefinition.enabled,
+                enabled = assetDefinition.enabled
             ),
-            signer = AppResources.contractAdminAccount.toAccountSigner(),
+            signer = AppResources.contractAdminAccount.toAccountSigner()
         )
         logger.info("Successfully updated asset definition for asset type [${assetDefinition.assetType}")
     }

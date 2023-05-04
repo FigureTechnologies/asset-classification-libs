@@ -18,5 +18,5 @@ data class GitHubAsset(
     val downloadCount: Long,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
-    val browserDownloadUrl: String,
+    val browserDownloadUrl: String
 )

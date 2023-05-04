@@ -29,7 +29,7 @@ interface ACExecutor {
      */
     fun <T> generateOnboardAssetMsg(
         execute: OnboardAssetExecute<T>,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -43,7 +43,7 @@ interface ACExecutor {
     fun <T> onboardAsset(
         execute: OnboardAssetExecute<T>,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -55,7 +55,7 @@ interface ACExecutor {
      */
     fun <T> generateVerifyAssetMsg(
         execute: VerifyAssetExecute<T>,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -70,7 +70,7 @@ interface ACExecutor {
     fun <T> verifyAsset(
         execute: VerifyAssetExecute<T>,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -84,7 +84,7 @@ interface ACExecutor {
      */
     fun generateAddAssetDefinitionMsg(
         execute: AddAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -100,7 +100,7 @@ interface ACExecutor {
     fun addAssetDefinition(
         execute: AddAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -114,7 +114,7 @@ interface ACExecutor {
      */
     fun generateUpdateAssetDefinitionMsg(
         execute: UpdateAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -132,7 +132,7 @@ interface ACExecutor {
     fun updateAssetDefinition(
         execute: UpdateAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -146,7 +146,7 @@ interface ACExecutor {
      */
     fun <T> generateUpdateAccessRoutesMsg(
         execute: UpdateAccessRoutesExecute<T>,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -163,7 +163,7 @@ interface ACExecutor {
     fun <T> updateAccessRoutes(
         execute: UpdateAccessRoutesExecute<T>,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -177,7 +177,7 @@ interface ACExecutor {
      */
     fun generateToggleAssetDefinitionMsg(
         execute: ToggleAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -194,7 +194,7 @@ interface ACExecutor {
     fun toggleAssetDefinition(
         execute: ToggleAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -208,7 +208,7 @@ interface ACExecutor {
      */
     fun generateAddAssetVerifierMsg(
         execute: AddAssetVerifierExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -224,7 +224,7 @@ interface ACExecutor {
     fun addAssetVerifier(
         execute: AddAssetVerifierExecute,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -238,7 +238,7 @@ interface ACExecutor {
      */
     fun generateUpdateAssetVerifierMsg(
         execute: UpdateAssetVerifierExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -254,7 +254,7 @@ interface ACExecutor {
     fun updateAssetVerifier(
         execute: UpdateAssetVerifierExecute,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 
     /**
@@ -268,7 +268,7 @@ interface ACExecutor {
      */
     fun generateDeleteAssetDefinitionMsg(
         execute: DeleteAssetDefinitionExecute,
-        signerAddress: String,
+        signerAddress: String
     ): MsgExecuteContract
 
     /**
@@ -284,6 +284,6 @@ interface ACExecutor {
     fun deleteAssetDefinition(
         execute: DeleteAssetDefinitionExecute,
         signer: Signer,
-        options: BroadcastOptions = BroadcastOptions(),
+        options: BroadcastOptions = BroadcastOptions()
     ): BroadcastTxResponse
 }

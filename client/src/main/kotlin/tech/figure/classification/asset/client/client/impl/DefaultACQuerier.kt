@@ -31,11 +31,12 @@ import java.util.UUID
 class DefaultACQuerier(
     private val contractIdentifier: ContractIdentifier,
     private val objectMapper: ObjectMapper,
-    private val pbClient: PbClient,
+    private val pbClient: PbClient
 ) : ACQuerier {
     private companion object {
         // Static instance of a TypeReference for List<AssetDefinition> to prevent multiple instantiations
         private val ASSET_DEFINITION_LIST_TYPE_REFERENCE = object : TypeReference<List<AssetDefinition>>() {}
+
         // Static instance of a TypeReference for List<AssetScopeAttribute> to prevent multiple instantiations
         private val SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE = object : TypeReference<List<AssetScopeAttribute>>() {}
     }
@@ -51,159 +52,159 @@ class DefaultACQuerier(
 
     override fun queryAssetDefinitionByAssetTypeOrNull(
         assetType: String,
-        throwExceptions: Boolean,
+        throwExceptions: Boolean
     ): AssetDefinition? = doQueryOrNull(
         query = QueryAssetDefinition(assetType),
-        throwExceptions = throwExceptions,
+        throwExceptions = throwExceptions
     )
 
     override fun queryAssetDefinitionByAssetType(
-        assetType: String,
+        assetType: String
     ): AssetDefinition = doQuery(
         query = QueryAssetDefinition(
-            assetType = assetType,
-        ),
+            assetType = assetType
+        )
     )
 
     override fun queryAssetDefinitions(): List<AssetDefinition> = doQuery(
         query = QueryAssetDefinitions,
-        typeReference = ASSET_DEFINITION_LIST_TYPE_REFERENCE,
+        typeReference = ASSET_DEFINITION_LIST_TYPE_REFERENCE
     )
 
     override fun queryAssetScopeAttributeByAssetUuidOrNull(
         assetUuid: UUID,
         assetType: String,
-        throwExceptions: Boolean,
+        throwExceptions: Boolean
     ): AssetScopeAttribute? = doQueryOrNull(
         query = QueryAssetScopeAttributeForAssetType(
             identifier = AssetIdentifier.AssetUuid(value = assetUuid),
             assetType = assetType
         ),
-        throwExceptions = throwExceptions,
+        throwExceptions = throwExceptions
     )
 
     override fun queryAssetScopeAttributeByAssetUuid(
         assetUuid: UUID,
-        assetType: String,
+        assetType: String
     ): AssetScopeAttribute = doQuery(
         query = QueryAssetScopeAttributeForAssetType(
             identifier = AssetIdentifier.AssetUuid(value = assetUuid),
-            assetType = assetType,
-        ),
+            assetType = assetType
+        )
     )
 
     override fun queryAssetScopeAttributeByScopeAddressOrNull(
         scopeAddress: String,
         assetType: String,
-        throwExceptions: Boolean,
+        throwExceptions: Boolean
     ): AssetScopeAttribute? = doQueryOrNull(
         query = QueryAssetScopeAttributeForAssetType(
             identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
-            assetType = assetType,
+            assetType = assetType
         ),
-        throwExceptions = throwExceptions,
+        throwExceptions = throwExceptions
     )
 
     override fun queryAssetScopeAttributeByScopeAddress(
         scopeAddress: String,
-        assetType: String,
+        assetType: String
     ): AssetScopeAttribute = doQuery(
         query = QueryAssetScopeAttributeForAssetType(
             identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
-            assetType = assetType,
+            assetType = assetType
         )
     )
 
     override fun queryAssetScopeAttributesByAssetUuidOrNull(
         assetUuid: UUID,
-        throwExceptions: Boolean,
+        throwExceptions: Boolean
     ): List<AssetScopeAttribute>? = doQueryOrNull(
         query = QueryAssetScopeAttributes(
-            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid)
         ),
         throwExceptions = throwExceptions,
-        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE,
+        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE
     )
 
     override fun queryAssetScopeAttributesByAssetUuid(
-        assetUuid: UUID,
+        assetUuid: UUID
     ): List<AssetScopeAttribute> = doQuery(
         query = QueryAssetScopeAttributes(
-            identifier = AssetIdentifier.AssetUuid(value = assetUuid),
+            identifier = AssetIdentifier.AssetUuid(value = assetUuid)
         ),
-        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE,
+        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE
     )
 
     override fun queryAssetScopeAttributesByScopeAddressOrNull(
         scopeAddress: String,
-        throwExceptions: Boolean,
+        throwExceptions: Boolean
     ): List<AssetScopeAttribute>? = doQueryOrNull(
         query = QueryAssetScopeAttributes(
-            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress)
         ),
         throwExceptions = throwExceptions,
-        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE,
+        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE
     )
 
     override fun queryAssetScopeAttributesByScopeAddress(
-        scopeAddress: String,
+        scopeAddress: String
     ): List<AssetScopeAttribute> = doQuery(
         query = QueryAssetScopeAttributes(
-            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
+            identifier = AssetIdentifier.ScopeAddress(value = scopeAddress)
         ),
-        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE,
+        typeReference = SCOPE_ATTRIBUTE_LIST_TYPE_REFERENCE
     )
 
     override fun queryFeePaymentsByAssetUuidOrNull(
         assetUuid: UUID,
         assetType: String,
-        throwExceptions: Boolean,
+        throwExceptions: Boolean
     ): FeePaymentDetail? = doQueryOrNull(
         query = QueryFeePayments(
             identifier = AssetIdentifier.AssetUuid(value = assetUuid),
-            assetType = assetType,
+            assetType = assetType
         ),
-        throwExceptions = throwExceptions,
+        throwExceptions = throwExceptions
     )
 
     override fun queryFeePaymentsByAssetUuid(
         assetUuid: UUID,
-        assetType: String,
+        assetType: String
     ): FeePaymentDetail = doQuery(
         query = QueryFeePayments(
             identifier = AssetIdentifier.AssetUuid(value = assetUuid),
-            assetType = assetType,
+            assetType = assetType
         )
     )
 
     override fun queryFeePaymentsByScopeAddressOrNull(
         scopeAddress: String,
         assetType: String,
-        throwExceptions: Boolean,
+        throwExceptions: Boolean
     ): FeePaymentDetail? = doQueryOrNull(
         query = QueryFeePayments(
             identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
-            assetType = assetType,
+            assetType = assetType
         ),
-        throwExceptions = throwExceptions,
+        throwExceptions = throwExceptions
     )
 
     override fun queryFeePaymentsByScopeAddress(
         scopeAddress: String,
-        assetType: String,
+        assetType: String
     ): FeePaymentDetail = doQuery(
         query = QueryFeePayments(
             identifier = AssetIdentifier.ScopeAddress(value = scopeAddress),
-            assetType = assetType,
+            assetType = assetType
         )
     )
 
     override fun queryContractState(): ACContractState = doQuery(
-        query = QueryState,
+        query = QueryState
     )
 
     override fun queryContractVersion(): ACVersionInfo = doQuery(
-        query = QueryVersion,
+        query = QueryVersion
     )
 
     /**
@@ -212,13 +213,13 @@ class DefaultACQuerier(
      */
     private inline fun <reified T : ContractQuery, reified U : Any> doQuery(
         query: T,
-        typeReference: TypeReference<U>? = null,
+        typeReference: TypeReference<U>? = null
     ): U = doQueryOrNull(query = query, typeReference = typeReference)
         ?: throw NullContractResponseException("Received null response from asset classification smart contract for: ${query.queryFailureMessage}")
 
     private inline fun <reified T : ContractQuery, reified U : Any> doQueryOrNull(
         query: T,
-        typeReference: TypeReference<U>? = null,
+        typeReference: TypeReference<U>? = null
     ): U? =
         pbClient.wasmClient.queryWasm(
             QueryOuterClass.QuerySmartContractStateRequest.newBuilder()
@@ -234,6 +235,7 @@ class DefaultACQuerier(
                     objectMapper.readValue(array, U::class.java)
                 }
             }
+
     /**
      * Executes a provided [ContractQuery] against the Asset Classification smart contract with additional functionality
      * designed to return null responses when requested.
@@ -241,11 +243,11 @@ class DefaultACQuerier(
     private inline fun <reified T : ContractQuery, reified U : Any> doQueryOrNull(
         query: T,
         throwExceptions: Boolean,
-        typeReference: TypeReference<U>? = null,
+        typeReference: TypeReference<U>? = null
     ): U? = try {
         doQueryOrNull(
             query = query,
-            typeReference = typeReference,
+            typeReference = typeReference
         )
     } catch (e: Exception) {
         when {
