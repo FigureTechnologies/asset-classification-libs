@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 sourceSets {
     create("integrationTest") {
-        compileClasspath += main.get().output + test.get().output + configurations.testCompileClasspath
+        compileClasspath += main.get().output + test.get().output + configurations.testCompileClasspath.get()
         runtimeClasspath += main.get().output + test.get().output + compileClasspath
         java.srcDir("src/integrationTest")
     }
