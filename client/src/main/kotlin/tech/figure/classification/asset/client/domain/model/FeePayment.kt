@@ -16,5 +16,5 @@ import cosmos.base.v1beta1.CoinOuterClass.Coin
 data class FeePayment(
     val amount: Coin,
     val name: String,
-    val recipient: String,
+    val recipient: String
 )

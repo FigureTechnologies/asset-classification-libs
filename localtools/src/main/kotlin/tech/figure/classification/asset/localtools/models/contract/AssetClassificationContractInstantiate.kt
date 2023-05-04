@@ -10,5 +10,5 @@ data class AssetClassificationContractInstantiate(
     val baseContractName: String,
     val bindBaseName: Boolean,
     val assetDefinitions: List<AssetDefinition>,
-    val isTest: Boolean? = null,
+    val isTest: Boolean? = null
 ) : ContractExecute

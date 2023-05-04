@@ -36,13 +36,13 @@ interface ACClient : ACExecutor, ACQuerier {
         fun getDefault(
             contractIdentifier: ContractIdentifier,
             pbClient: PbClient,
-            objectMapper: ObjectMapper = DEFAULT_OBJECT_MAPPER,
+            objectMapper: ObjectMapper = DEFAULT_OBJECT_MAPPER
         ): ACClient = DefaultACQuerier(contractIdentifier, objectMapper, pbClient).let { querier ->
             DefaultACClient(
                 pbClient = pbClient,
                 objectMapper = objectMapper,
                 executor = DefaultACExecutor(objectMapper, pbClient, querier),
-                querier = querier,
+                querier = querier
             )
         }
 
@@ -70,12 +70,12 @@ interface ACClient : ACExecutor, ACQuerier {
             channelUri = channelUri,
             gasEstimationMethod = gasEstimator,
             opts = opts,
-            channelConfigLambda = channelConfigLambda,
+            channelConfigLambda = channelConfigLambda
         ).let { pbClient ->
             getDefault(
                 contractIdentifier = contractIdentifier,
                 pbClient = pbClient,
-                objectMapper = objectMapper,
+                objectMapper = objectMapper
             )
         }
     }

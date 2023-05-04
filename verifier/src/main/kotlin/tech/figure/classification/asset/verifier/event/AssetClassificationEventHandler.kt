@@ -49,5 +49,5 @@ data class EventHandlerParameters(
     val verifierAccount: ProvenanceAccountDetail,
     val processor: VerificationProcessor<Any>,
     val verificationChannel: Channel<VerificationMessage>,
-    val eventChannel: Channel<VerifierEvent>,
+    val eventChannel: Channel<VerifierEvent>
 )

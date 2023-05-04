@@ -21,5 +21,5 @@ data class GitHubReleaseResponse(
     val assets: List<GitHubAsset>,
     val tarballUrl: String,
     val zipballUrl: String,
-    val body: String,
+    val body: String
 )

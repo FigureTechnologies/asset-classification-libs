@@ -67,7 +67,7 @@ interface ACQuerier {
     fun queryAssetScopeAttributeByAssetUuidOrNull(
         assetUuid: UUID,
         assetType: String,
-        throwExceptions: Boolean = false,
+        throwExceptions: Boolean = false
     ): AssetScopeAttribute?
 
     /**
@@ -101,7 +101,7 @@ interface ACQuerier {
     fun queryAssetScopeAttributeByScopeAddressOrNull(
         scopeAddress: String,
         assetType: String,
-        throwExceptions: Boolean = false,
+        throwExceptions: Boolean = false
     ): AssetScopeAttribute?
 
     /**
@@ -130,7 +130,7 @@ interface ACQuerier {
      */
     fun queryAssetScopeAttributesByAssetUuidOrNull(
         assetUuid: UUID,
-        throwExceptions: Boolean = false,
+        throwExceptions: Boolean = false
     ): List<AssetScopeAttribute>?
 
     /**
@@ -155,7 +155,7 @@ interface ACQuerier {
      */
     fun queryAssetScopeAttributesByScopeAddressOrNull(
         scopeAddress: String,
-        throwExceptions: Boolean = false,
+        throwExceptions: Boolean = false
     ): List<AssetScopeAttribute>?
 
     /**
@@ -183,7 +183,7 @@ interface ACQuerier {
     fun queryFeePaymentsByAssetUuidOrNull(
         assetUuid: UUID,
         assetType: String,
-        throwExceptions: Boolean = false,
+        throwExceptions: Boolean = false
     ): FeePaymentDetail?
 
     /**
@@ -197,7 +197,7 @@ interface ACQuerier {
      */
     fun queryFeePaymentsByAssetUuid(
         assetUuid: UUID,
-        assetType: String,
+        assetType: String
     ): FeePaymentDetail
 
     /**
@@ -216,7 +216,7 @@ interface ACQuerier {
     fun queryFeePaymentsByScopeAddressOrNull(
         scopeAddress: String,
         assetType: String,
-        throwExceptions: Boolean = false,
+        throwExceptions: Boolean = false
     ): FeePaymentDetail?
 
     /**
@@ -230,7 +230,7 @@ interface ACQuerier {
      */
     fun queryFeePaymentsByScopeAddress(
         scopeAddress: String,
-        assetType: String,
+        assetType: String
     ): FeePaymentDetail
 
     /**

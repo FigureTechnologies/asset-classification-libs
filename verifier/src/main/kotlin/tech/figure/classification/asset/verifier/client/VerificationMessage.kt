@@ -15,5 +15,5 @@ data class VerificationMessage(
     val failureMessagePrefix: String,
     val event: AssetClassificationEvent,
     val scopeAttribute: AssetScopeAttribute,
-    val verification: AssetVerification,
+    val verification: AssetVerification
 )

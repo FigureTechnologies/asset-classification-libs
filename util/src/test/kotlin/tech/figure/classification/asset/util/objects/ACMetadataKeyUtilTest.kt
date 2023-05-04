@@ -24,17 +24,17 @@ class ACMetadataKeyUtilTest {
         val addressFromWalletSigner = fromMnemonic(
             networkType = ProvenanceNetworkType.TESTNET.toNetworkType(),
             mnemonic = mnemonic,
-            isMainNet = false,
+            isMainNet = false
         ).address()
         val privateKeyEncoded = ACMetadataKeyUtil.getBase64EncodedPrivateKey(
             mnemonic = mnemonic,
-            networkType = ProvenanceNetworkType.TESTNET,
+            networkType = ProvenanceNetworkType.TESTNET
         )
         val addressFromAccountDetail = ProvenanceAccountDetail.fromBase64PrivateKey(privateKeyEncoded, mainNet = false).bech32Address
         assertEquals(
             expected = addressFromWalletSigner,
             actual = addressFromAccountDetail,
-            message = "The WalletSigner-derived address should match the address from ProvenanceAccountDetail after decoding the produced base64 encoded private key",
+            message = "The WalletSigner-derived address should match the address from ProvenanceAccountDetail after decoding the produced base64 encoded private key"
         )
     }
 }

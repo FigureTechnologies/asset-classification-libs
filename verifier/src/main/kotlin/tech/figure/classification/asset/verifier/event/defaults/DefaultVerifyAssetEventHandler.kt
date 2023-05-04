@@ -14,7 +14,7 @@ import tech.figure.classification.asset.verifier.provenance.ACContractEvent
 object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
     private val expectedOnboardingStatuses: List<AssetOnboardingStatus> = listOf(
         AssetOnboardingStatus.APPROVED,
-        AssetOnboardingStatus.DENIED,
+        AssetOnboardingStatus.DENIED
     )
 
     override val eventType: ACContractEvent = ACContractEvent.VERIFY_ASSET
@@ -45,7 +45,7 @@ object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
                 EventIgnoredMissingScopeAddress(
                     event = event,
                     eventType = this.eventType,
-                    message = "$messagePrefix Expected the verify asset event to include a scope address, but it was missing",
+                    message = "$messagePrefix Expected the verify asset event to include a scope address, but it was missing"
                 )
             )
             return
@@ -55,7 +55,7 @@ object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
                 EventIgnoredMissingAssetType(
                     event = event,
                     eventType = this.eventType,
-                    message = "$messagePrefix Expected the verify asset event to include an asset type, but it was missing",
+                    message = "$messagePrefix Expected the verify asset event to include an asset type, but it was missing"
                 )
             )
             return
@@ -66,7 +66,7 @@ object DefaultVerifyAssetEventHandler : AssetClassificationEventHandler {
                 eventChannel.send(
                     VerifyEventUnexpectedOnboardingStatus(
                         event = event,
-                        message = "$messagePrefix Verification produced an unexpected onboarding status of [${event.assetOnboardingStatus?.contractName}]",
+                        message = "$messagePrefix Verification produced an unexpected onboarding status of [${event.assetOnboardingStatus?.contractName}]"
                     )
                 )
                 return

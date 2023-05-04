@@ -15,7 +15,7 @@ object CoroutineUtil {
         maxDelay: Long = 1000L,
         factor: Double = 2.0,
         showStackTraceInFailures: Boolean = true,
-        block: suspend () -> T,
+        block: suspend () -> T
     ): T {
         var currentDelay = initialDelay
         repeat(times - 1) { attempt ->
@@ -25,7 +25,7 @@ object CoroutineUtil {
                 logger.logDynamicAc(
                     level = if (attempt >= times / 2) KLogLevel.ERROR else KLogLevel.WARN,
                     message = "$errorPrefix: Retry block failed for attempt [${attempt + 1} / $times]. Waiting for [${currentDelay}ms]",
-                    t = e.takeIf { showStackTraceInFailures },
+                    t = e.takeIf { showStackTraceInFailures }
                 )
             }
             delay(currentDelay)

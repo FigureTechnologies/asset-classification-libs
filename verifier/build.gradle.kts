@@ -9,7 +9,7 @@ dependencies {
         libs.bundles.scarlet,
 
         // Libraries
-        libs.okhttp3,
+        libs.okhttp3
     ).forEach(::api)
 
     listOf(
@@ -17,6 +17,6 @@ dependencies {
         libs.bundles.test,
 
         // Libraries
-        libs.coroutines.test,
+        libs.coroutines.test
     ).forEach(::testImplementation)
 }

@@ -22,14 +22,14 @@ fun PbClient.broadcastTxAc(
     broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_BLOCK,
     gasAdjustment: Double = 1.2,
     feeGranter: String? = null,
-    printRawLogOnFailure: Boolean = true,
+    printRawLogOnFailure: Boolean = true
 ): BroadcastTxResponse = broadcastTxAc(
     messages = messages.map { it.toAny() },
     account = account,
     broadcastMode = broadcastMode,
     gasAdjustment = gasAdjustment,
     feeGranter = feeGranter,
-    printRawLogOnFailure = printRawLogOnFailure,
+    printRawLogOnFailure = printRawLogOnFailure
 )
 
 /**
@@ -43,13 +43,13 @@ fun PbClient.broadcastTxAc(
     broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_BLOCK,
     gasAdjustment: Double = 1.2,
     feeGranter: String? = null,
-    printRawLogOnFailure: Boolean = true,
+    printRawLogOnFailure: Boolean = true
 ): BroadcastTxResponse = estimateAndBroadcastTx(
     txBody = messages.toTxBody(),
     signers = account.toAccountSigner().let(::BaseReqSigner).wrapListAc(),
     mode = broadcastMode,
     gasAdjustment = gasAdjustment,
-    feeGranter = feeGranter,
+    feeGranter = feeGranter
 ).also { response ->
     if (response.isErrorAc()) {
         throw IllegalStateException("Bad response code from transaction${if (printRawLogOnFailure) ". Log: ${response.txResponse.rawLog}" else ""}")

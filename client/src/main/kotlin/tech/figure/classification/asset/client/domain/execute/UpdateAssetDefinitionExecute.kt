@@ -25,5 +25,5 @@ data class UpdateAssetDefinitionExecute(
     val assetType: String,
     val displayName: String? = null,
     val verifiers: List<VerifierDetail>,
-    val enabled: Boolean? = null,
+    val enabled: Boolean? = null
 ) : ContractExecute

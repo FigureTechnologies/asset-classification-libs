@@ -13,7 +13,7 @@ class StreamRestartModeTest {
         // This test ensures that changes to these constants won't cause unexpected behavior
         assertTrue(
             actual = StreamRestartMode.On.MIN_RESTART_DELAY_MS > StreamRestartMode.On.RESTART_IMMEDIATELY,
-            message = "Min delay [${StreamRestartMode.On.MIN_RESTART_DELAY_MS}] should be greater than immediate restart amount [${StreamRestartMode.On.RESTART_IMMEDIATELY}]",
+            message = "Min delay [${StreamRestartMode.On.MIN_RESTART_DELAY_MS}] should be greater than immediate restart amount [${StreamRestartMode.On.RESTART_IMMEDIATELY}]"
         )
     }
 
@@ -43,24 +43,24 @@ class StreamRestartModeTest {
     fun `test calcDelay for immediate restarts`() {
         val restartModeWithBackoff = StreamRestartMode.On(
             restartDelayMs = StreamRestartMode.On.RESTART_IMMEDIATELY,
-            useExponentialBackoff = true,
+            useExponentialBackoff = true
         )
         repeat(10) { restartCount ->
             assertEquals(
                 expected = Duration.ZERO,
                 actual = restartModeWithBackoff.calcDelay(restartCount.toLong()),
-                message = "WITH BACKOFF: Regardless of the restart count, immediate retries should never produce a delay, but it did for restart count [$restartCount]",
+                message = "WITH BACKOFF: Regardless of the restart count, immediate retries should never produce a delay, but it did for restart count [$restartCount]"
             )
         }
         val restartModeWithoutBackoff = StreamRestartMode.On(
             restartDelayMs = StreamRestartMode.On.RESTART_IMMEDIATELY,
-            useExponentialBackoff = false,
+            useExponentialBackoff = false
         )
         repeat(10) { restartCount ->
             assertEquals(
                 expected = Duration.ZERO,
                 actual = restartModeWithoutBackoff.calcDelay(restartCount.toLong()),
-                message = "WITHOUT BACKOFF: Regardless of the restart count, immediate retries should never produce a delay, but it did for restart count [$restartCount]",
+                message = "WITHOUT BACKOFF: Regardless of the restart count, immediate retries should never produce a delay, but it did for restart count [$restartCount]"
             )
         }
     }
@@ -72,12 +72,12 @@ class StreamRestartModeTest {
         assertEquals(
             expected = 1L,
             actual = restartMode.calcDelay(0).inWholeSeconds,
-            message = "The first (0th counter value) retry should use the configured value of 1 second multiply by 2^0 == 1",
+            message = "The first (0th counter value) retry should use the configured value of 1 second multiply by 2^0 == 1"
         )
         assertEquals(
             expected = 2L,
             actual = restartMode.calcDelay(1).inWholeSeconds,
-            message = "The second (1st counter value) retry should use the configured value of 1 second multiplied by 2^1 == 2",
+            message = "The second (1st counter value) retry should use the configured value of 1 second multiplied by 2^1 == 2"
         )
         assertEquals(
             expected = 4L,
@@ -87,7 +87,7 @@ class StreamRestartModeTest {
         assertEquals(
             expected = 8L,
             actual = restartMode.calcDelay(3).inWholeSeconds,
-            message = "The fourth (3rd counter value) retry should use the configured value of 1 second multiplied by 2^3 == 8",
+            message = "The fourth (3rd counter value) retry should use the configured value of 1 second multiplied by 2^3 == 8"
         )
     }
 
@@ -98,7 +98,7 @@ class StreamRestartModeTest {
             assertEquals(
                 expected = restartMode.restartDelayMs.milliseconds,
                 actual = restartMode.calcDelay(restartCount.toLong()),
-                message = "Regardless of restart count, the restartDelayMs should always be used as specified when useExponentialBackoff is disabled, but was different for restart count [$restartCount]",
+                message = "Regardless of restart count, the restartDelayMs should always be used as specified when useExponentialBackoff is disabled, but was different for restart count [$restartCount]"
             )
         }
     }

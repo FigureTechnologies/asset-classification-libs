@@ -22,13 +22,13 @@ data class ProvenanceAccountDetail(
     val privateKey: PrivateKey,
     val encodedPublicKey: String,
     val encodedPrivateKey: String,
-    val keyRef: KeyRef,
+    val keyRef: KeyRef
 ) {
     companion object {
         fun fromJavaPrivateKey(
             privateKey: PrivateKey,
             mainNet: Boolean,
-            privateKeyEncoded: String? = null,
+            privateKeyEncoded: String? = null
         ): ProvenanceAccountDetail =
             privateKey.toKeyPair().let { keyPair ->
                 ProvenanceAccountDetail(
@@ -37,7 +37,7 @@ data class ProvenanceAccountDetail(
                     privateKey = keyPair.private,
                     encodedPublicKey = ECUtils.convertPublicKeyToBytes(keyPair.public).base64EncodeStringAc(),
                     encodedPrivateKey = privateKeyEncoded ?: ACMetadataKeyUtil.getBase64EncodedPrivateKey(privateKey),
-                    keyRef = DirectKeyRef(keyPair),
+                    keyRef = DirectKeyRef(keyPair)
                 )
             }
 
@@ -45,17 +45,17 @@ data class ProvenanceAccountDetail(
             fromJavaPrivateKey(
                 privateKey = ECUtils.convertBytesToPrivateKey(BaseEncoding.base64().decode(privateKeyEncoded)),
                 mainNet = mainNet,
-                privateKeyEncoded = privateKeyEncoded,
+                privateKeyEncoded = privateKeyEncoded
             )
 
         fun fromMnemonic(
             mnemonic: String,
             networkType: ProvenanceNetworkType,
-            passphrase: String = "",
+            passphrase: String = ""
         ): ProvenanceAccountDetail =
             fromBase64PrivateKey(
                 privateKeyEncoded = ACMetadataKeyUtil.getBase64EncodedPrivateKey(mnemonic, networkType, passphrase),
-                mainNet = networkType.isMainNet(),
+                mainNet = networkType.isMainNet()
             )
     }
 

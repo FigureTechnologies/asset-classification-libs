@@ -22,10 +22,10 @@ class ContainerRegistry(private val network: Network) {
         containerMap += container.containerType to OrderedContainer(
             order = containerOrderCounter,
             managedContainer = container,
-            container = builtContainer,
+            container = builtContainer
         )
         container.afterStartup(builtContainer)
-        containerOrderCounter ++
+        containerOrderCounter++
     }
 
     fun getContainer(containerType: ManagedContainerType): GenericContainer<*> = containerMap[containerType]
@@ -41,5 +41,5 @@ class ContainerRegistry(private val network: Network) {
 private data class OrderedContainer(
     val order: Int,
     val managedContainer: ManagedTestContainer<*>,
-    val container: GenericContainer<*>,
+    val container: GenericContainer<*>
 )

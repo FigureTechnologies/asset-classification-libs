@@ -20,7 +20,7 @@ interface VerificationProcessor<T> {
     suspend fun retrieveAsset(
         event: AssetClassificationEvent,
         scopeAttribute: AssetScopeAttribute,
-        accessRoutes: List<AccessRoute>,
+        accessRoutes: List<AccessRoute>
     ): T?
 
     /**
@@ -32,6 +32,6 @@ interface VerificationProcessor<T> {
     suspend fun verifyAsset(
         event: AssetClassificationEvent,
         scopeAttribute: AssetScopeAttribute,
-        asset: T,
+        asset: T
     ): AssetVerification
 }

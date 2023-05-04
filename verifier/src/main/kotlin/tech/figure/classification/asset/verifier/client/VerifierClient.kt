@@ -49,7 +49,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
     private val tracking: AccountTrackingDetail by lazy {
         AccountTrackingDetail.lookup(
             pbClient = config.acClient.pbClient,
-            address = config.verifierAccount.bech32Address,
+            address = config.verifierAccount.bech32Address
         )
     }
 
@@ -57,7 +57,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
         val tx = config.acClient.pbClient.cosmosService.getTx(txHash)
         val events = AssetClassificationEvent.fromVerifierTxEvents(
             sourceTx = tx,
-            txEvents = tx.txResponse.toProvenanceTxEventsAc(),
+            txEvents = tx.txResponse.toProvenanceTxEventsAc()
         )
         config.coroutineScope.launch {
             events.forEach { acEvent -> handleEvent(acEvent) }
@@ -86,7 +86,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
 
     private suspend fun verifyLoop(
         startingBlockHeight: Long?,
-        retry: BlockRetry = BlockRetry(block = startingBlockHeight),
+        retry: BlockRetry = BlockRetry(block = startingBlockHeight)
     ) {
         val currentHeight = config.eventStreamProvider.currentHeight()
         var latestBlock = startingBlockHeight?.takeIf { start -> start > 0 && currentHeight?.let { it >= start } != false }
@@ -101,7 +101,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
             },
             onEvent = { event -> handleEvent(event) },
             onError = { e -> StreamExceptionOccurred(e).send() },
-            onCompletion = { t -> StreamCompleted(t).send() },
+            onCompletion = { t -> StreamCompleted(t).send() }
         )
 
         when (config.streamRestartMode) {
@@ -118,7 +118,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
                     StreamRestarting(
                         restartHeight = latestBlock,
                         restartCount = retryCount + 1,
-                        restartDelayMs = restartDelayDuration.inWholeMilliseconds,
+                        restartDelayMs = restartDelayDuration.inWholeMilliseconds
                     ).send()
                     delay(restartDelayDuration)
                     // Note that the stream delay is over and the loop is about to restart
@@ -128,8 +128,8 @@ class VerifierClient(private val config: VerifierClientConfig) {
                         startingBlockHeight = latestBlock,
                         retry = BlockRetry(
                             retryCount = retryCount + 1,
-                            block = latestBlock,
-                        ),
+                            block = latestBlock
+                        )
                     )
                 } else {
                     StreamExited(latestBlock).send()
@@ -166,7 +166,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
             if (event.contractAddress != contractAddress) {
                 EventIgnoredContractMismatch(
                     event = event,
-                    message = "This client instance watches contract address [$contractAddress], but this event originated from address [${event.contractAddress}]",
+                    message = "This client instance watches contract address [$contractAddress], but this event originated from address [${event.contractAddress}]"
                 ).send()
                 return
             }
@@ -183,7 +183,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
                 verifierAccount = config.verifierAccount,
                 processor = verifyProcessor,
                 verificationChannel = config.verificationChannel,
-                eventChannel = config.eventChannel,
+                eventChannel = config.eventChannel
             )
         )
     }
@@ -204,12 +204,12 @@ class VerifierClient(private val config: VerifierClientConfig) {
                                 assetType = message.scopeAttribute.assetType,
                                 success = message.verification.success,
                                 message = message.verification.message,
-                                accessRoutes = message.verification.accessRoutes,
+                                accessRoutes = message.verification.accessRoutes
                             ),
                             signer = signer,
                             options = BroadcastOptions(
                                 broadcastMode = BroadcastMode.BROADCAST_MODE_SYNC,
-                                baseAccount = tracking.sequencedAccount(incrementAfterGet = true),
+                                baseAccount = tracking.sequencedAccount(incrementAfterGet = true)
                             )
                         )
                     } catch (t: Throwable) {
@@ -218,7 +218,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
                             scopeAttribute = message.scopeAttribute,
                             verification = message.verification,
                             message = "${message.failureMessagePrefix} Sending verification to smart contract failed",
-                            t = t,
+                            t = t
                         ).send()
                         try {
                             tracking.reset()
@@ -228,7 +228,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
                                 scopeAttribute = message.scopeAttribute,
                                 verification = message.verification,
                                 message = "${message.failureMessagePrefix} Failed to reset account data after transaction. This may require an app restart",
-                                t = t,
+                                t = t
                             ).send()
                         }
                         null
@@ -238,7 +238,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
                             VerifyAssetSendSucceeded(
                                 event = message.event,
                                 scopeAttribute = message.scopeAttribute,
-                                verification = message.verification,
+                                verification = message.verification
                             ).send()
                         } else {
                             VerifyAssetSendFailed(
@@ -246,7 +246,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
                                 scopeAttribute = message.scopeAttribute,
                                 verification = message.verification,
                                 responseCode = response.txResponse.code,
-                                rawLog = response.txResponse.rawLog,
+                                rawLog = response.txResponse.rawLog
                             ).send()
                         }
                     }
@@ -288,7 +288,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
 private data class VerifierJobs(
     var processorJob: Job? = null,
     var verificationSendJob: Job? = null,
-    var eventHandlerJob: Job? = null,
+    var eventHandlerJob: Job? = null
 ) {
     fun cancelAndClearJobs() {
         processorJob?.cancel(CancellationException("Manual verification cancellation requested"))
@@ -305,14 +305,14 @@ private data class VerifierJobs(
 private data class AccountTrackingDetail(
     val pbClient: PbClient,
     private var account: BaseAccount,
-    private val sequenceNumber: AtomicLong,
+    private val sequenceNumber: AtomicLong
 ) {
     companion object {
         fun lookup(pbClient: PbClient, address: String): AccountTrackingDetail = pbClient.authClient.getBaseAccount(address).let { account ->
             AccountTrackingDetail(
                 pbClient = pbClient,
                 account = account,
-                sequenceNumber = account.sequence.let(::AtomicLong),
+                sequenceNumber = account.sequence.let(::AtomicLong)
             )
         }
     }
@@ -334,5 +334,5 @@ private data class AccountTrackingDetail(
 
 private data class BlockRetry(
     val retryCount: Long = 0,
-    val block: Long? = null,
+    val block: Long? = null
 )

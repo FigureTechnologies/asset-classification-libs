@@ -7,7 +7,7 @@ enum class KLogLevel {
     DEBUG,
     INFO,
     WARN,
-    ERROR,
+    ERROR
 }
 
 fun KLogger.logDynamicAc(level: KLogLevel, message: String, t: Throwable? = null) = logDynamicInternal(level, message, t)

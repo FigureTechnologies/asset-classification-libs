@@ -31,7 +31,7 @@ object FeignUtil {
                 // Read timeout unit
                 TimeUnit.SECONDS,
                 // Follow redirects
-                true,
+                true
             )
         )
         .logLevel(Logger.Level.BASIC)
@@ -66,7 +66,7 @@ object FeignUtil {
             // Retry after Date (set to null to indicate no retries)
             null,
             // Source request
-            response.request(),
+            response.request()
         )
     }
 }
