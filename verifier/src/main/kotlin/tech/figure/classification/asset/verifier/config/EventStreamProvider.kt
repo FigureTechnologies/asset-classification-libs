@@ -8,6 +8,7 @@ interface EventStreamProvider {
         height: Long? = null,
         onBlock: (suspend (blockHeight: Long) -> Unit),
         onEvent: (suspend (event: AssetClassificationEvent) -> Unit),
+        onEventsProcessed: (suspend (blockHeight: Long) -> Unit),
         onError: (suspend (throwable: Throwable) -> Unit),
         onCompletion: (suspend (throwable: Throwable?) -> Unit)
     ): RecoveryStatus

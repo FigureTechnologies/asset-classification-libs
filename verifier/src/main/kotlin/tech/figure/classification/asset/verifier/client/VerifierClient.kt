@@ -96,10 +96,12 @@ class VerifierClient(private val config: VerifierClientConfig) {
             onBlock = { blockHeight ->
                 // Record each block intercepted
                 NewBlockReceived(blockHeight).send()
-                // Track new block height
-                latestBlock = trackBlockHeight(latestBlock, blockHeight)
             },
             onEvent = { event -> handleEvent(event) },
+            onEventsProcessed = { blockHeight ->
+                // Track new block height after successful processing of events in block
+                latestBlock = trackBlockHeight(latestBlock, blockHeight)
+            },
             onError = { e -> StreamExceptionOccurred(e).send() },
             onCompletion = { t -> StreamCompleted(t).send() }
         )
