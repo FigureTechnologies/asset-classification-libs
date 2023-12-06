@@ -13,5 +13,6 @@ import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
 data class BroadcastOptions(
     val broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_BLOCK,
     val sequenceOffset: Int = 0,
-    val baseAccount: BaseAccount? = null
+    val baseAccount: BaseAccount? = null,
+    val timeoutHeight: Long? = null
 )

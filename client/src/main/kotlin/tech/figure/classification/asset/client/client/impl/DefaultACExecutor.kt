@@ -160,7 +160,7 @@ class DefaultACExecutor(
         val signerAddress = signer.address()
         val account = options.baseAccount ?: pbClient.authClient.getBaseAccount(signerAddress)
         return pbClient.estimateAndBroadcastTx(
-            txBody = msg.toAny().toTxBody(),
+            txBody = msg.toAny().toTxBody(timeoutHeight = options.timeoutHeight),
             signers = BaseReqSigner(
                 signer = signer,
                 sequenceOffset = options.sequenceOffset,
