@@ -10,7 +10,7 @@ on:
 jobs:
   java_build:
     name: Build and Publish Jar
-    runs-on: ubuntu-latest
+    runs-on: figure-linux-standard
     env:
       # Needed to allow release version to be fetched and then sent to the publish artifact step
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
