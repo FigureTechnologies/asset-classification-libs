@@ -149,8 +149,8 @@ object SetupACTool {
         val codeId = config.pbClient.broadcastTxAc(
             messages = Tx.MsgStoreCode.newBuilder().also { storeCode ->
                 storeCode.instantiatePermission = Types.AccessConfig.newBuilder().also { accessConfig ->
-                    accessConfig.address = config.contractAdminAccount.bech32Address
-                    accessConfig.permission = Types.AccessType.ACCESS_TYPE_ONLY_ADDRESS
+                    accessConfig.addAddresses(config.contractAdminAccount.bech32Address)
+                    accessConfig.permission = Types.AccessType.ACCESS_TYPE_ANY_OF_ADDRESSES
                 }.build()
                 storeCode.sender = config.contractAdminAccount.bech32Address
                 storeCode.wasmByteCode = wasmBytes.toByteString()
@@ -243,7 +243,7 @@ object SetupACTool {
                 BaseReqSigner(config.contractAdminAccount.toAccountSigner()),
                 BaseReqSigner(config.assetNameAdminAccount.toAccountSigner())
             ),
-            mode = BroadcastMode.BROADCAST_MODE_BLOCK,
+            mode = BroadcastMode.BROADCAST_MODE_SYNC,
             gasAdjustment = 1.2
         ).also { response ->
             if (response.isErrorAc()) {

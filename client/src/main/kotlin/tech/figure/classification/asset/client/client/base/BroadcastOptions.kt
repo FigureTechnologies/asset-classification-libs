@@ -11,7 +11,7 @@ import cosmos.tx.v1beta1.ServiceOuterClass.BroadcastMode
  * @param baseAccount The account to use for signing the transaction.  Should match the signer provided in the request.  If none is provided, this value will automatically be looked up with the [AuthClient][io.provenance.client.grpc.PbClient.authClient].
  */
 data class BroadcastOptions(
-    val broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_BLOCK,
+    val broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_SYNC,
     val sequenceOffset: Int = 0,
     val baseAccount: BaseAccount? = null,
     val timeoutHeight: Long? = null

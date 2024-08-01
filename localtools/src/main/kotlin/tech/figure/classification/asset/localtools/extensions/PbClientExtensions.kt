@@ -19,7 +19,7 @@ import tech.figure.classification.asset.util.wallet.ProvenanceAccountDetail
 fun PbClient.broadcastTxAc(
     messages: List<Message>,
     account: ProvenanceAccountDetail,
-    broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_BLOCK,
+    broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_SYNC,
     gasAdjustment: Double = 1.2,
     feeGranter: String? = null,
     printRawLogOnFailure: Boolean = true
@@ -40,7 +40,7 @@ fun PbClient.broadcastTxAc(
 fun PbClient.broadcastTxAc(
     messages: List<com.google.protobuf.Any>,
     account: ProvenanceAccountDetail,
-    broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_BLOCK,
+    broadcastMode: BroadcastMode = BroadcastMode.BROADCAST_MODE_SYNC,
     gasAdjustment: Double = 1.2,
     feeGranter: String? = null,
     printRawLogOnFailure: Boolean = true

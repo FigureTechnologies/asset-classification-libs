@@ -37,7 +37,7 @@ object FeignUtil {
         .logLevel(Logger.Level.BASIC)
         .logger(FeignAppLogger())
         .retryer(Retryer.Default(500, RETRY_MS, 10))
-        .decode404()
+        .dismiss404()
         .encoder(JacksonEncoder(mapper))
         .decoder(JacksonDecoder(mapper))
         .errorDecoder(FeignErrorDecoder())
