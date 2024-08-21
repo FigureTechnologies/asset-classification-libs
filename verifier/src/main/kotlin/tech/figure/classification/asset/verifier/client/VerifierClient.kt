@@ -13,7 +13,6 @@ import tech.figure.classification.asset.client.client.base.BroadcastOptions
 import tech.figure.classification.asset.client.domain.execute.VerifyAssetExecute
 import tech.figure.classification.asset.client.domain.model.AssetIdentifier
 import tech.figure.classification.asset.util.extensions.alsoIfAc
-import tech.figure.classification.asset.util.extensions.toProvenanceTxEventsAc
 import tech.figure.classification.asset.util.wallet.AccountSigner
 import tech.figure.classification.asset.verifier.config.RecoveryStatus
 import tech.figure.classification.asset.verifier.config.StreamRestartMode
@@ -57,7 +56,7 @@ class VerifierClient(private val config: VerifierClientConfig) {
         val tx = config.acClient.pbClient.cosmosService.getTx(txHash)
         val events = AssetClassificationEvent.fromVerifierTxEvents(
             sourceTx = tx,
-            txEvents = tx.txResponse.toProvenanceTxEventsAc()
+            txEvents = tx.txResponse.eventsList
         )
         config.coroutineScope.launch {
             events.forEach { acEvent -> handleEvent(acEvent) }

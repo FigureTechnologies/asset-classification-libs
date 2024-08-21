@@ -2,10 +2,10 @@ package tech.figure.classification.asset.verifier.provenance
 
 import cosmos.tx.v1beta1.ServiceOuterClass.GetTxResponse
 import tech.figure.classification.asset.client.domain.model.AssetOnboardingStatus
-import tech.figure.classification.asset.util.models.ProvenanceTxEvents
 import tech.figure.eventstream.decodeBase64
 import tech.figure.eventstream.stream.models.Event
 import tech.figure.eventstream.stream.models.TxEvent
+import tendermint.abci.Types
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -42,9 +42,9 @@ class AssetClassificationEvent(
 
         fun fromVerifierTxEvents(
             sourceTx: GetTxResponse,
-            txEvents: List<ProvenanceTxEvents>
+            txEvents: List<Types.Event>
         ): List<AssetClassificationEvent> =
-            txEvents.flatMap { it.events }
+            txEvents
                 .filter { it.type == WASM_EVENT_TYPE }
                 .map { event ->
                     AssetClassificationEvent(
@@ -57,10 +57,10 @@ class AssetClassificationEvent(
                             },
                             txHash = sourceTx.txResponse.txhash,
                             eventType = event.type,
-                            attributes = event.attributes.map { attribute ->
+                            attributes = event.attributesList.map { attribute ->
                                 Event(
-                                    key = attribute.key,
-                                    value = attribute.value
+                                    key = attribute.key.toStringUtf8(),
+                                    value = attribute.value.toStringUtf8()
                                 )
                             },
                             fee = sourceTx.tx.authInfo.fee.amountList.firstOrNull()?.amount?.toBigIntegerOrNull(),
