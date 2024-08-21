@@ -14,14 +14,14 @@ class AssetClassificationEventTest {
                 addEventsBuilder().apply {
                     type = WASM_EVENT_TYPE
                     addAttributesBuilder().apply {
-                        key = "X2NvbnRyYWN0X2FkZHJlc3M=".toByteString()
-                        value = "cGIxbWZ1aDQ5bjIyOW5xbWczeW1tZmg3NGRhcngwNGdqeXZtdzh1OWMK".toByteString()
+                        key = "_contract_address".toByteString()
+                        value = "testaddress".toByteString()
                         index = false
                     }
                     // "asset_event_type" : "onboard_asset"
                     addAttributesBuilder().apply {
-                        key = "YXNzZXRfZXZlbnRfdHlwZQ==".toByteString()
-                        value = "b25ib2FyZF9hc3NldA==".toByteString()
+                        key = "asset_event_type".toByteString()
+                        value = "onboard_asset".toByteString()
                         index = false
                     }
                 }
@@ -29,8 +29,8 @@ class AssetClassificationEventTest {
                 addEventsBuilder().apply {
                     type = "execute"
                     addAttributesBuilder().apply {
-                        key = "X2NvbnRyYWN0X2FkZHJlc3M=".toByteString()
-                        value = "cGIxbWZ1aDQ5bjIyOW5xbWczeW1tZmg3NGRhcngwNGdqeXZtdzh1OWMK".toByteString()
+                        key = "_contract_address".toByteString()
+                        value = "testaddress".toByteString()
                     }
                 }
             }
